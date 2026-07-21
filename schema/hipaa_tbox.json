@@ -1,0 +1,34 @@
+{
+  "@context": {
+    "hipaa": "http://compgraphrag.org/schema/hipaa#",
+    "owl": "http://www.w3.org/2002/07/owl#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#"
+  },
+  "ontology": {
+    "title": "CompGraphRAG HIPAA Compliance TBox",
+    "version": "1.0.0",
+    "classes": [
+      { "id": "hipaa:Regulation", "label": "Regulation" },
+      { "id": "hipaa:Rule", "label": "Regulatory Rule" },
+      { "id": "hipaa:Obligation", "label": "Obligation" },
+      { "id": "hipaa:Role", "label": "Role", "subclasses": ["CoveredEntity", "BusinessAssociate", "WorkforceMember"] },
+      { "id": "hipaa:DataType", "label": "Data Type / PHI" },
+      { "id": "hipaa:Exception", "label": "Exception", "subclasses": ["TPOException", "MinimumNecessaryException"] },
+      { "id": "hipaa:Incident", "label": "Compliance Incident" }
+    ],
+    "relations": [
+      { "id": "hipaa:governs", "domain": "Regulation", "range": "Rule" },
+      { "id": "hipaa:imposesObligation", "domain": "Rule", "range": "Obligation" },
+      { "id": "hipaa:appliesToRole", "domain": "Obligation", "range": "Role" },
+      { "id": "hipaa:accessesData", "domain": "Role", "range": "DataType" },
+      { "id": "hipaa:subjectToException", "domain": "Obligation", "range": "Exception" },
+      { "id": "hipaa:supersededBy", "domain": "Rule", "range": "Rule" }
+    ],
+    "temporal_attributes": [
+      "effective_date",
+      "regulation_version",
+      "superseded_by"
+    ]
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "rules": [
+    {
+      "id": "RULE-HIPAA-MIN-NECESSARY",
+      "cfr": "45 CFR 164.502(b)",
+      "name": "Minimum Necessary Standard",
+      "conditions": [
+        "disclosure_type != TPO_Treatment",
+        "minimum_necessary_applied == False"
+      ],
+      "action": "FLAG_NON_COMPLIANT",
+      "message": "Disclosure exceeds minimum necessary requirement and does not fall under direct clinical treatment exception."
+    },
+    {
+      "id": "RULE-HIPAA-BAA-REQUIRED",
+      "cfr": "45 CFR 164.502(e)",
+      "name": "Business Associate Agreement Requirement",
+      "conditions": [
+        "recipient_type == BusinessAssociate",
+        "baa_executed == False"
+      ],
+      "action": "FLAG_NON_COMPLIANT",
+      "message": "Disclosure of PHI to a Business Associate without an executed BAA is a regulatory violation."
+    },
+    {
+      "id": "RULE-HIPAA-TPO-EXCEPTION",
+      "cfr": "45 CFR 164.506",
+      "name": "Treatment, Payment, Operations Carve-out",
+      "conditions": [
+        "purpose in ['Treatment', 'Payment', 'Healthcare Operations']",
+        "patient_authorization_present == False"
+      ],
+      "action": "FLAG_COMPLIANT_EXCEPTION",
+      "message": "Disclosure is permitted under §164.506 TPO exception without explicit authorization."
+    }
+  ]
+}

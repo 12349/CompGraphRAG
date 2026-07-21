@@ -1,0 +1,38 @@
+@prefix : <http://compgraphrag.org/schema/hipaa#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://compgraphrag.org/schema/hipaa> a owl:Ontology ;
+    rdfs:comment "CompGraphRAG HIPAA Compliance TBox Ontology with temporal versioning and auditability fields." ;
+    owl:versionInfo "1.0.0" .
+
+### Classes
+:Regulation a owl:Class ; rdfs:label "Regulation" .
+:Rule a owl:Class ; rdfs:label "Regulatory Rule" .
+:Obligation a owl:Class ; rdfs:label "Obligation" .
+:Role a owl:Class ; rdfs:label "Role" .
+:CoveredEntity rdfs:subClassOf :Role ; rdfs:label "Covered Entity (CE)" .
+:BusinessAssociate rdfs:subClassOf :Role ; rdfs:label "Business Associate (BA)" .
+:WorkforceMember rdfs:subClassOf :Role ; rdfs:label "Workforce Member" .
+:DataType a owl:Class ; rdfs:label "Data Type / PHI Category" .
+:Exception a owl:Class ; rdfs:label "Regulatory Exception" .
+:TPOException rdfs:subClassOf :Exception ; rdfs:label "Treatment, Payment, Operations Exception" .
+:MinimumNecessaryException rdfs:subClassOf :Exception ; rdfs:label "Minimum Necessary Exception" .
+:Incident a owl:Class ; rdfs:label "Compliance / Disclosure Incident" .
+
+### Object Properties
+:governs a owl:ObjectProperty ; d:domain :Regulation ; d:range :Rule .
+:imposesObligation a owl:ObjectProperty ; d:domain :Rule ; d:range :Obligation .
+:appliesToRole a owl:ObjectProperty ; d:domain :Obligation ; d:range :Role .
+:accessesData a owl:ObjectProperty ; d:domain :Role ; d:range :DataType .
+:subjectToException a owl:ObjectProperty ; d:domain :Obligation ; d:range :Exception .
+:supersededBy a owl:ObjectProperty ; d:domain :Rule ; d:range :Rule .
+:involvesIncident a owl:ObjectProperty ; d:domain :Incident ; d:range :DataType .
+
+### Data Properties
+:effectiveDate a owl:DatatypeProperty ; d:domain :Rule ; d:range xsd:date .
+:regulationVersion a owl:DatatypeProperty ; d:domain :Rule ; d:range xsd:string .
+:cfrCitation a owl:DatatypeProperty ; d:domain :Rule ; d:range xsd:string .
+:minimumNecessaryRequired a owl:DatatypeProperty ; d:domain :Obligation ; d:range xsd:boolean .

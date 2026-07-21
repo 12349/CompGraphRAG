@@ -1,0 +1,67 @@
+{
+  "dataset_name": "CompGraphRAG HIPAA Benchmark Set",
+  "version": "1.0.0",
+  "total_queries": 6,
+  "queries": [
+    {
+      "id": "Q1-HIPAA-1HOP",
+      "question": "Does disclosure of PHI for patient treatment require patient authorization under 45 CFR 164.506?",
+      "hop_count": 1,
+      "gold_determination": "COMPLIANT",
+      "gold_evidence_subgraph": [
+        {"source": "PHI_Disclosure", "relation": "subjectToException", "target": "TPO_Exception", "confidence": 1.0}
+      ]
+    },
+    {
+      "id": "Q2-HIPAA-2HOP",
+      "question": "Can a Covered Entity disclose PHI to a cloud vendor without an executed Business Associate Agreement?",
+      "hop_count": 2,
+      "gold_determination": "NON-COMPLIANT",
+      "gold_evidence_subgraph": [
+        {"source": "CoveredEntity_A", "relation": "disclosesPHITo", "target": "CloudVendor_B", "confidence": 1.0},
+        {"source": "CloudVendor_B", "relation": "lacksAgreement", "target": "BAA_Document", "confidence": 1.0}
+      ]
+    },
+    {
+      "id": "Q3-HIPAA-3HOP",
+      "question": "If a research project accesses de-identified data via a workforce member under an IRB waiver, does it violate the minimum necessary standard?",
+      "hop_count": 3,
+      "gold_determination": "COMPLIANT",
+      "gold_evidence_subgraph": [
+        {"source": "ResearchProject_X", "relation": "usesData", "target": "DeIdentifiedPHI", "confidence": 0.95},
+        {"source": "DeIdentifiedPHI", "relation": "governedBy", "target": "IRB_Waiver", "confidence": 1.0},
+        {"source": "IRB_Waiver", "relation": "satisfiesStandard", "target": "MinimumNecessaryStandard", "confidence": 1.0}
+      ]
+    },
+    {
+      "id": "Q4-HIPAA-1HOP",
+      "question": "Are psychotherapy notes subject to the general TPO disclosure exception?",
+      "hop_count": 1,
+      "gold_determination": "NON-COMPLIANT",
+      "gold_evidence_subgraph": [
+        {"source": "PsychotherapyNotes", "relation": "excludedFrom", "target": "TPO_Exception", "confidence": 1.0}
+      ]
+    },
+    {
+      "id": "Q5-HIPAA-2HOP",
+      "question": "Is an emergency medical technician allowed to share PHI with a receiving hospital emergency department?",
+      "hop_count": 2,
+      "gold_determination": "COMPLIANT",
+      "gold_evidence_subgraph": [
+        {"source": "EMT_Provider", "relation": "transmitsPHI", "target": "Hospital_ED", "confidence": 1.0},
+        {"source": "Hospital_ED", "relation": "qualifiesAs", "target": "TreatmentActivity", "confidence": 1.0}
+      ]
+    },
+    {
+      "id": "Q6-HIPAA-3HOP",
+      "question": "Does transmitting unencrypted PHI over public Wi-Fi by a subcontractor without technical safeguards breach the Security Rule?",
+      "hop_count": 3,
+      "gold_determination": "NON-COMPLIANT",
+      "gold_evidence_subgraph": [
+        {"source": "Subcontractor_C", "relation": "transmitsData", "target": "UnencryptedPHI", "confidence": 1.0},
+        {"source": "UnencryptedPHI", "relation": "traversesNetwork", "target": "PublicWiFi", "confidence": 1.0},
+        {"source": "PublicWiFi", "relation": "violatesSafeguard", "target": "TechnicalSafeguardsRule", "confidence": 1.0}
+      ]
+    }
+  ]
+}
