@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CompGraphRAG — Tactical Compliance Control Room</title>
+  <meta name="description" content="Palantir Foundry-style tactical control panel and audit terminal for CompGraphRAG.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Tactical Top Status Bar -->
+  <header class="tactical-header">
+    <div class="system-id">
+      <span class="system-tag">SYS:ACTIVE</span>
+      <div class="system-title">CompGraphRAG // AUDIT.CONTROL.SUITE</div>
+    </div>
+
+    <div class="telemetry-bar">
+      <div class="telemetry-item">ENGINE: <span>HYBRID_PPR</span></div>
+      <div class="telemetry-item">TBOX: <span>HIPAA_45CFR</span></div>
+      <div class="telemetry-item">CONFORMAL: <span>COVERAGE_90%</span></div>
+      <div class="telemetry-item">STATUS: <span style="color: var(--phosphor-green);">ONLINE</span></div>
+    </div>
+
+    <nav class="control-nav">
+      <button class="nav-tab-btn active" onclick="switchTab('tab-sandbox')">[F1] AUDIT.WORKBENCH</button>
+      <button class="nav-tab-btn" onclick="switchTab('tab-analytics')">[F2] BENCHMARK.TELEMETRY</button>
+      <button class="nav-tab-btn" onclick="switchTab('tab-ontology')">[F3] TBOX.MATRIX</button>
+      <button class="nav-tab-btn" onclick="switchTab('tab-threat')">[F4] THREAT.BOUNDS</button>
+    </nav>
+  </header>
+
+  <!-- Main Viewport -->
+  <main class="tactical-viewport">
+
+    <!-- TAB 1: AUDIT WORKBENCH -->
+    <div id="tab-sandbox" class="tab-pane active">
+      <div class="grid-control-room">
+        
+        <!-- Column 1: Operator Matrix & Pipeline Control -->
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+          <div class="tactical-card">
+            <div class="corner-mark corner-tl"></div><div class="corner-mark corner-tr"></div>
+            <div class="corner-mark corner-bl"></div><div class="corner-mark corner-br"></div>
+            
+            <div class="tactical-card-header">
+              <div class="tactical-card-title">OPERATOR.SCENARIO_INPUT</div>
+              <span class="system-tag" style="background: var(--border-tactical); color: var(--text-muted);">PRESET</span>
+            </div>
+
+            <div class="control-group">
+              <label class="control-label">> SELECT_HIPAA_QUERY_TARGET</label>
+              <select id="presetSelect" class="tactical-select" onchange="loadPresetQuery()">
+                <option value="Q2-HIPAA-2HOP">Q2: 2-HOP // CLOUD_VENDOR_BAA_DISCLOSURE</option>
+                <option value="Q3-HIPAA-3HOP">Q3: 3-HOP // RESEARCH_IRB_WAIVER_MIN_NECESSARY</option>
+                <option value="Q1-HIPAA-1HOP">Q1: 1-HOP // PATIENT_TPO_TREATMENT_EXCEPTION</option>
+                <option value="Q6-HIPAA-3HOP">Q6: 3-HOP // SUBCONTRACTOR_TECHNICAL_SAFEGUARDS</option>
+              </select>
+            </div>
+
+            <div class="control-group">
+              <label class="control-label">> QUERY_TEXT_BUFFER</label>
+              <textarea id="queryText" class="tactical-textarea" rows="3" readonly></textarea>
+            </div>
+
+            <button class="btn-tactical-execute" onclick="runAuditPipeline()">
+              EXECUTE_PIPELINE [ENTERING_AUDIT_MODE]
+            </button>
+          </div>
+
+          <!-- Pipeline Telemetry -->
+          <div class="tactical-card">
+            <div class="tactical-card-title" style="margin-bottom: 0.5rem;">PIPELINE.EXECUTION_STATE</div>
+            
+            <div class="pipeline-telemetry">
+              <div id="step-1" class="telemetry-node active">
+                <div>[01] HYBRID_SCORER</div>
+                <div class="telemetry-status">α·Dense + β·PathScore</div>
+              </div>
+              <div id="step-2" class="telemetry-node">
+                <div>[02] NEURO_SYMBOLIC_RULE_CHECK</div>
+                <div class="telemetry-status">45_CFR_EXCEPTION_GATE</div>
+              </div>
+              <div id="step-3" class="telemetry-node">
+                <div>[03] CONFORMAL_UQ</div>
+                <div class="telemetry-status">CALIBRATED_COVERAGE_C(q)</div>
+              </div>
+              <div id="step-4" class="telemetry-node">
+                <div>[04] AUDIT_CERTIFICATE</div>
+                <div class="telemetry-status">SUBGRAPH_PI_TRAVERSAL</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Column 2: Tactical Subgraph Viewport -->
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+          <div class="tactical-card">
+            <div class="corner-mark corner-tl"></div><div class="corner-mark corner-tr"></div>
+            <div class="corner-mark corner-bl"></div><div class="corner-mark corner-br"></div>
+
+            <div class="tactical-card-header">
+              <div class="tactical-card-title">TRAVERSED_SUBGRAPH_VIEWPORT [π]</div>
+              <span id="hopCountBadge" class="system-tag" style="background: rgba(0,255,106,0.15); color: var(--phosphor-green);">2-HOP</span>
+            </div>
+
+            <div class="viewport-container">
+              <canvas id="subgraphCanvas"></canvas>
+              <div class="viewport-grid-overlay">GRID.REF: 45.164 / NODE.COUNT: 3 / EDGE.WEIGHT: DECAY_λ_0.85</div>
+              
+              <div style="position: absolute; top: 0.75rem; right: 0.75rem; display: flex; gap: 0.4rem;">
+                <button class="control-chip" onclick="resetCanvasView()">RESET.VIEW</button>
+                <button class="control-chip" onclick="toggleEdgeLabels()">TOGGLE.LABELS</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Column 3: Telemetry Stream & Machine Payload -->
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+          <div class="tactical-card">
+            <div class="corner-mark corner-tl"></div><div class="corner-mark corner-tr"></div>
+            <div class="corner-mark corner-bl"></div><div class="corner-mark corner-br"></div>
+
+            <div class="tactical-card-header">
+              <div class="tactical-card-title">DETERMINATION.OUTPUT</div>
+              <div id="determinationBadge" class="status-indicator status-warn">
+                STATE: READY
+              </div>
+            </div>
+
+            <div class="control-group">
+              <label class="control-label">> NATURAL_LANGUAGE_PATH_WALK</label>
+              <div id="nlWalkText" style="font-size: 0.78rem; color: var(--text-main); line-height: 1.5; background: var(--bg-input); padding: 0.6rem; border: 1px solid var(--border-subtle);">
+                Awaiting scenario execution stream...
+              </div>
+            </div>
+
+            <div class="control-group">
+              <label class="control-label">> CONFORMAL_UQ_READOUT</label>
+              <div id="conformalSetText" style="font-size: 0.75rem; color: var(--text-muted); background: var(--bg-input); padding: 0.6rem; border: 1px solid var(--border-subtle);">
+                Target Coverage: 90% (α = 0.10)
+              </div>
+            </div>
+
+            <div class="tactical-card-header" style="margin-top: 0.5rem; border: none; padding-bottom: 0;">
+              <label class="control-label" style="margin: 0;">> MACHINE_JSON_CERTIFICATE</label>
+              <button class="control-chip" onclick="exportAuditJson()">EXPORT.JSON</button>
+            </div>
+            <pre id="auditJsonPayload" class="terminal-stream">{ "status": "IDLE", "system": "COMPGRAPHRAG_V1" }</pre>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- TAB 2: BENCHMARK TELEMETRY -->
+    <div id="tab-analytics" class="tab-pane">
+      <div style="display: flex; flex-direction: column; gap: 1rem;">
+        
+        <div class="readout-grid">
+          <div class="readout-box">
+            <div class="readout-val">100.0%</div>
+            <div class="readout-lbl">CompGraphRAG F1 Accuracy</div>
+          </div>
+          <div class="readout-box">
+            <div class="readout-val">+50.0%</div>
+            <div class="readout-lbl">Hop-Scaling Marginal Benefit</div>
+          </div>
+          <div class="readout-box">
+            <div class="readout-val">1.0000</div>
+            <div class="readout-lbl">Faithfulness F1 Score</div>
+          </div>
+          <div class="readout-box">
+            <div class="readout-val">0.0800</div>
+            <div class="readout-lbl">Expected Calibration Error</div>
+          </div>
+        </div>
+
+        <div class="grid-control-room" style="grid-template-columns: 1fr 1fr;">
+          <div class="tactical-card">
+            <div class="tactical-card-title">H4/H8 HOP-SCALING BENCHMARK REGRESSION</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted); margin: 0.5rem 0 1rem 0;">Multi-hop query complexity vs baseline vector RAG degradation.</div>
+            <canvas id="hopScalingCanvas" height="220"></canvas>
+          </div>
+
+          <div class="tactical-card">
+            <div class="tactical-card-title">ECE CALIBRATION RELIABILITY DIAGRAM</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted); margin: 0.5rem 0 1rem 0;">Conformal prediction calibrated coverage vs raw logit softmax.</div>
+            <canvas id="eceCanvas" height="220"></canvas>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- TAB 3: TBOX MATRIX -->
+    <div id="tab-ontology" class="tab-pane">
+      <div class="tactical-card">
+        <div class="tactical-card-header">
+          <div class="tactical-card-title">HIPAA TBOX ONTOLOGY FORMALIZATION MATRIX</div>
+          <span class="system-tag">OWL / JSON-LD</span>
+        </div>
+
+        <div class="grid-control-room" style="grid-template-columns: 1fr 1fr;">
+          <div>
+            <label class="control-label">> TBOX_CLASS_HIERARCHY</label>
+            <pre class="terminal-stream" style="height: 380px;">
+:Regulation ──► :Rule (45 CFR 164.502, 164.506)
+:Rule       ──► :Obligation (Minimum Necessary)
+:Obligation ──► :Role (CoveredEntity, BusinessAssociate)
+:Role       ──► :DataType (PHI, DeIdentifiedPHI)
+:Obligation ──► :Exception (TPOException, MinimumNecessaryException)
+:Incident   ──► :DataType
+            </pre>
+          </div>
+
+          <div>
+            <label class="control-label">> TEMPORAL_DATATYPE_ATTRIBUTES</label>
+            <pre class="terminal-stream" style="height: 380px;">
+:effectiveDate (xsd:date)
+:regulationVersion (xsd:string)
+:cfrCitation (xsd:string)
+:minimumNecessaryRequired (xsd:boolean)
+:supersededBy (owl:ObjectProperty)
+            </pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: THREAT BOUNDS -->
+    <div id="tab-threat" class="tab-pane">
+      <div class="tactical-card">
+        <div class="tactical-card-header">
+          <div class="tactical-card-title">SECURITY BOUNDS & RETRIEVAL-LEAKAGE MODEL</div>
+        </div>
+
+        <div style="font-size: 0.8rem; line-height: 1.8; color: var(--text-main); font-family: var(--font-mono);">
+          <p style="margin-bottom: 0.75rem;">[01] INGESTION_DEIDENTIFICATION: Enterprise policy documents pass through a local PII/PHI de-identification pipeline. Direct identifiers convert to synthetic tokens (`[COVERED_ENTITY_A]`, `[WORKFORCE_MEMBER_1]`).</p>
+          <p style="margin-bottom: 0.75rem;">[02] RETRIEVAL_LEAKAGE_BOUNDS: Graph nodes represent regulatory rules, obligations, and policy clauses—never individual patient identity records—bounding membership inference risk.</p>
+          <p style="margin-bottom: 0.75rem; color: var(--phosphor-amber);">[03] LIABILITY_EXCLUSION: System outputs MUST NOT serve as sole legal basis for regulatory liability determination without human reviewer verification.</p>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
