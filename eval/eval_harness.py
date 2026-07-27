@@ -4,9 +4,14 @@ Executes baseline benchmark runs, tests hop-scaling regression (H4/H8), and calc
 """
 
 import json
+import os
+import sys
 import networkx as nx
 import numpy as np
 from typing import List, Dict, Any
+
+# Ensure project root is in sys.path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from retrieval.hybrid_scorer import HybridScorer
 from reasoning.rule_engine import ComplianceRuleEngine
@@ -83,3 +88,11 @@ class CompGraphRAGEvaluator:
             "mean_explanation_faithfulness_f1": float(np.mean(faithfulness_scores)),
             "expected_calibration_error_ece": ece_score
         }
+
+if __name__ == "__main__":
+    import os
+    dataset_file = os.path.join(os.path.dirname(__file__), "..", "datasets", "hipaa_gold_dataset.json")
+    evaluator = CompGraphRAGEvaluator(dataset_file)
+    results = evaluator.run_evaluation()
+    print(json.dumps(results, indent=2))
+
