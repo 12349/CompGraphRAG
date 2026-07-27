@@ -1,27 +1,25 @@
-"""
-Unit tests for ComplianceRuleEngine component.
-"""
-
 import unittest
 from reasoning.rule_engine import ComplianceRuleEngine
 
 class TestComplianceRuleEngine(unittest.TestCase):
-    def test_rule_engine_baa_lacking(self):
-        engine = ComplianceRuleEngine()
+    def setUp(self):
+        self.engine = ComplianceRuleEngine()
+
+    def test_baa_lacking_rule(self):
         path = [
             {"source": "CoveredEntity_A", "relation": "disclosesPHITo", "target": "CloudVendor_B"},
             {"source": "CloudVendor_B", "relation": "lacksAgreement", "target": "BAA_Document"}
         ]
-        res = engine.evaluate_subgraph(path)
+        res = self.engine.evaluate_subgraph(path)
         self.assertEqual(res["suggested_determination"], "NON-COMPLIANT")
-        self.assertGreaterEqual(len(res["triggered_rules"]), 1)
+        self.assertEqual(len(res["triggered_rules"]), 1)
+        self.assertEqual(res["triggered_rules"][0]["rule_id"], "RULE-HIPAA-BAA-REQUIRED")
 
-    def test_rule_engine_tpo_exception(self):
-        engine = ComplianceRuleEngine()
+    def test_tpo_exception_rule(self):
         path = [
             {"source": "PHI_Disclosure", "relation": "subjectToException", "target": "TPO_Exception"}
         ]
-        res = engine.evaluate_subgraph(path)
+        res = self.engine.evaluate_subgraph(path)
         self.assertEqual(res["suggested_determination"], "COMPLIANT")
 
 if __name__ == "__main__":

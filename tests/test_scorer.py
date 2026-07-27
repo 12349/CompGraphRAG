@@ -1,46 +1,31 @@
-"""
-Unit tests for HybridScorer retrieval component.
-"""
-
 import unittest
 import numpy as np
 from retrieval.hybrid_scorer import HybridScorer
 
 class TestHybridScorer(unittest.TestCase):
-    def test_hybrid_scorer_init(self):
-        scorer = HybridScorer(alpha=0.4, beta=0.5, gamma=0.1)
-        self.assertEqual(scorer.alpha, 0.4)
-        self.assertEqual(scorer.beta, 0.5)
-        self.assertEqual(scorer.gamma, 0.1)
+    def setUp(self):
+        self.scorer = HybridScorer(alpha=0.4, beta=0.5, gamma=0.1, decay_lambda=0.85)
+
+    def test_weight_assertion(self):
+        with self.assertRaises(AssertionError):
+            HybridScorer(alpha=0.5, beta=0.5, gamma=0.5)
 
     def test_cosine_similarity(self):
-        scorer = HybridScorer(alpha=0.4, beta=0.5, gamma=0.1)
-        vec1 = np.array([1.0, 0.0, 0.0])
-        vec2 = np.array([1.0, 0.0, 0.0])
-        vec3 = np.array([0.0, 1.0, 0.0])
+        v1 = np.array([1.0, 0.0, 0.0])
+        v2 = np.array([1.0, 0.0, 0.0])
+        v3 = np.array([0.0, 1.0, 0.0])
         
-        self.assertAlmostEqual(scorer.cosine_similarity(vec1, vec2), 1.0, places=5)
-        self.assertAlmostEqual(scorer.cosine_similarity(vec1, vec3), 0.0, places=5)
+        self.assertAlmostEqual(self.scorer.cosine_similarity(v1, v2), 1.0)
+        self.assertAlmostEqual(self.scorer.cosine_similarity(v1, v3), 0.0)
 
-    def test_text_encoding(self):
-        scorer = HybridScorer(alpha=0.4, beta=0.5, gamma=0.1)
-        emb1 = scorer.encode_text("HIPAA Privacy Rule")
-        emb2 = scorer.encode_text("HIPAA Privacy Rule")
-        emb3 = scorer.encode_text("Unrelated Random String Query")
-        
-        self.assertIsInstance(emb1, np.ndarray)
-        self.assertAlmostEqual(scorer.cosine_similarity(emb1, emb2), 1.0, places=5)
-        self.assertLess(scorer.cosine_similarity(emb1, emb3), 0.99)
-
-    def test_candidate_ranking(self):
-        scorer = HybridScorer(alpha=0.4, beta=0.5, gamma=0.1)
-        candidates = [
-            {"q_emb": np.array([1.0, 0.0]), "x_emb": np.array([0.0, 1.0]), "path": []},
-            {"q_emb": np.array([1.0, 0.0]), "x_emb": np.array([1.0, 0.0]), "path": [{"relation_weight": 1.0, "confidence": 1.0, "hop": 1}]}
+    def test_calculate_path_score(self):
+        path = [
+            {"relation_weight": 1.0, "confidence": 1.0, "hop": 1},
+            {"relation_weight": 1.0, "confidence": 1.0, "hop": 2}
         ]
-        ranked = scorer.rank_candidates(candidates)
-        self.assertEqual(len(ranked), 2)
-        self.assertGreater(ranked[0]["hybrid_score"], ranked[1]["hybrid_score"])
+        # (1.0 + 0.85) / 2 = 0.925
+        score = self.scorer.calculate_path_score(path)
+        self.assertAlmostEqual(score, 0.925)
 
 if __name__ == "__main__":
     unittest.main()

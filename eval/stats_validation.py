@@ -59,21 +59,21 @@ class StatisticalValidator:
         Two One-Sided Tests (TOST) for equivalence (used for deployment constraint degradation testing).
         """
         diffs = np.array(scores_a) - np.array(scores_b)
-        mean_d = np.mean(diffs)
-        std_d = np.std(diffs, ddof=1)
+        mean_d = float(np.mean(diffs))
+        std_d = float(np.std(diffs, ddof=1)) if len(diffs) > 1 else 0.0
         n = len(diffs)
-        se = std_d / np.sqrt(n)
+        se = std_d / np.sqrt(n) if n > 0 else 0.0
 
-        # Lower boundary test: H01: mean_d <= -margin
-        t1 = (mean_d - (-margin)) / se
-        p1 = 1 - stats.t.cdf(t1, df=n-1)
-
-        # Upper boundary test: H02: mean_d >= margin
-        t2 = (mean_d - margin) / se
-        p2 = stats.t.cdf(t2, df=n-1)
-
-        tost_p = max(p1, p2)
-        is_equivalent = tost_p < 0.05
+        if se == 0.0:
+            is_equivalent = abs(mean_d) < margin
+            tost_p = 0.0 if is_equivalent else 1.0
+        else:
+            t1 = (mean_d - (-margin)) / se
+            p1 = 1 - stats.t.cdf(t1, df=n-1)
+            t2 = (mean_d - margin) / se
+            p2 = stats.t.cdf(t2, df=n-1)
+            tost_p = float(max(p1, p2))
+            is_equivalent = tost_p < 0.05
 
         return {
             "margin": margin,

@@ -1,25 +1,16 @@
-# CompGraphRAG Baseline Comparison Suite
+# CompGraphRAG Baseline Models Suite
 
-This directory contains execution wrappers and instructions for comparing CompGraphRAG against original external baseline frameworks:
+This directory contains baseline wrappers and runners to benchmark CompGraphRAG against standard paradigms:
 
-1. **Vector-RAG:** Dense semantic retrieval (sentence-transformers / OpenAI embeddings).
-2. **Naive RAG:** BM25 keyword + dense hybrid vector search.
-3. **GraphRAG:** Microsoft GraphRAG (global/local community summarization).
-4. **LightRAG:** Dual-level graph retrieval.
-5. **HippoRAG:** Personalized PageRank over Open IE subgraphs.
+1. **Vector-RAG**: Dense bi-encoder passage retrieval only (Lewis et al., 2020).
+2. **Naive-RAG**: Unranked top-k text chunk context window.
+3. **GraphRAG**: Hierarchical community detection and summarization (Edge et al., Microsoft 2024).
+4. **LightRAG**: Dual-level (low-level entity + high-level theme) graph indexing (Guo et al., 2024).
+5. **HippoRAG**: Neurobiologically inspired PPR memory retrieval (Gutiérrez et al., NeurIPS 2024).
 
 ---
 
-## Submodule Pinning & Reproduction Steps
-
-To execute external baseline comparisons against official source implementations:
-
+## Running Baseline Benchmarks
 ```bash
-# Pin official baseline repositories as submodules
-git submodule add https://github.com/microsoft/graphrag.git baselines/external/graphrag
-git submodule add https://github.com/HKUDS/LightRAG.git baselines/external/lightrag
-git submodule add https://github.com/osu-nlp/HippoRAG.git baselines/external/hipporag
-
-# Execute comparative baseline evaluation suite
-python3 baselines/runner.py
+python3 run_demo.py --stats --baselines
 ```

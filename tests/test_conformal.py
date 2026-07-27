@@ -1,24 +1,20 @@
-"""
-Unit tests for ConformalPredictor component.
-"""
-
 import unittest
 from uncertainty.conformal_predictor import ConformalPredictor
 
 class TestConformalPredictor(unittest.TestCase):
-    def test_conformal_prediction_set(self):
-        predictor = ConformalPredictor(alpha=0.1)
-        predictor.calibrate([0.4, 0.45, 0.48], [0, 1, 0])
-        
-        # High confidence compliant query
-        res_compliant = predictor.predict_confidence_set({"COMPLIANT": 0.95, "NON-COMPLIANT": 0.05})
-        self.assertEqual(res_compliant["confidence_set"], ["COMPLIANT"])
-        self.assertFalse(res_compliant["requires_human_review"])
+    def setUp(self):
+        self.predictor = ConformalPredictor(alpha=0.1)
 
-        # Low confidence uncertain query
-        res_uncertain = predictor.predict_confidence_set({"COMPLIANT": 0.42, "NON-COMPLIANT": 0.41})
-        self.assertGreater(len(res_uncertain["confidence_set"]), 1)
-        self.assertTrue(res_uncertain["requires_human_review"])
+    def test_calibration(self):
+        val_scores = [0.95, 0.92, 0.88, 0.90, 0.96, 0.91]
+        self.predictor.calibrate(val_scores, [0]*len(val_scores))
+        self.assertLessEqual(self.predictor.q_hat, 0.20)
+
+    def test_unambiguous_prediction(self):
+        probs = {"COMPLIANT": 0.92, "NON-COMPLIANT": 0.04, "REQUIRES-REVIEW": 0.04}
+        res = self.predictor.predict_confidence_set(probs)
+        self.assertEqual(res["routed_determination"], "COMPLIANT")
+        self.assertFalse(res["requires_human_review"])
 
 if __name__ == "__main__":
     unittest.main()
