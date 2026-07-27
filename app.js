@@ -100,6 +100,13 @@ let currentScenarioKey = "Q2-HIPAA-2HOP";
 let showEdgeLabels = true;
 let currentAuditResult = null;
 
+// Guide Modal Toggle
+function toggleGuideModal(show) {
+  const modal = document.getElementById('guideModal');
+  if (show) modal.classList.add('active');
+  else modal.classList.remove('active');
+}
+
 // Tab Navigation
 function switchTab(tabId) {
   document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));

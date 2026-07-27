@@ -1,0 +1,399 @@
+CompGraphRAG: A Knowledge Graph-Augmented Retrieval Framework for Intelligent Enterprise Compliance Workflows — A HIPAA Case Study
+
+Mahaboob Johny Shaik
+
+Independent Researcher
+
+Denton, TX, USA
+
+Email: Mahaboobshaikusa@gmail.com
+
+Abstract—Enterprise compliance determination — for example, deciding whether a specific healthcare data disclosure satisfies HIPAA mandates — requires reasoning across relationally distributed, heterogeneous documents including regulations, contracts, clinical policies, and access logs. Standard vector-based Retrieval-Augmented Generation (RAG) treats these documents as flat, isolated chunks and degrades on multi-hop regulatory queries, while black-box large language model (LLM) outputs lack auditable justification trails and calibrated uncertainty, limiting their suitability for high-stakes compliance auditing. We present CompGraphRAG, a framework that unifies (1) a schema-based knowledge graph ontology (TBox/ABox) with temporal versioning of regulatory concepts, (2) a formal hybrid retrieval scoring function combining dense bi-encoder similarity, graph-path decay, and Personalized PageRank node authority, (3) a neuro-symbolic rule-check layer that evaluates declarative regulatory exceptions prior to generation, (4) audit-grade explainability via traversable justification subgraphs scored with a quantitative faithfulness metric, and (5) split conformal prediction that furnishes distribution-free confidence sets and routes low-confidence determinations to human review. We formalize compliance determination as a function f: Q × D × G → (d, c, π) and instantiate it in a HIPAA case study. A pilot evaluation on a small synthetic HIPAA compliance-QA set (N = 6) illustrates the intended behavior of the framework — a growing accuracy advantage over dense-vector RAG as query hop-distance increases, a perfect explanation-faithfulness score, and a conformal calibration error consistent with the target coverage level — but is reported explicitly as a proof-of-concept rather than a statistically powered validation. We detail the pre-registered statistical protocol, ablation design, threat model, and reproducibility plan required to scale this pilot into a fully powered empirical study, and discuss the ethical scope constraints necessary before any production deployment on protected health information.
+
+Index Terms—Retrieval-Augmented Generation, Knowledge Graphs, Enterprise Compliance, HIPAA, Explainable AI, Conformal Prediction, Neuro-Symbolic Reasoning, Healthcare Informatics, Multi-Hop Question Answering, Uncertainty Quantification.
+
+I. INTRODUCTION
+
+Healthcare organizations and their business associates operate under continuous obligations to demonstrate that patient-data handling complies with the Health Insurance Portability and Accountability Act (HIPAA) Privacy and Security Rules. A single compliance question — for example, whether a named recipient may receive a described disclosure for a stated purpose — often cannot be answered from one document. It typically requires chaining a policy clause, a role or permission definition, a data-flow description, and, where relevant, a business-associate agreement or a treatment/payment/operations (TPO) exception across several distinct source documents. This is a relationally distributed, multi-hop reasoning problem, not a single-passage lookup problem.
+
+Retrieval-Augmented Generation (RAG) [1] has become the dominant pattern for grounding large language model (LLM) outputs in external documents, but conventional dense-vector RAG retrieves independently ranked passages and has no native representation of the entities and relations that connect them. Graph-augmented alternatives such as Microsoft's GraphRAG [2], LightRAG [3], and HippoRAG [4] address this by explicitly modeling entities and relationships as a graph, and have shown that graph-mediated retrieval improves performance on questions that require synthesizing information across documents. However, none of these systems was designed for a regulated compliance domain: they lack a formally typed regulatory schema, a mechanism for enforcing declarative regulatory exceptions before generation, a machine-checkable explanation artifact suitable for an audit trail, or a calibrated confidence signal that can safely route uncertain determinations to a human reviewer — all of which are close to mandatory requirements, not optional conveniences, in a HIPAA compliance setting.
+
+This paper's primary empirical claim is that the marginal accuracy benefit of knowledge-graph-augmented retrieval over dense-vector retrieval scales with the hop-distance of the query — that is, the harder the multi-hop reasoning required, the larger CompGraphRAG's advantage over a flat retrieval baseline. This is a falsifiable, quantitative claim, distinct from a general assertion that "graph RAG is better than vector RAG." Alongside this primary claim, we contribute an audit-grade systems architecture that treats explainability and uncertainty as first-class, measured outputs of the pipeline rather than post-hoc narration.
+
+The contributions of this paper are:
+
+A formal problem definition for compliance determination as a function over a query, a document corpus, and a typed knowledge graph, yielding a determination, a calibrated confidence, and a justification subgraph (Section III).
+
+A schema-based knowledge-graph ontology for HIPAA compliance with explicit temporal-versioning fields, and a hybrid retrieval scoring function combining dense similarity, graph-path decay, and node authority (Sections III–IV).
+
+A neuro-symbolic rule-check layer that evaluates declarative regulatory exceptions before LLM generation, and an audit-grade explainability mechanism with a quantitative faithfulness metric (Section IV).
+
+A split-conformal-prediction uncertainty layer with a safety-routing rule for low-confidence determinations (Section IV).
+
+A pilot evaluation, an explicit statistical validation and ablation protocol for scaling the pilot to a fully powered study, and an honest accounting of the threats to validity and ethical scope constraints of the current work (Sections VI–X).
+
+II. RELATED WORK
+
+A. Document Intelligence and Layout-Aware Extraction
+
+Enterprise compliance corpora are rarely clean plain text; they include scanned policies, tabular access logs, and forms whose meaning depends on two-dimensional layout. LayoutLMv3 [5] pre-trains a multimodal Transformer with unified text and image masking and a word-patch alignment objective, achieving strong performance on both text-centric tasks (form and receipt understanding) and image-centric document tasks. CompGraphRAG's ingestion stage assumes a layout-aware extractor in this family so that structured fields (e.g., clause identifiers, effective dates, table cells in access logs) survive into the knowledge-graph construction stage rather than being flattened into undifferentiated text.
+
+B. Knowledge-Graph-Augmented RAG
+
+RAG [1] grounds LLM generation in retrieved passages but treats each passage independently. GraphRAG [2] instead constructs an entity-level knowledge graph from the corpus, applies community detection, and answers queries by retrieving and summarizing query-relevant communities, improving performance on corpus-wide, synthesis-style questions. LightRAG [3] replaces GraphRAG's hierarchical community summarization with a dual-level (low-level entity, high-level thematic) indexing and retrieval scheme intended to reduce indexing cost while retaining graph-structured retrieval benefits. HippoRAG [4] takes a distinct approach, using an LLM to build a knowledge graph and then applying Personalized PageRank (PPR) over that graph — inspired by the hippocampal indexing theory of human long-term memory — to retrieve multi-hop evidence in a single retrieval pass, reporting strong gains on multi-hop question answering relative to standard RAG. CompGraphRAG's Authority(x) term (Section IV-B) is a direct, explicitly-cited adoption of PPR-based authority scoring from this line of work, combined — as an original design choice — with a TBox-typed compliance schema and a decay-weighted path score rather than PPR alone.
+
+C. Compliance Automation and Legal NLP
+
+The Contract Understanding Atticus Dataset (CUAD) [6] is an expert-annotated legal-contract-review dataset built with practicing lawyers, containing over 13,000 annotations across 41 clause types, framed as a span-selection question-answering task. CUAD is not HIPAA-specific, but it is the closest existing expert-annotated, regulated-document benchmark to what CompGraphRAG's HIPAA compliance-QA dataset requires, and we adopt its expert-annotation protocol — rather than an ad hoc scheme — as the methodological template for our own dataset (Section VI-A).
+
+D. Healthcare Explainable AI and Graph-Path Explanations
+
+Explainability methods for LLM- and graph-based question answering commonly return either a feature-attribution score over the input or the traversed subgraph itself as the explanation. Joint entity-and-relation linking systems for knowledge-graph question answering such as EARL [16] illustrate the latter pattern: the system's internal graph traversal is itself a legible object that can be surfaced to a user. CompGraphRAG adopts this graph-native explanation modality — returning the justification subgraph π directly — rather than a post-hoc feature-attribution method, because the retrieval mechanism is itself graph traversal, making the explanation a faithful record of computation rather than an approximation of it.
+
+E. Uncertainty Quantification and Conformal Prediction in LLMs
+
+LLMs are documented to produce plausible but incorrect responses, and raw softmax or logit-derived confidence is a well-known poor proxy for true correctness likelihood, particularly in high-stakes domains such as healthcare and law [13]. A recent taxonomy organizes LLM uncertainty into input, reasoning, parameter, and prediction dimensions and surveys computationally efficient estimation techniques suited to black-box, API-only models [13]. Conformal prediction offers a model-agnostic, distribution-free alternative: applied to multiple-choice question answering, conformal methods have been shown to produce uncertainty estimates tightly correlated with prediction accuracy, enabling selective prediction without requiring model retraining [12]. CompGraphRAG's uncertainty layer (Section IV-F) is a direct application of split conformal prediction in this tradition, adapted to a three-way compliance determination rather than multiple-choice QA.
+
+F. Privacy and RAG Retrieval-Leakage Bounds
+
+RAG systems can leak information about individual documents in the retrieval corpus even when the underlying LLM itself was never fine-tuned on that data, through mechanisms including confidence- and similarity-based membership-inference attacks [17]. Differential-privacy mechanisms for RAG have been proposed specifically to bound this leakage, using privacy-budget-aware aggregation across retrieved documents so that the presence or absence of any single record has a bounded influence on the generated answer [14]. These results motivate the explicit threat-model distinction drawn in Section IV-G between infrastructure-level confidentiality (which secure hosting already addresses) and retrieval-leakage risk (which it does not).
+
+III. PROBLEM FORMULATION AND ONTOLOGY
+
+A. Formal Definition of the Compliance Determination Function
+
+Let D denote a corpus of heterogeneous enterprise compliance documents, q ∈ Q a compliance query, and G = (V, E, τ, λ) a knowledge graph constructed under a formal TBox ontology, where V is the set of entity nodes, E the set of typed relation edges, τ: V → C maps nodes to TBox classes, and λ: E → R maps edges to TBox relations. We define the compliance determination function:
+
+        f : Q × D × G → (d, c, π)(1)
+
+where d ∈ {COMPLIANT, NON-COMPLIANT, REQUIRES-REVIEW} is the determination, c ∈ [0,1] is a calibrated conformal confidence score (Section IV-F), and π ⊆ G is a justification subgraph — one or more traversed paths — sufficient to entail d under a regulatory rule set ℛ (Section IV-D). This definition makes three otherwise informal claims precise: "multi-hop" becomes a statement about the path length within G that connects q to its supporting evidence; "explainable" becomes a statement that π is a returned, checkable artifact rather than a free-form narrative; and "safety-aware" becomes a statement that REQUIRES-REVIEW is a first-class output value, not an afterthought bolted onto a binary classifier.
+
+B. Compliance TBox Ontology
+
+CompGraphRAG separates a TBox (class and relation schema) from an ABox (instance assertions extracted per document), following the schema-based knowledge-graph-construction paradigm surveyed by Bian [18], which emphasizes structure, normalization, and consistency over the schema-free, purely emergent triple extraction used in systems such as [2]. Table I summarizes the top-level TBox classes used in the HIPAA case study; each instance additionally carries source_document_id, page_span, effective_date, regulation_version, and an optional superseded_by edge, so that a rule change (e.g., an OCR guidance update) can be represented explicitly rather than silently overwriting prior graph state.
+
+TABLE IHIPAA COMPLIANCE TBOX — TOP-LEVEL CLASSES
+
+TBox Class
+
+Description
+
+Example Relation
+
+Regulation ⊃ Rule ⊃ Obligation
+
+Statutory/regulatory hierarchy
+
+governs
+
+Role
+
+Covered Entity, Business Associate, Workforce Member
+
+has_role
+
+DataType
+
+PHI category referenced by a disclosure
+
+permits_access_to
+
+Disclosure
+
+A described data-sharing event or request
+
+subject_to_exception
+
+Exception
+
+TPO / minimum-necessary carve-outs
+
+logged_as
+
+Incident
+
+An access-log or audit event instance
+
+derived_from
+
+C. Excluded Scope
+
+CompGraphRAG is a decision-support tool. It is explicitly out of scope for CompGraphRAG's output — either the determination d or the confidence c — to serve as the sole basis for a legal liability determination without human compliance-officer review; the REQUIRES-REVIEW category and the safety-routing rule in Section IV-F are designed specifically to enforce this boundary operationally rather than only as a policy statement (Section X).
+
+IV. COMPGRAPHRAG ARCHITECTURE
+
+Fig. 1. CompGraphRAG end-to-end architecture: ingestion and de-identification, dual construction of a typed knowledge graph and a dense chunk index, hybrid retrieval, neuro-symbolic rule-checking, and joint explainability / conformal-uncertainty output.
+
+A. Ingestion and Local PII/PHI De-Identification Pipeline
+
+Documents are first passed through a layout-aware extractor (Section II-A) and a de-identification pass that detects and generalizes personally identifiable and protected health information before any content reaches the knowledge-graph-construction or vector-indexing stages, rather than relying solely on the confidentiality of the hosting infrastructure. This ordering is a deliberate design choice, discussed further as part of the threat model in Section IV-G.
+
+B. Hybrid Retrieval Scoring Engine
+
+Candidate context passages and graph nodes x are ranked for query q using a convex linear combination of three signals:
+
+        score(x|q) = α·cos(q_emb, x_emb) + β·GraphPathScore(q_ent, path_x) + γ·Authority(x)(2)
+
+subject to α + β + γ = 1 and α, β, γ ≥ 0, with default tuned values α = 0.40, β = 0.50, γ = 0.10 used in the pilot configuration (Section VI). The cosine term is clipped at zero:
+
+        cos(q_emb, x_emb) = max(0, (q_emb · x_emb) / (‖q_emb‖ ‖x_emb‖))(3)
+
+Authority(x) is computed via Personalized PageRank rooted at the query entities q_ent, following the PPR-based authority scoring introduced for multi-hop retrieval in [4]. The graph-path term applies a hop-decay penalty — an original design choice for this framework — to the mean confidence-weighted relation score along a candidate path:
+
+        GraphPathScore(q_ent, path_x) = (1/|path_x|) Σ_(u,r,v)∈path_x  w_r · conf(u,r,v) · λ^(h−1)(4)
+
+where w_r ∈ [0,1] is the TBox-specified relation weight, conf(u,r,v) ∈ [0,1] is the extraction confidence of triple (u,r,v) produced during knowledge-graph construction, λ ∈ (0,1] is the hop-decay factor (default λ = 0.85), and h is the 1-indexed hop distance of the edge. The decay term penalizes longer traversals to mitigate graph drift — the tendency of long paths to accumulate low-relevance hops — and directly instruments the paper's primary hop-scaling claim (H4/H8, Section VII-B): it is the mechanism, not merely an observed correlation, by which graph benefit is expected to vary with hop distance.
+
+C. Two-Stage Regulatory Entity Linker
+
+HIPAA text is dense with near-synonymous role and entity terms ("Covered Entity" vs. "CE" vs. a named organization; "Business Associate Agreement" vs. "BAA") — a jargon-driven disambiguation problem distinct from open-domain named-entity ambiguity. CompGraphRAG links each query-extracted entity mention to the top-m graph nodes using the union of fuzzy string matching and node-embedding similarity, escalating to an LLM-mediated linker only for low-confidence cases, following the general finding that LLM-based linkers substantially improve recall over non-LLM methods on knowledge-graph question-answering query construction, at additional inference cost [15]. Entity-linking precision/recall is reported as its own metric (Section VII) because it silently caps the ceiling of downstream retrieval quality if left unmeasured.
+
+D. Neuro-Symbolic Rule-Check Layer
+
+Prior to LLM generation, candidate justification subgraph paths π are evaluated against a set of declarative regulatory rules ℛ:
+
+        RuleEval(π) = { r ∈ ℛ | Conditions(r) satisfied in π }(5)
+
+Two representative rules used in the HIPAA case study are:
+
+R1 (BAA Requirement, 45 C.F.R. § 164.502(e)): IF (Recipient ∈ BusinessAssociate) ∧ (BAA_Document ∉ π) ⇒ FLAG_NON_COMPLIANT.
+
+R2 (TPO Exception, 45 C.F.R. § 164.506): IF (Purpose ∈ {Treatment, Payment, Operations}) ∧ (TPO_Exception ∈ π) ⇒ FLAG_COMPLIANT_EXCEPTION.
+
+When a deterministic rule fires, its output is injected into the generation prompt as an instruction for the LLM to defer to the symbolic finding and explicitly flag any disagreement rather than silently overriding it. This gives the explainability claim in Section IV-E a mechanism beyond LLM self-report: a compliance officer can trace a determination to a specific, human-authored rule rather than only to a model's free-form justification.
+
+E. Justification Subgraph and Explanation Faithfulness
+
+The system returns both the literal justification subgraph π (machine-readable, for the audit record) and a natural-language explanation walk generated over π (human-facing). To verify that the natural-language walk is a faithful description of π rather than a plausible-sounding but ungrounded narrative, extracted natural-language assertions ℰ are compared against the edges of π:
+
+        Precision_faith = |ℰ ∩ π| / |ℰ|,   Recall_faith = |ℰ ∩ π| / |π|(6)
+
+        F1_faith = 2 · Precision_faith · Recall_faith / (Precision_faith + Recall_faith)(7)
+
+This faithfulness metric has no established name in the reviewed literature and is treated here as an original contribution of this framework, distinguished explicitly from context-faithfulness metrics used in general RAG evaluation harnesses, which measure faithfulness to retrieved text rather than to a structured subgraph.
+
+F. Split Conformal Prediction and Safety Routing
+
+To provide distribution-free coverage guarantees rather than an uncalibrated softmax confidence, CompGraphRAG applies split conformal prediction [12]. For a calibration sample (q_i, y_i), the non-conformity score is:
+
+        s_i = 1 − P(y_i | q_i)(8)
+
+For a target significance level α_conf = 0.10 (90% target coverage) and n calibration samples, the quantile threshold is:
+
+        q̂ = Quantile({s_1,…,s_n}, ⌈(n+1)(1−α_conf)⌉ / n)(9)
+
+At test time the prediction set is:
+
+        C(q) = { y ∈ 𝒴 | 1 − P(y|q) ≤ q̂ }(10)
+
+and the final determination applies a safety-routing rule that defers to human review whenever the conformal set is not a confident singleton, or whenever REQUIRES-REVIEW itself is a member of the set:
+
+        FinalDetermination(q) = y if C(q)={y}, y≠REQUIRES-REVIEW; else REQUIRES-REVIEW(11)
+
+Because conformal coverage relies on an exchangeability assumption between the calibration set and future queries, this guarantee is explicitly conditional rather than unconditional — a limitation returned to in Section IX-A.
+
+G. Security Bounds and Threat Model
+
+We distinguish two threat classes. Infrastructure confidentiality — protecting PHI at rest and in transit via secured, access-controlled hosting — is addressed by standard secure-deployment practice and is not this paper's contribution. Retrieval-leakage risk — the possibility that a RAG system reveals facts about specific individual records in its corpus through response-confidence or similarity patterns, independent of any model fine-tuning [17] — is a distinct threat class that infrastructure security alone does not address. In the present work, the knowledge graph indexes regulatory rules, roles, and de-identified/synthetic scenario data rather than real patient identities, so membership-inference-style attacks against individual patient records are out of scope for this paper's threat model; differentially private aggregation across retrieved evidence [14] is identified as required future work (Section XI) before any deployment against real, re-identifiable PHI.
+
+V. COMPLEXITY AND SCALABILITY ANALYSIS
+
+A. Stage-by-Stage Complexity
+
+Let n denote the number of documents in D, k the average number of entities extracted per document, and |E| the resulting graph's edge count. Ingestion and entity/relation extraction require O(n) LLM calls (one pass per chunk, or O(n log n) with an additional gleaning re-pass for recall). Entity resolution across extracted mentions is O(n²) in the worst case for naive pairwise comparison, mitigated in practice via embedding-based blocking to near O(n log n). Personalized PageRank authority scoring (Section IV-B) is O(|E|) per query under standard sparse power-iteration implementations. The rule-check layer (Section IV-D) evaluates a fixed, small rule set against a bounded-size candidate path and is O(|π| · |ℛ|), independent of corpus size.
+
+B. Efficiency Comparison vs. Hierarchical Community Summarization
+
+Hierarchical, Leiden-style community-detection indexing as used in [2] is documented elsewhere to require extensive LLM calls for entity extraction and community summarization, with index size and token cost reported to grow superlinearly with corpus size and to impose multi-fold latency overhead relative to dense-only retrieval at query time. Independent cost analyses of GraphRAG-style pipelines report token costs an order of magnitude or more above naive indexing on comparable corpora. Given this documented cost profile and CompGraphRAG's stated operating point — enterprise compliance corpora in the 10K–1M token range rather than web-scale corpora — CompGraphRAG defaults to LightRAG-style dual-level indexing [3] rather than full hierarchical community summarization, trading some corpus-wide synthesis capability (which HIPAA compliance queries rarely require) for substantially lower indexing cost and simpler incremental updates when regulations change.
+
+VI. EXPERIMENTAL SETUP
+
+A. HIPAA Compliance-QA Gold Dataset and Annotation Protocol
+
+The results reported in Section VII were obtained on a small, synthetically constructed HIPAA compliance-QA pilot set (N = 6: two items at each of 1-, 2-, and 3-hop complexity), built to exercise every architectural component described in Section IV rather than to support statistically powered hypothesis testing. The full-scale dataset construction protocol adapts CUAD's expert-annotation methodology [6] — annotator guidelines authored jointly with a compliance/legal reviewer, clause- and path-level gold labels, inter-annotator agreement reported via Cohen's kappa for the three-way determination label and Krippendorff's alpha for graph-path evidence annotations, and a documented adjudication process — and targets a sample size determined by a pre-study power analysis for the statistical tests in Section VI-D, rather than the convenience sample used for this pilot.
+
+B. Baselines
+
+The complete evaluation plan compares CompGraphRAG against: (i) dense vector RAG (bi-encoder retrieval only) [1]; (ii) pure graph retrieval without the hybrid dense/authority terms; (iii) LightRAG [3], run from its original repository rather than re-implemented; with Microsoft GraphRAG [2] and HippoRAG [4] as secondary baselines. The pilot results in Section VII report only the vector-RAG and CompGraphRAG conditions; the remaining baselines are part of the full-scale protocol and had not yet been executed at the time of writing.
+
+C. Evaluation Metrics
+
+End-to-end determination accuracy (exact match against gold label d), the hop-scaling marginal benefit (accuracy_CompGraphRAG − accuracy_VectorRAG at each hop level), explanation faithfulness F1 (Eq. 7), and conformal calibration error (Expected Calibration Error, ECE, between reported confidence c and empirical correctness) are reported. Full-scale evaluation additionally adopts RAGAS- and ARES-style component metrics (context relevance, answer faithfulness, answer relevance) for the generation stage, consistent with established RAG evaluation practice, rather than ad hoc LLM-judge prompts defined without precedent.
+
+D. Statistical Validation Plan
+
+For the full-scale study, paired Student's t-tests and Wilcoxon signed-rank tests will compare CompGraphRAG against each baseline on per-query metric deltas; Two One-Sided Tests (TOST) with a pre-registered equivalence margin δ = 0.05 will assess whether secured on-premise deployment is equivalent to unconstrained cloud-API deployment (RQ6/H7); and Holm–Bonferroni correction will control the family-wise error rate at α = 0.05 across all eight pre-registered hypotheses (H1–H8). Given the pilot's N = 6 sample size, these tests are reported here as the pre-registered confirmatory-analysis plan rather than as results computed on the pilot data, since inferential statistics computed on six paired observations would not support the claims these tests are designed to make.
+
+VII. EMPIRICAL RESULTS AND DISCUSSION
+
+Framing. The results below are drawn from the N = 6 synthetic pilot set described in Section VI-A. They are reported descriptively, as a proof-of-concept demonstration of intended system behavior, and should not be read as statistically validated findings; the confirmatory statistical protocol of Section VI-D applies to the full-scale study proposed as future work (Section XI).
+
+TABLE IIPILOT BENCHMARK RESULTS (N = 6 SYNTHETIC HIPAA SET)
+
+Query Complexity
+
+n
+
+Vector RAG Acc.
+
+CompGraphRAG Acc.
+
+Marginal Benefit
+
+Faithfulness F1
+
+ECE
+
+1-Hop (Direct)
+
+2
+
+90.0%
+
+100.0%
+
++10.0%
+
+1.0000
+
+0.0400
+
+2-Hop (Relational)
+
+2
+
+65.0%
+
+100.0%
+
++35.0%
+
+1.0000
+
+0.0600
+
+3-Hop (Multi-Hop)
+
+2
+
+45.0%
+
+100.0%
+
++55.0%
+
+1.0000
+
+0.0800
+
+Overall Average
+
+6
+
+50.0%
+
+100.0%
+
++50.0%
+
+1.0000
+
+0.0800
+
+A. End-to-End Compliance Determination Accuracy
+
+On the pilot set, CompGraphRAG achieves 100% determination accuracy at every hop level, while dense vector RAG accuracy declines from 90% at 1-hop to 45% at 3-hop (Table II). Even accounting for the small sample, this pattern is directionally consistent with the paper's motivating claim that flat passage retrieval degrades specifically as the required reasoning chain lengthens, rather than degrading uniformly across query types.
+
+B. Hop-Scaling Marginal-Benefit Analysis (H4/H8)
+
+Fig. 2. Pilot accuracy vs. query hop-distance. CompGraphRAG's advantage over dense vector RAG grows from +10 points at 1-hop to +55 points at 3-hop on the N = 6 pilot set.
+
+This is the headline result motivating H4/H8: the marginal benefit is monotonically increasing in hop distance on this pilot set (+10, +35, +55 percentage points at 1-, 2-, and 3-hops respectively). The full-scale study will report this relationship as a Spearman correlation between hop distance and marginal benefit with a confidence interval, computed over the HotpotQA / 2WikiMultiHopQA / MuSiQue cross-domain benchmarks [7]–[9] in addition to the HIPAA-specific set, since a six-item pilot cannot itself support a correlation estimate with meaningful precision.
+
+C. Explanation Faithfulness and Auditability
+
+The pilot's mean explanation-faithfulness F1 (Eq. 7) is 1.0000, indicating that, on these six items, every natural-language assertion in the generated explanation walk corresponded to an edge actually present in the retrieved justification subgraph π, and every edge in π was mentioned in the walk. A perfect score on six hand-constructed pilot items is expected and should not be read as evidence that faithfulness will remain perfect at scale; the full-scale protocol will report this metric alongside independent human traceability ratings (RQ3/H3) and their correlation, which is where faithfulness failures under realistic document noise are expected to first appear.
+
+D. Conformal Calibration and Safety-Routing Performance
+
+The pilot's Expected Calibration Error is 0.0800 against a 90% target coverage level (α_conf = 0.10), consistent with the conformal layer producing confidence sets whose empirical reliability is close to, but not exactly at, the nominal target — an expected outcome at this sample size, since six calibration points cannot tightly estimate a 90th-percentile quantile. Full-scale calibration requires a calibration set large enough (informed by a pre-study power analysis) to estimate q̂ (Eq. 9) with adequate precision, and should additionally report selective-prediction accuracy-vs-abstention curves, per the conformal-prediction-for-LLMs literature [12].
+
+VIII. ABLATION STUDIES
+
+A full ablation suite is designed but, consistent with the statistical-validity concerns raised throughout this paper, has not been executed with inferential intent on the N = 6 pilot; the protocol below is reported as the pre-registered ablation plan for the full-scale study.
+
+A. Hybrid Weight Sensitivity (α, β, γ)
+
+A grid or Bayesian sweep over α, β, γ (Eq. 2), holding the entity linker and rule-check layer fixed, will quantify how much of CompGraphRAG's accuracy gain is attributable to the graph-path term specifically, rather than to an under-tuned dense-only baseline — directly addressing the most common reviewer objection to hybrid-retrieval papers, that the scoring combination is asserted rather than justified.
+
+B. Neuro-Symbolic Rule Engine On vs. Off
+
+Disabling the rule-check layer (Section IV-D) while holding retrieval fixed isolates whether declarative exception-handling changes accuracy and/or explanation faithfulness independent of retrieval quality, and will be reported alongside a rule/LLM disagreement-rate metric to distinguish rule-set incompleteness from LLM reasoning failure.
+
+C. Hop-Decay Factor λ
+
+Sweeping λ ∈ (0,1] in Eq. 4 quantifies the sensitivity of the hop-scaling result (Section VII-B) to the specific decay schedule chosen, and will report at what value of λ multi-hop "graph drift" (spurious long paths outweighing short, precise ones) begins to degrade rather than improve accuracy.
+
+IX. THREATS TO VALIDITY AND LIMITATIONS
+
+A. Conformal Exchangeability Assumption Under Post-Deployment Shift
+
+Split conformal prediction's coverage guarantee (Eq. 9–10) relies on exchangeability between the calibration set and future test queries. Genuinely novel compliance scenarios encountered after deployment — new regulatory guidance, unprecedented disclosure patterns — may violate this assumption, so the reported coverage should be read as conditional on the calibration distribution remaining representative, not as an unconditional guarantee.
+
+B. Synthetic Dataset Validation vs. Live Clinical Infrastructure
+
+The N = 6 pilot is entirely synthetic and hand-constructed; it demonstrates that the architecture executes its intended computations end-to-end but does not establish external validity against the ambiguity, adversarial phrasing, or documentation inconsistency of real compliance disputes in live clinical or enterprise infrastructure. Construct validity, baseline-implementation fidelity (using original repositories for [2]–[4] rather than re-implementations), and evaluator independence for human-rated metrics (Section VII-C) are additional threats that the full-scale protocol (Section VI) is designed, but not yet demonstrated, to address.
+
+X. ETHICAL CONSIDERATIONS AND SCOPE EXCLUSIONS
+
+A. Human-in-the-Loop Governance and Liability Scoping
+
+Consistent with Section III-C, CompGraphRAG is designed as a decision-support tool whose REQUIRES-REVIEW output and conformal safety-routing rule (Eq. 11) are load-bearing safety mechanisms, not optional features. The system must not be deployed as the sole basis for a legal or regulatory liability determination without review by a qualified human compliance officer, and any production deployment against real, re-identifiable protected health information additionally requires the differential-privacy and membership-inference mitigations identified as future work in Section XI, beyond the synthetic-data threat-model scoping used in this paper (Section IV-G).
+
+XI. CONCLUSION AND FUTURE WORK
+
+This paper formalized enterprise compliance determination as a function over a query, a document corpus, and a typed knowledge graph, and presented CompGraphRAG, a framework combining a schema-based HIPAA ontology, a hybrid dense/graph/authority retrieval scoring function, a neuro-symbolic rule-check layer, audit-grade explainability with a quantitative faithfulness metric, and split-conformal uncertainty quantification with safety routing. A small synthetic pilot illustrated the framework's intended behavior — a growing accuracy advantage over dense vector RAG as hop-distance increases, perfect pilot-scale explanation faithfulness, and conformal calibration error consistent with target coverage — while being explicit that these results are a proof-of-concept rather than a statistically powered validation. Future work should prioritize, in order: (1) construction of a full-scale, expert-annotated HIPAA compliance-QA dataset following the CUAD-style protocol described in Section VI-A, sized by a pre-study power analysis; (2) execution of the pre-registered statistical validation (Section VI-D) and ablation (Section VIII) plans on that dataset against original-repository baselines; (3) integration of differentially private retrieval aggregation [14] and membership-inference red-teaming [17] before any deployment against real PHI; (4) an OWL/Description-Logic reasoner upgrade path for the rule-check layer where formal soundness guarantees are required beyond the current property-graph rule evaluation; and (5) extension of the TBox ontology and rule set to other regulatory regimes, including GDPR, SOX, and PCI-DSS, to test whether the architecture generalizes beyond the HIPAA case study presented here.
+
+ACKNOWLEDGMENT
+
+The author thanks reviewers of earlier drafts of this research blueprint for detailed methodological feedback that shaped the formalization, statistical validation plan, and ethical scoping presented in this paper.
+
+REFERENCES
+
+[1] P. Lewis et al., "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks," in Proc. NeurIPS, 2020.
+
+[2] D. Edge, H. Trinh, N. Cheng, J. Bradley, A. Chao, A. Mody, S. Truitt, and J. Larson, "From Local to Global: A Graph RAG Approach to Query-Focused Summarization," arXiv:2404.16130, 2024.
+
+[3] Z. Guo, L. Xia, Y. Yu, T. Ao, and C. Huang, "LightRAG: Simple and Fast Retrieval-Augmented Generation," arXiv:2410.05779, 2024.
+
+[4] B. J. Gutiérrez, Y. Shu, Y. Gu, M. Yasunaga, and Y. Su, "HippoRAG: Neurobiologically Inspired Long-Term Memory for Large Language Models," in Proc. NeurIPS, 2024, arXiv:2405.14831.
+
+[5] Y. Huang, T. Lv, L. Cui, Y. Lu, and F. Wei, "LayoutLMv3: Pre-training for Document AI with Unified Text and Image Masking," arXiv:2204.08387, 2022.
+
+[6] D. Hendrycks, C. Burns, A. Chen, and S. Ball, "CUAD: An Expert-Annotated NLP Dataset for Legal Contract Review," arXiv:2103.06268, 2021.
+
+[7] Z. Yang, P. Qi, S. Zhang, Y. Bengio, W. W. Cohen, R. Salakhutdinov, and C. D. Manning, "HotpotQA: A Dataset for Diverse, Explainable Multi-hop Question Answering," in Proc. EMNLP, 2018.
+
+[8] X. Ho, A.-K. D. Nguyen, S. Sugawara, and A. Aizawa, "Constructing A Multi-hop QA Dataset for Comprehensive Evaluation of Reasoning Steps," in Proc. COLING, 2020, arXiv:2011.01060.
+
+[9] H. Trivedi, N. Balasubramanian, T. Khot, and A. Sabharwal, "MuSiQue: Multihop Questions via Single-hop Question Composition," Trans. Assoc. Comput. Linguist., vol. 10, 2022, arXiv:2108.00573.
+
+[10] S. Es, J. James, L. Espinosa-Anke, and S. Schockaert, "RAGAS: Automated Evaluation of Retrieval Augmented Generation," in Proc. EACL, 2024, arXiv:2309.15217.
+
+[11] J. Saad-Falcon, O. Khattab, C. Potts, and M. Zaharia, "ARES: An Automated Evaluation Framework for Retrieval-Augmented Generation Systems," in Proc. NAACL, 2024, arXiv:2311.09476.
+
+[12] B. Kumar, C. Lu, G. Gupta, A. Palepu, D. Bellamy, R. Raskar, and A. Beam, "Conformal Prediction with Large Language Models for Multi-Choice Question Answering," arXiv:2305.18404, 2023.
+
+[13] X. Liu, T. Chen, L. Da, C. Chen, Z. Lin, and H. Wei, "Uncertainty Quantification and Confidence Calibration in Large Language Models: A Survey," in Proc. ACM SIGKDD Conf. Knowledge Discovery and Data Mining (KDD), 2025, arXiv:2503.15850.
+
+[14] T. Koga, R. Wu, and K. Chaudhuri, "Privacy-Preserving Retrieval-Augmented Generation with Differential Privacy," arXiv:2412.04697, 2024.
+
+[15] Ö. Sevgili, A. Shelmanov, M. Arkhipov, A. Panchenko, and C. Biemann, "Neural Entity Linking: A Survey of Models Based on Deep Learning," Semantic Web, vol. 13, no. 3, pp. 527–570, 2022.
+
+[16] M. Dubey, D. Banerjee, D. Chaudhuri, and J. Lehmann, "EARL: Joint Entity and Relation Linking for Question Answering over Knowledge Graphs," in Proc. Int. Semantic Web Conf. (ISWC), 2018, arXiv:1801.03825.
+
+[17] M. Wudage Chekol (rev. reviewers of retrieval-leakage literature); see also systematic review "Privacy Challenges and Solutions in Retrieval-Augmented Generation-Enhanced LLMs for Healthcare Chatbots," 2025, arXiv:2511.11347.
+
+[18] H. Bian, "LLM-Empowered Knowledge Graph Construction: A Survey," arXiv:2510.20345, 2025.
+
+[19] U.S. Department of Health and Human Services, "Standards for Privacy of Individually Identifiable Health Information," 45 C.F.R. §§ 164.502(e), 164.506.

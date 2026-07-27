@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CompGraphRAG — Tactical Compliance Control Room</title>
-  <meta name="description" content="Palantir Foundry-style tactical control panel and audit terminal for CompGraphRAG.">
+  <meta name="description" content="Palantir Foundry-style tactical control panel, interactive system guide, and audit terminal for CompGraphRAG.">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -23,12 +23,18 @@
       <div class="telemetry-item">STATUS: <span style="color: var(--phosphor-green);">ONLINE</span></div>
     </div>
 
-    <nav class="control-nav">
-      <button class="nav-tab-btn active" onclick="switchTab('tab-sandbox')">[F1] AUDIT.WORKBENCH</button>
-      <button class="nav-tab-btn" onclick="switchTab('tab-analytics')">[F2] BENCHMARK.TELEMETRY</button>
-      <button class="nav-tab-btn" onclick="switchTab('tab-ontology')">[F3] TBOX.MATRIX</button>
-      <button class="nav-tab-btn" onclick="switchTab('tab-threat')">[F4] THREAT.BOUNDS</button>
-    </nav>
+    <div style="display: flex; gap: 0.5rem; align-items: center;">
+      <button class="nav-tab-btn" style="border: 1px solid var(--phosphor-green); color: var(--phosphor-green);" onclick="toggleGuideModal(true)">
+        [?] SYSTEM.GUIDE
+      </button>
+
+      <nav class="control-nav">
+        <button class="nav-tab-btn active" onclick="switchTab('tab-sandbox')">[F1] AUDIT.WORKBENCH</button>
+        <button class="nav-tab-btn" onclick="switchTab('tab-analytics')">[F2] BENCHMARK.TELEMETRY</button>
+        <button class="nav-tab-btn" onclick="switchTab('tab-ontology')">[F3] TBOX.MATRIX</button>
+        <button class="nav-tab-btn" onclick="switchTab('tab-threat')">[F4] THREAT.BOUNDS</button>
+      </nav>
+    </div>
   </header>
 
   <!-- Main Viewport -->
@@ -36,6 +42,36 @@
 
     <!-- TAB 1: AUDIT WORKBENCH -->
     <div id="tab-sandbox" class="tab-pane active">
+      
+      <!-- Operator Quickstart Banner -->
+      <div class="operator-guide-banner">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <span style="color: var(--phosphor-green); font-weight: 800;">OPERATOR QUICKSTART //</span>
+          <span style="color: var(--text-muted); font-size: 0.78rem;">Follow 4 simple steps to execute a multi-hop compliance determination audit:</span>
+        </div>
+
+        <div class="guide-steps-strip">
+          <div class="guide-step-item">
+            <div class="guide-step-badge">1</div>
+            <span>Select Scenario</span>
+          </div>
+          <div class="guide-step-item">
+            <div class="guide-step-badge">2</div>
+            <span>Execute Pipeline</span>
+          </div>
+          <div class="guide-step-item">
+            <div class="guide-step-badge">3</div>
+            <span>Inspect Path π</span>
+          </div>
+          <div class="guide-step-item">
+            <div class="guide-step-badge">4</div>
+            <span>Export Machine JSON</span>
+          </div>
+        </div>
+
+        <button class="control-chip" onclick="toggleGuideModal(true)">Open Full Guide</button>
+      </div>
+
       <div class="grid-control-room">
         
         <!-- Column 1: Operator Matrix & Pipeline Control -->
@@ -50,12 +86,12 @@
             </div>
 
             <div class="control-group">
-              <label class="control-label">> SELECT_HIPAA_QUERY_TARGET</label>
+              <label class="control-label">> STEP 1: SELECT_HIPAA_QUERY_TARGET</label>
               <select id="presetSelect" class="tactical-select" onchange="loadPresetQuery()">
-                <option value="Q2-HIPAA-2HOP">Q2: 2-HOP // CLOUD_VENDOR_BAA_DISCLOSURE</option>
-                <option value="Q3-HIPAA-3HOP">Q3: 3-HOP // RESEARCH_IRB_WAIVER_MIN_NECESSARY</option>
-                <option value="Q1-HIPAA-1HOP">Q1: 1-HOP // PATIENT_TPO_TREATMENT_EXCEPTION</option>
-                <option value="Q6-HIPAA-3HOP">Q6: 3-HOP // SUBCONTRACTOR_TECHNICAL_SAFEGUARDS</option>
+                <option value="Q2-HIPAA-2HOP">Q2: 2-HOP // CLOUD_VENDOR_BAA_DISCLOSURE (§164.502(e))</option>
+                <option value="Q3-HIPAA-3HOP">Q3: 3-HOP // RESEARCH_IRB_WAIVER_MIN_NECESSARY (§164.506)</option>
+                <option value="Q1-HIPAA-1HOP">Q1: 1-HOP // PATIENT_TPO_TREATMENT_EXCEPTION (§164.506)</option>
+                <option value="Q6-HIPAA-3HOP">Q6: 3-HOP // SUBCONTRACTOR_TECHNICAL_SAFEGUARDS (§164.312)</option>
               </select>
             </div>
 
@@ -65,7 +101,7 @@
             </div>
 
             <button class="btn-tactical-execute" onclick="runAuditPipeline()">
-              EXECUTE_PIPELINE [ENTERING_AUDIT_MODE]
+              STEP 2: EXECUTE_PIPELINE [RUN_AUDIT]
             </button>
           </div>
 
@@ -101,7 +137,7 @@
             <div class="corner-mark corner-bl"></div><div class="corner-mark corner-br"></div>
 
             <div class="tactical-card-header">
-              <div class="tactical-card-title">TRAVERSED_SUBGRAPH_VIEWPORT [π]</div>
+              <div class="tactical-card-title">STEP 3: TRAVERSED_SUBGRAPH_VIEWPORT [π]</div>
               <span id="hopCountBadge" class="system-tag" style="background: rgba(0,255,106,0.15); color: var(--phosphor-green);">2-HOP</span>
             </div>
 
@@ -124,7 +160,7 @@
             <div class="corner-mark corner-bl"></div><div class="corner-mark corner-br"></div>
 
             <div class="tactical-card-header">
-              <div class="tactical-card-title">DETERMINATION.OUTPUT</div>
+              <div class="tactical-card-title">STEP 4: DETERMINATION.OUTPUT</div>
               <div id="determinationBadge" class="status-indicator status-warn">
                 STATE: READY
               </div>
@@ -246,6 +282,49 @@
     </div>
 
   </main>
+
+  <!-- INTERACTIVE SYSTEM GUIDE MODAL OVERLAY -->
+  <div id="guideModal" class="modal-overlay">
+    <div class="modal-card">
+      <button class="modal-close-btn" onclick="toggleGuideModal(false)">[X] CLOSE.GUIDE</button>
+      
+      <div class="tactical-card-title" style="font-size: 1.2rem; color: var(--phosphor-green); margin-bottom: 0.5rem;">
+        COMPGRAPHRAG // OPERATOR & ARCHITECTURE SYSTEM GUIDE
+      </div>
+      <div style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 1rem;">
+        Welcome to the CompGraphRAG Compliance Control Suite. This guide explains how to use the interactive audit workbench and how the underlying research pipeline operates.
+      </div>
+
+      <div class="guide-section-title">1. Quickstart — How to Run an Audit (4 Steps)</div>
+      <div style="font-size: 0.78rem; color: var(--text-main); line-height: 1.6;">
+        <p><strong>Step 1: Select Query Scenario</strong> — Choose from preset 1-hop, 2-hop, or 3-hop HIPAA regulatory queries (e.g. BAA disclosure §164.502(e), IRB research waiver §164.506).</p>
+        <p><strong>Step 2: Click Execute Pipeline</strong> — Triggers the 4-stage retrieval and reasoning sequence.</p>
+        <p><strong>Step 3: Inspect Traversed Subgraph π</strong> — Review the interactive graph canvas displaying retrieved node entities (Role, Obligation, Exception, DataType) and edge relations (`disclosesPHITo`, `lacksAgreement`, `subjectToException`).</p>
+        <p><strong>Step 4: Verify Conformal Set & Export JSON</strong> — Review the final determination (`PASS`, `FLAGGED`, `WARN`), conformal confidence set $C(q)$, and click <strong>EXPORT.JSON</strong> for auditor verification.</p>
+      </div>
+
+      <div class="guide-section-title">2. Architecture & Pipeline Stages Explained</div>
+      <div style="font-size: 0.78rem; color: var(--text-main); line-height: 1.6;">
+        <p><strong>[01] Hybrid Retrieval Scorer:</strong> Calculates $\text{score}(x|q) = \alpha \cdot \cos(q_{\text{emb}}, x_{\text{emb}}) + \beta \cdot \text{GraphPathScore}(q_{\text{ent}}, \text{path}_x) + \gamma \cdot \text{Authority}(x)$ with hop-decay factor $\lambda = 0.85$.</p>
+        <p><strong>[02] Neuro-Symbolic Rule Check:</strong> Evaluates candidate subgraphs against 45 CFR rules prior to generation, surfacing required BAA nodes or TPO exception carve-outs.</p>
+        <p><strong>[03] Split Conformal Uncertainty:</strong> Generates distribution-free confidence sets $C(q)$ guaranteed at target coverage level $1 - \alpha = 90\%$. Low confidence sets route to human audit.</p>
+        <p><strong>[04] Audit Certificate Generation:</strong> Outputs traversable subgraph paths $\pi$ and exportable machine JSON payloads.</p>
+      </div>
+
+      <div class="guide-section-title">3. Benchmark Metrics Key</div>
+      <div style="font-size: 0.78rem; color: var(--text-main); line-height: 1.6;">
+        <p><strong>Hop-Scaling Marginal Benefit (H4/H8):</strong> Measures the percentage improvement of CompGraphRAG over vector RAG as query complexity increases from 1-hop to 3-hops (+50% F1 gain).</p>
+        <p><strong>Explanation Faithfulness F1:</strong> Precision and Recall evaluating whether generated explanations match true retrieved edges in subgraph $\pi$.</p>
+        <p><strong>Expected Calibration Error (ECE):</strong> Quantifies calibration error between model confidence and actual determination accuracy.</p>
+      </div>
+
+      <div style="margin-top: 1.5rem; text-align: right;">
+        <button class="btn-tactical-execute" style="width: auto; padding: 0.5rem 1.5rem; display: inline-flex;" onclick="toggleGuideModal(false)">
+          ACKNOWLEDGE & RETURN TO WORKBENCH
+        </button>
+      </div>
+    </div>
+  </div>
 
   <script src="app.js"></script>
 </body>
