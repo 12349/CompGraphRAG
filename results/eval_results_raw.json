@@ -1,0 +1,32 @@
+{
+  "dataset_total_queries": 24,
+  "overall_compgraphrag_accuracy": 1.0,
+  "overall_vector_rag_accuracy": 0.5416666666666666,
+  "hop_marginal_benefit_h4_h8": {
+    "1": 0.0,
+    "2": 0.8333333333333334,
+    "3": 0.33333333333333337,
+    "4": 0.6666666666666667
+  },
+  "mean_explanation_faithfulness_f1": 1.0,
+  "expected_calibration_error_ece": 0.050000000000000155,
+  "statistical_validation": {
+    "paired_difference": {
+      "mean_diff": 0.4583333333333333,
+      "std_diff": 0.4982608642958916,
+      "t_statistic": 4.411523371981436,
+      "t_p_value": 0.00020184510269482322,
+      "wilcoxon_p_value": 0.0009111188771537128
+    },
+    "tost_equivalence": {
+      "margin": 0.05,
+      "mean_difference": 0.4583333333333333,
+      "tost_p_value": 0.9996655968487096,
+      "is_statistically_equivalent": false
+    },
+    "holm_bonferroni_adjusted_p_values": [
+      0.00040369020538964643,
+      0.0009111188771537128
+    ]
+  }
+}

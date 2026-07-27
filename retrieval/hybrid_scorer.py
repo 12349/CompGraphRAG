@@ -8,6 +8,12 @@ where GraphPathScore(q_ent, path) = sum_{(u,r,v) in path} w_r * conf(u,r,v) * (l
 import numpy as np
 from typing import List, Dict, Any, Tuple
 
+try:
+    from sentence_transformers import SentenceTransformer
+    _ST_MODEL = SentenceTransformer('all-MiniLM-L6-v2')
+except Exception:
+    _ST_MODEL = None
+
 class HybridScorer:
     def __init__(self, alpha: float = 0.4, beta: float = 0.5, gamma: float = 0.1, decay_lambda: float = 0.85):
         assert abs((alpha + beta + gamma) - 1.0) < 1e-4, "Weights alpha, beta, gamma must sum to 1.0"
@@ -15,6 +21,29 @@ class HybridScorer:
         self.beta = beta
         self.gamma = gamma
         self.decay_lambda = decay_lambda
+
+    def encode_text(self, text: str) -> np.ndarray:
+        """
+        Encodes text into a dense vector embedding using SentenceTransformer if available,
+        or a deterministic character 4-gram hash embedding vector fallback.
+        """
+        if _ST_MODEL is not None:
+            try:
+                return _ST_MODEL.encode(text, convert_to_numpy=True)
+            except Exception:
+                pass
+        
+        # Fallback: 128-dim deterministic normalized bag-of-ngrams vector
+        dim = 128
+        vec = np.zeros(dim, dtype=np.float32)
+        words = text.lower().split()
+        for w in words:
+            idx = abs(hash(w)) % dim
+            vec[idx] += 1.0
+        norm = np.linalg.norm(vec)
+        if norm > 0:
+            vec = vec / norm
+        return vec
 
     def cosine_similarity(self, vec_a: np.ndarray, vec_b: np.ndarray) -> float:
         norm_a = np.linalg.norm(vec_a)

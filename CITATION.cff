@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+message: "If you use CompGraphRAG in your research, please cite it as below."
+authors:
+  - family-names: "Research Panel"
+    given-names: "CompGraphRAG Team"
+title: "CompGraphRAG: A Knowledge Graph-Augmented Retrieval Framework for Intelligent Enterprise Compliance Workflows — A HIPAA Case Study"
+version: 0.1.0-pilot
+date-released: 2026-07-27
+url: "https://github.com/12349/CompGraphRAG"
+license: MIT
