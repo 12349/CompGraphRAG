@@ -1,8 +1,26 @@
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.pyc
+*$py.class
+
+# Caches and Environments
 .DS_Store
 .venv/
 env/
+venv/
+ENV/
+.pytest_cache/
 *.egg-info/
 .idea/
 .vscode/
+
+# Internal draft documents & reviewer panel notes (hidden from public repository)
+*.docx
+*_extracted.txt
+CompGraphRAG_Phase1_Phase2.md
+CompGraphRAG_Publication_Readiness_Panel_Review.md
+CompGraphRAG_Review_and_Enhancement_Plan.md
+
+# Log files & scratch files
+*.log
+scratch/
