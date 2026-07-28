@@ -26,10 +26,13 @@ def main():
     evaluator = CompGraphRAGEvaluator(dataset_path=dataset_path)
     results = evaluator.run_evaluation(run_stats=args.stats)
     
-    print(f"Total Queries Evaluated: {results['total_queries_evaluated']}")
+    exec_meta = results.get("execution_metadata", {})
+    print(f"Encoder Used: {exec_meta.get('encoder_used', 'unknown')}")
+    print(f"Confidence Signal Source: {exec_meta.get('confidence_signal_source', 'unknown')}")
+    print(f"Total Queries Evaluated: {results['total_queries_evaluated']} (Calibration: {exec_meta.get('calibration_split_size')}, Test: {exec_meta.get('test_split_size')})")
     print(f"Overall CompGraphRAG Accuracy: {results['overall_compgraphrag_accuracy']*100:.1f}%")
     print(f"Overall Vector RAG Baseline Accuracy: {results['overall_vector_rag_accuracy']*100:.1f}%")
-    print(f"\nHop-Scaling Marginal Benefit Regression (H4/H8):")
+    print(f"\nHop-Scaling Marginal Benefit Regression (H1 - H4):")
     for hop, benefit in results['hop_marginal_benefit_h4_h8'].items():
         print(f"  * {hop}-Hop Query Benefit over Vector Baseline: +{benefit*100:.1f}%")
     
@@ -40,18 +43,26 @@ def main():
         print("\n--------------------------------------------------------------------------------")
         print(" PRE-REGISTERED STATISTICAL VALIDATION RESULTS")
         print("--------------------------------------------------------------------------------")
-        paired = results["statistical_validation"]["paired_difference"]
-        print(f"Paired t-test Mean Diff: +{paired['mean_diff']:.4f} (p = {paired['t_p_value']:.4e})")
+        stats = results["statistical_validation"]
+        paired = stats["paired_difference"]
+        print(f"Paired t-test Mean Diff: +{paired['mean_diff']:.4f} (t-statistic: {paired['t_statistic']:.4f}, p = {paired['t_p_value']:.4e})")
         print(f"Wilcoxon Signed-Rank p-value: {paired['wilcoxon_p_value']:.4e}")
-        tost = results["statistical_validation"]["tost_equivalence"]
-        print(f"TOST Equivalence p-value (margin=0.05): {tost['tost_p_value']:.4e} (Equivalent: {tost['is_statistically_equivalent']})")
+        
+        hb = stats.get("holm_bonferroni", {})
+        print(f"Holm-Bonferroni Adjusted p-values (Hypotheses Tested: {hb.get('hypotheses_tested_count')}): {hb.get('adjusted_p_values')}")
+        
+        tost = stats.get("tost_equivalence", {})
+        print(f"TOST Equivalence Status: {tost.get('status')} ({tost.get('reason')})")
 
     if args.baselines or args.stats:
         print("\n--------------------------------------------------------------------------------")
         print(" BASELINES COMPARATIVE SUMMARY")
         print("--------------------------------------------------------------------------------")
-        for b_name, b_stats in results["all_baselines_summary"].items():
-            print(f"  * {b_name:15s} Mean Acc: {b_stats['mean_accuracy']*100:.1f}% (std: {b_stats['std_accuracy']:.4f})")
+        for b_name, b_info in results["all_baselines_summary"].items():
+            if b_info.get("status") == "EXECUTED":
+                print(f"  * {b_name:15s} [EXECUTED]     Mean Acc: {b_info['mean_accuracy']*100:.1f}% (std: {b_info['std_accuracy']:.4f})")
+            else:
+                print(f"  * {b_name:15s} [NOT MEASURED] {b_info.get('reason')}")
 
     print("\n--------------------------------------------------------------------------------")
     print(" RUNNING INTERACTIVE SAMPLE AUDIT DEMOS")
