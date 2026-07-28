@@ -1,28 +1,28 @@
 {
   "execution_metadata": {
-    "encoder_used": "hash pseudo-embedding fallback",
+    "encoder_used": "real sentence-transformers (all-MiniLM-L6-v2)",
     "confidence_signal_source": "Top candidate path hybrid_score computed by HybridScorer",
     "calibration_split_size": 12,
     "test_split_size": 12
   },
   "total_queries_evaluated": 24,
-  "overall_compgraphrag_accuracy": 0.5833333333333334,
-  "overall_vector_rag_accuracy": 0.9583333333333334,
+  "overall_compgraphrag_accuracy": 0.8333333333333334,
+  "overall_vector_rag_accuracy": 0.375,
   "hop_marginal_benefit_h4_h8": {
-    "1": -0.16666666666666663,
-    "2": -0.33333333333333337,
-    "3": -0.5,
-    "4": -0.5
+    "1": 0.8333333333333334,
+    "2": 0.16666666666666669,
+    "3": 0.5,
+    "4": 0.33333333333333337
   },
-  "mean_explanation_faithfulness_f1": 1.0,
-  "expected_calibration_error_ece": 0.11859885955189453,
+  "mean_explanation_faithfulness_f1": 0.5722222222222223,
+  "expected_calibration_error_ece": 0.0688359157906638,
   "statistical_validation": {
     "paired_difference": {
-      "mean_diff": -0.375,
-      "std_diff": 0.4841229182759271,
-      "t_statistic": -3.714835124201342,
-      "t_p_value": 0.0011389435144915931,
-      "wilcoxon_p_value": 0.002699796063260186
+      "mean_diff": 0.4583333333333333,
+      "std_diff": 0.6441510347391795,
+      "t_statistic": 3.412382080663762,
+      "t_p_value": 0.0023858242020900282,
+      "wilcoxon_p_value": 0.004508698364904236
     },
     "tost_equivalence": {
       "status": "NOT MEASURED",
@@ -31,25 +31,25 @@
     "holm_bonferroni": {
       "hypotheses_tested_count": 2,
       "raw_p_values": [
-        0.0011389435144915931,
-        0.002699796063260186
+        0.0023858242020900282,
+        0.004508698364904236
       ],
       "adjusted_p_values": [
-        0.0022778870289831862,
-        0.002699796063260186
+        0.0047716484041800565,
+        0.004508698364904236
       ]
     }
   },
   "all_baselines_summary": {
     "Vector-RAG": {
       "status": "EXECUTED",
-      "mean_accuracy": 0.9583333333333334,
-      "std_accuracy": 0.19982631347136331
+      "mean_accuracy": 0.375,
+      "std_accuracy": 0.4841229182759271
     },
     "Naive-RAG": {
       "status": "EXECUTED",
-      "mean_accuracy": 1.0,
-      "std_accuracy": 0.0
+      "mean_accuracy": 0.4166666666666667,
+      "std_accuracy": 0.4930066485916347
     },
     "GraphRAG": {
       "status": "NOT MEASURED",
