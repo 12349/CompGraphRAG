@@ -212,7 +212,6 @@ class CompGraphRAGEvaluator:
 
         cg_scores = []
         vec_scores = []
-        faithfulness_scores = []
         model_probs = []
         accuracies = []
         per_item_faithfulness_records = []
@@ -261,7 +260,6 @@ class CompGraphRAGEvaluator:
                 extracted_explanation_triples=extracted_explanation,
                 retrieved_subgraph_edges=retrieved_path
             )
-            faithfulness_scores.append(faith_result["f1"])
             per_item_faithfulness_records.append({
                 "id": q_id,
                 "question": q_text,
@@ -289,6 +287,10 @@ class CompGraphRAGEvaluator:
             hop_marginal_benefits[str(h)] = float(cg_acc - v_acc)
 
         ece_score = self.validator.compute_ece(model_probs, accuracies)
+
+        # TASK 1 FIX: Single source of truth for mean faithfulness computation over per_item_faithfulness_records
+        all_f1s = [rec["faithfulness_metrics"]["f1"] for rec in per_item_faithfulness_records]
+        mean_faithfulness = float(np.mean(all_f1s))
 
         # Statistical Validation Tests
         stats_output = {}
@@ -329,7 +331,7 @@ class CompGraphRAGEvaluator:
             "compgraphrag_accuracy_by_hop": cg_abs_acc_by_hop,
             "vector_rag_accuracy_by_hop": vec_abs_acc_by_hop,
             "hop_marginal_benefit_h4_h8": hop_marginal_benefits,
-            "mean_explanation_faithfulness_f1": float(np.mean(faithfulness_scores)),
+            "mean_explanation_faithfulness_f1": mean_faithfulness,
             "per_item_faithfulness": per_item_faithfulness_records,
             "per_item_baseline_retrievals": per_item_top_passages,
             "raw_random_floats_log": self.raw_random_floats_log,

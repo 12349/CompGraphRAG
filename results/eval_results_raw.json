@@ -28,7 +28,7 @@
     "3": 0.0,
     "4": 0.0
   },
-  "mean_explanation_faithfulness_f1": 1.0,
+  "mean_explanation_faithfulness_f1": 0.967857142857143,
   "per_item_faithfulness": [
     {
       "id": "Q01-1HOP",
@@ -717,19 +717,13 @@
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Regulatory path verification report: Step 1: Subgraph edge shows AcademicPartner usesData AnonymizedTelemetry. Step 2: (Intermediate path segment connecting to DataTransferAgreement is abstracted in summary). Step 3: Verification reveals DataTransferAgreement --(satisfiesStandard)--> DeIdentificationRule.",
+      "explanation_narrative": "Regulatory path verification report: Step 1: Subgraph edge shows AcademicPartner usesData AnonymizedTelemetry. Step 2: (Intermediate sub-hop is abstracted in summary narrative). Step 3: Verification reveals DataTransferAgreement --(satisfiesStandard)--> DeIdentificationRule.",
       "extracted_explanation_triples": [
         {
           "source": "AcademicPartner",
           "relation": "usesData",
           "target": "AnonymizedTelemetry",
           "confidence": 0.9
-        },
-        {
-          "source": "AnonymizedTelemetry",
-          "relation": "governedBy",
-          "target": "DataTransferAgreement",
-          "confidence": 0.95
         },
         {
           "source": "DataTransferAgreement",
@@ -740,8 +734,8 @@
       ],
       "faithfulness_metrics": {
         "precision": 1.0,
-        "recall": 1.0,
-        "f1": 1.0
+        "recall": 0.6666666666666666,
+        "f1": 0.8
       }
     },
     {
@@ -774,7 +768,7 @@
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Compliance trajectory analysis for 'Does a secondary subcontractor storing unencrypted backups o...': Step 1: Verification reveals ForeignSubcontractor --(transmitsData)--> UnencryptedPHI_Backup. Step 2: Verification reveals UnencryptedPHI_Backup --(traversesNetwork)--> OverseasServer. Step 3: (Intermediate path segment connecting to DownstreamBAA is abstracted in summary). Step 4: Subgraph edge shows DownstreamBAA violatessafeguard HIPAA_Security_Omnibus.",
+      "explanation_narrative": "Compliance trajectory analysis for 'Does a secondary subcontractor storing unencrypted backups o...': Step 1: Verification reveals ForeignSubcontractor --(transmitsData)--> UnencryptedPHI_Backup. Step 2: Verification reveals UnencryptedPHI_Backup --(traversesNetwork)--> OverseasServer. Step 3: (Intermediate sub-hop is abstracted in summary narrative). Step 4: Subgraph edge shows DownstreamBAA violatessafeguard HIPAA_Security_Omnibus.",
       "extracted_explanation_triples": [
         {
           "source": "ForeignSubcontractor",
@@ -789,12 +783,6 @@
           "confidence": 0.9
         },
         {
-          "source": "OverseasServer",
-          "relation": "lacksAgreement",
-          "target": "DownstreamBAA",
-          "confidence": 0.95
-        },
-        {
           "source": "DownstreamBAA",
           "relation": "violatessafeguard",
           "target": "HIPAA_Security_Omnibus",
@@ -803,8 +791,8 @@
       ],
       "faithfulness_metrics": {
         "precision": 1.0,
-        "recall": 1.0,
-        "f1": 1.0
+        "recall": 0.75,
+        "f1": 0.8571428571428571
       }
     },
     {
@@ -963,18 +951,12 @@
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Regulatory path verification report: Step 1: Subgraph edge shows Regional_HIE transmitsPHI EncryptedHealthRecord. Step 2: (Intermediate path segment connecting to StatewideOptOutPolicy is abstracted in summary). Step 3: Verification reveals StatewideOptOutPolicy --(satisfiesStandard)--> HIE_ParticipationAgreement. Step 4: Subgraph edge shows HIE_ParticipationAgreement subjectToException TPO_ExchangeRule.",
+      "explanation_narrative": "Regulatory path verification report: Step 1: Subgraph edge shows Regional_HIE transmitsPHI EncryptedHealthRecord. Step 2: (Intermediate sub-hop is abstracted in summary narrative). Step 3: Verification reveals StatewideOptOutPolicy --(satisfiesStandard)--> HIE_ParticipationAgreement. Step 4: Subgraph edge shows HIE_ParticipationAgreement subjectToException TPO_ExchangeRule.",
       "extracted_explanation_triples": [
         {
           "source": "Regional_HIE",
           "relation": "transmitsPHI",
           "target": "EncryptedHealthRecord",
-          "confidence": 0.9
-        },
-        {
-          "source": "EncryptedHealthRecord",
-          "relation": "governedBy",
-          "target": "StatewideOptOutPolicy",
           "confidence": 0.9
         },
         {
@@ -992,8 +974,8 @@
       ],
       "faithfulness_metrics": {
         "precision": 1.0,
-        "recall": 1.0,
-        "f1": 1.0
+        "recall": 0.75,
+        "f1": 0.8571428571428571
       }
     },
     {
@@ -1026,7 +1008,7 @@
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Compliance trajectory analysis for 'Is exporting raw unredacted clinical notes to an external LL...': Step 1: Subgraph edge shows HospitalSystem transmitsPHI RawClinicalNotes. Step 2: Subgraph edge shows RawClinicalNotes traversesNetwork ExternalLLM_API. Step 3: (Intermediate path segment connecting to VendorBAA_Document is abstracted in summary). Step 4: Verification reveals VendorBAA_Document --(violatessafeguard)--> PrivacyRule_Disclosure.",
+      "explanation_narrative": "Compliance trajectory analysis for 'Is exporting raw unredacted clinical notes to an external LL...': Step 1: Subgraph edge shows HospitalSystem transmitsPHI RawClinicalNotes. Step 2: Subgraph edge shows RawClinicalNotes traversesNetwork ExternalLLM_API. Step 3: (Intermediate sub-hop is abstracted in summary narrative). Step 4: Verification reveals VendorBAA_Document --(violatessafeguard)--> PrivacyRule_Disclosure.",
       "extracted_explanation_triples": [
         {
           "source": "HospitalSystem",
@@ -1041,12 +1023,6 @@
           "confidence": 0.9
         },
         {
-          "source": "ExternalLLM_API",
-          "relation": "lacksAgreement",
-          "target": "VendorBAA_Document",
-          "confidence": 0.95
-        },
-        {
           "source": "VendorBAA_Document",
           "relation": "violatessafeguard",
           "target": "PrivacyRule_Disclosure",
@@ -1055,8 +1031,8 @@
       ],
       "faithfulness_metrics": {
         "precision": 1.0,
-        "recall": 1.0,
-        "f1": 1.0
+        "recall": 0.75,
+        "f1": 0.8571428571428571
       }
     },
     {
@@ -1089,7 +1065,7 @@
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Compliance trajectory analysis for 'Does transmitting de-identified epidemiological records to t...': Step 1: Entity StateHealthDept is linked via transmitsData to EpidemiologicalRecords. Step 2: Subgraph edge shows EpidemiologicalRecords governedBy ExecutiveEmergencyOrder. Step 3: (Intermediate path segment connecting to CDC_Mandate is abstracted in summary). Step 4: Entity CDC_Mandate is linked via subjectToException to PublicHealthEmergencyCarveout.",
+      "explanation_narrative": "Compliance trajectory analysis for 'Does transmitting de-identified epidemiological records to t...': Step 1: Entity StateHealthDept is linked via transmitsData to EpidemiologicalRecords. Step 2: Subgraph edge shows EpidemiologicalRecords governedBy ExecutiveEmergencyOrder. Step 3: (Intermediate sub-hop is abstracted in summary narrative). Step 4: Entity CDC_Mandate is linked via subjectToException to PublicHealthEmergencyCarveout.",
       "extracted_explanation_triples": [
         {
           "source": "StateHealthDept",
@@ -1104,12 +1080,6 @@
           "confidence": 0.9
         },
         {
-          "source": "ExecutiveEmergencyOrder",
-          "relation": "satisfiesStandard",
-          "target": "CDC_Mandate",
-          "confidence": 0.95
-        },
-        {
           "source": "CDC_Mandate",
           "relation": "subjectToException",
           "target": "PublicHealthEmergencyCarveout",
@@ -1118,8 +1088,8 @@
       ],
       "faithfulness_metrics": {
         "precision": 1.0,
-        "recall": 1.0,
-        "f1": 1.0
+        "recall": 0.75,
+        "f1": 0.8571428571428571
       }
     }
   ],
@@ -1269,31 +1239,130 @@
       "passages_match": false
     }
   ],
-  "expected_calibration_error_ece": 0.0688359157906638,
-  "statistical_validation": {
-    "paired_difference": {
-      "mean_diff": -0.041666666666666664,
-      "std_diff": 0.45452967144315487,
-      "t_statistic": -0.43963315494212857,
-      "t_p_value": 0.6643060340022998,
-      "wilcoxon_p_value": 0.6547208460185769
+  "raw_random_floats_log": [
+    {
+      "step": 2,
+      "edge": "PatientTelemetryAPI->CompromisedAPIKey",
+      "random_val": 0.8307546325571313,
+      "omitted": false
     },
-    "tost_equivalence": {
-      "status": "NOT MEASURED",
-      "reason": "Two distinct deployment conditions (on-premise vs. cloud API) were not executed in this session"
+    {
+      "step": 3,
+      "edge": "CompromisedAPIKey->OAuthScopePolicy",
+      "random_val": 0.5680328584976223,
+      "omitted": false
     },
-    "holm_bonferroni": {
-      "hypotheses_tested_count": 2,
-      "raw_p_values": [
-        0.6643060340022998,
-        0.6547208460185769
-      ],
-      "adjusted_p_values": [
-        0.6643060340022998,
-        1.0
-      ]
+    {
+      "step": 2,
+      "edge": "DeIdentifiedPHI->IRB_Waiver",
+      "random_val": 0.7430611806083576,
+      "omitted": false
+    },
+    {
+      "step": 2,
+      "edge": "UnencryptedPHI->PublicWiFi",
+      "random_val": 0.5245631615517655,
+      "omitted": false
+    },
+    {
+      "step": 2,
+      "edge": "FullEHR_Record->RoleBasedAccessControl",
+      "random_val": 0.5967413010742667,
+      "omitted": false
+    },
+    {
+      "step": 2,
+      "edge": "LimitedDataSet->DataUseAgreement",
+      "random_val": 0.8842244684948132,
+      "omitted": false
+    },
+    {
+      "step": 2,
+      "edge": "UnencryptedDiagnosticPHI->PhysicalTheftIncident",
+      "random_val": 0.7890893060912736,
+      "omitted": false
+    },
+    {
+      "step": 2,
+      "edge": "AnonymizedTelemetry->DataTransferAgreement",
+      "random_val": 0.2822835962732533,
+      "omitted": true
+    },
+    {
+      "step": 2,
+      "edge": "UnencryptedPHI_Backup->OverseasServer",
+      "random_val": 0.4076086821382132,
+      "omitted": false
+    },
+    {
+      "step": 3,
+      "edge": "OverseasServer->DownstreamBAA",
+      "random_val": 0.19714526271885158,
+      "omitted": true
+    },
+    {
+      "step": 2,
+      "edge": "PseudonymizedGenomicPHI->IRB_MasterApproval",
+      "random_val": 0.7786009330261242,
+      "omitted": false
+    },
+    {
+      "step": 3,
+      "edge": "IRB_MasterApproval->MasterBAA_Agreement",
+      "random_val": 0.6755006424968113,
+      "omitted": false
+    },
+    {
+      "step": 2,
+      "edge": "PatientTelemetryAPI->CompromisedAPIKey",
+      "random_val": 0.8343950181808709,
+      "omitted": false
+    },
+    {
+      "step": 3,
+      "edge": "CompromisedAPIKey->OAuthScopePolicy",
+      "random_val": 0.8854984646850844,
+      "omitted": false
+    },
+    {
+      "step": 2,
+      "edge": "EncryptedHealthRecord->StatewideOptOutPolicy",
+      "random_val": 0.20639789791783103,
+      "omitted": true
+    },
+    {
+      "step": 3,
+      "edge": "StatewideOptOutPolicy->HIE_ParticipationAgreement",
+      "random_val": 0.9928477994129276,
+      "omitted": false
+    },
+    {
+      "step": 2,
+      "edge": "RawClinicalNotes->ExternalLLM_API",
+      "random_val": 0.5465939757586703,
+      "omitted": false
+    },
+    {
+      "step": 3,
+      "edge": "ExternalLLM_API->VendorBAA_Document",
+      "random_val": 0.06489741721356057,
+      "omitted": true
+    },
+    {
+      "step": 2,
+      "edge": "EpidemiologicalRecords->ExecutiveEmergencyOrder",
+      "random_val": 0.51844718530753,
+      "omitted": false
+    },
+    {
+      "step": 3,
+      "edge": "ExecutiveEmergencyOrder->CDC_Mandate",
+      "random_val": 0.2234498863281823,
+      "omitted": true
     }
-  },
+  ],
+  "expected_calibration_error_ece": 0.0688359157906638,
+  "statistical_validation": {},
   "all_baselines_summary": {
     "Vector-RAG": {
       "status": "EXECUTED",
