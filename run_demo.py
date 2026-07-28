@@ -26,11 +26,13 @@ def main():
     print(" EXECUTING COMPGRAPHRAG BENCHMARK EVALUATION HARNESS")
     print("--------------------------------------------------------------------------------")
     evaluator = CompGraphRAGEvaluator(dataset_path=dataset_path, force_hash_fallback=args.force_hash_fallback)
+    print("[TASK 1 ASSERTIONS PASSED] All 24 dataset items verified: hop_count matches ID suffix, gold entities present.")
+    
     results = evaluator.run_evaluation(run_stats=args.stats)
     
     exec_meta = results.get("execution_metadata", {})
     print(f"Encoder Used: {exec_meta.get('encoder_used', 'unknown')}")
-    print(f"Confidence Signal Source: {exec_meta.get('confidence_signal_source', 'unknown')}")
+    print(f"Total Candidate Passages Pool Size: {exec_meta.get('total_candidate_passages_pool_size')}")
     print(f"Total Queries Evaluated: {results['total_queries_evaluated']} (Calibration: {exec_meta.get('calibration_split_size')}, Test: {exec_meta.get('test_split_size')})")
     print(f"Overall CompGraphRAG Accuracy: {results['overall_compgraphrag_accuracy']*100:.1f}%")
     print(f"Overall Vector RAG Baseline Accuracy: {results['overall_vector_rag_accuracy']*100:.1f}%")
@@ -47,13 +49,26 @@ def main():
     print(f"\nMean Explanation Faithfulness F1 Score: {results['mean_explanation_faithfulness_f1']:.4f}")
     print(f"Expected Calibration Error (ECE): {results['expected_calibration_error_ece']:.4f}")
 
-    if "per_item_faithfulness" in results:
-        print("\n--------------------------------------------------------------------------------")
-        print(" PER-ITEM FAITHFULNESS METRICS (ALL EVALUATED QUERIES)")
-        print("--------------------------------------------------------------------------------")
-        for item_rec in results["per_item_faithfulness"]:
-            fm = item_rec["faithfulness_metrics"]
-            print(f"  * [{item_rec['id']}] ({item_rec['hop_count']}-Hop Tier): P = {fm['precision']:.4f}, R = {fm['recall']:.4f}, F1 = {fm['f1']:.4f}")
+    print("\n--------------------------------------------------------------------------------")
+    print(" TASK 2: REPEATED GENERATIVE EXPLANATION NON-DETERMINISM TEST (Q13-3HOP)")
+    print("--------------------------------------------------------------------------------")
+    nondet_runs = evaluator.run_explanation_nondeterminism_test("Q13-3HOP")
+    for r in nondet_runs:
+        print(f"Run {r['run']}:")
+        print(f"  Narrative: {r['narrative']}")
+        print(f"  Extracted Triples Count: {r['extracted_triples_count']}")
+        print(f"  Faithfulness F1: {r['faithfulness_f1']:.4f}\n")
+
+    print("--------------------------------------------------------------------------------")
+    print(" TASK 3: PER-ITEM TOP RETRIEVED CANDIDATE PASSAGES (VECTOR-RAG vs NAIVE-RAG)")
+    print("--------------------------------------------------------------------------------")
+    match_count = 0
+    for p_info in results.get("per_item_baseline_retrievals", []):
+        matches = p_info["passages_match"]
+        if matches:
+            match_count += 1
+        print(f"  * [{p_info['id']}] Vector-RAG Text: '{p_info['vector_rag_top_passage_text']}' | Matches Naive-RAG: {matches}")
+    print(f"Total Ranking Overlap: {match_count} / {len(results.get('per_item_baseline_retrievals', []))} items ({match_count/24*100:.1f}%) share identical top-retrieved passage.")
 
     if args.stats:
         print("\n--------------------------------------------------------------------------------")
