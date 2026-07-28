@@ -49,6 +49,14 @@ def main():
     print(f"\nMean Explanation Faithfulness F1 Score: {results['mean_explanation_faithfulness_f1']:.4f}")
     print(f"Expected Calibration Error (ECE): {results['expected_calibration_error_ece']:.4f}")
 
+    if "per_item_faithfulness" in results:
+        print("\n--------------------------------------------------------------------------------")
+        print(" TASK 2: FULL PER-ITEM FAITHFULNESS METRICS (ALL 24 EVALUATED QUERIES)")
+        print("--------------------------------------------------------------------------------")
+        for item_rec in results["per_item_faithfulness"]:
+            fm = item_rec["faithfulness_metrics"]
+            print(f"  * [{item_rec['id']}] ({item_rec['hop_count']}-Hop Tier): P = {fm['precision']:.4f}, R = {fm['recall']:.4f}, F1 = {fm['f1']:.4f}")
+
     print("\n--------------------------------------------------------------------------------")
     print(" TASK 2: REPEATED GENERATIVE EXPLANATION NON-DETERMINISM TEST (Q13-3HOP)")
     print("--------------------------------------------------------------------------------")
