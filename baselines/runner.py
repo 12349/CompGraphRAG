@@ -1,85 +1,107 @@
 """
-Baseline Runner module for evaluating CompGraphRAG against:
-1. Vector RAG (Dense Bi-Encoder only)
-2. Naive RAG (Flat Top-k Context)
-3. GraphRAG (Hierarchical Community Summarization Mock)
-4. LightRAG (Dual-Level Entity/Theme Indexing Mock)
-5. HippoRAG (PPR-only Memory Retrieval Mock)
+Baseline Runner module for CompGraphRAG Comparative Analysis.
+Executes real Vector-RAG and Naive-RAG baselines over candidate corpus text passages.
+Marks uninstalled external systems (GraphRAG, LightRAG, HippoRAG) as 'NOT MEASURED'.
 """
 
 import numpy as np
 from typing import List, Dict, Any
 
 class BaselineRunner:
-    def __init__(self):
-        self.baseline_names = ["Vector-RAG", "Naive-RAG", "GraphRAG", "LightRAG", "HippoRAG", "CompGraphRAG"]
+    def __init__(self, hybrid_scorer=None):
+        self.scorer = hybrid_scorer
 
-    def run_baseline_query(self, baseline_name: str, query_item: Dict[str, Any]) -> Dict[str, Any]:
+    def run_vector_rag_query(self, query_text: str, candidate_passages: List[Dict[str, Any]], gold_det: str) -> Dict[str, Any]:
         """
-        Runs query item through specified baseline model.
-        Returns prediction dictionary: {"determination": "...", "accuracy": float, "confidence": float}
+        Real Vector-RAG baseline: Dense similarity retrieval over passage nodes without graph traversal.
         """
-        hop = query_item.get("hop_count", 1)
-        gold_det = query_item.get("gold_determination")
+        if not candidate_passages or self.scorer is None:
+            return {"baseline": "Vector-RAG", "determination": "REQUIRES-REVIEW", "is_correct": False, "score": 0.0}
 
-        if baseline_name == "CompGraphRAG":
-            # CompGraphRAG 100% accuracy across all hop counts
-            return {
-                "baseline": baseline_name,
-                "determination": gold_det,
-                "is_correct": True,
-                "confidence": 0.95
-            }
-        elif baseline_name == "Vector-RAG":
-            # Degrades with hop count: 90% at 1-hop, 65% at 2-hop, 45% at 3-hop, 25% at 4-hop
-            prob = max(0.20, 0.90 - 0.22 * (hop - 1))
-            is_correct = (np.random.rand() < prob)
-            return {
-                "baseline": baseline_name,
-                "determination": gold_det if is_correct else ("NON-COMPLIANT" if gold_det == "COMPLIANT" else "COMPLIANT"),
-                "is_correct": is_correct,
-                "confidence": prob
-            }
-        elif baseline_name == "LightRAG":
-            prob = max(0.40, 0.92 - 0.12 * (hop - 1))
-            is_correct = (np.random.rand() < prob)
-            return {
-                "baseline": baseline_name,
-                "determination": gold_det if is_correct else "REQUIRES-REVIEW",
-                "is_correct": is_correct,
-                "confidence": prob
-            }
-        elif baseline_name == "HippoRAG":
-            prob = max(0.45, 0.94 - 0.10 * (hop - 1))
-            is_correct = (np.random.rand() < prob)
-            return {
-                "baseline": baseline_name,
-                "determination": gold_det if is_correct else "REQUIRES-REVIEW",
-                "is_correct": is_correct,
-                "confidence": prob
-            }
-        else: # Naive or GraphRAG
-            prob = max(0.30, 0.85 - 0.18 * (hop - 1))
-            is_correct = (np.random.rand() < prob)
-            return {
-                "baseline": baseline_name,
-                "determination": gold_det if is_correct else "REQUIRES-REVIEW",
-                "is_correct": is_correct,
-                "confidence": prob
-            }
+        q_emb = self.scorer.encode_text(query_text)
+        scored = []
+        for cand in candidate_passages:
+            x_emb = cand.get("embedding", self.scorer.encode_text(cand.get("text", "")))
+            sim = self.scorer.cosine_similarity(q_emb, x_emb)
+            scored.append((cand, sim))
+        
+        scored.sort(key=lambda x: x[1], reverse=True)
+        top_cand, top_score = scored[0]
+        
+        pred_det = top_cand.get("determination", "REQUIRES-REVIEW")
+        return {
+            "baseline": "Vector-RAG",
+            "retrieved_passage": top_cand.get("text", ""),
+            "determination": pred_det,
+            "is_correct": (pred_det == gold_det),
+            "score": float(top_score)
+        }
 
-    def benchmark_all_baselines(self, queries: List[Dict[str, Any]]) -> Dict[str, Dict[str, float]]:
+    def run_naive_rag_query(self, query_text: str, candidate_passages: List[Dict[str, Any]], gold_det: str) -> Dict[str, Any]:
         """
-        Runs all baseline models across full query set.
+        Real Naive-RAG baseline: BM25/keyword overlap + dense similarity without graph path traversal.
         """
-        results = {}
-        for b_name in self.baseline_names:
-            accs = []
-            for q in queries:
-                res = self.run_baseline_query(b_name, q)
-                accs.append(1.0 if res["is_correct"] else 0.0)
-            results[b_name] = {
-                "mean_accuracy": float(np.mean(accs)),
-                "std_accuracy": float(np.std(accs))
+        if not candidate_passages or self.scorer is None:
+            return {"baseline": "Naive-RAG", "determination": "REQUIRES-REVIEW", "is_correct": False, "score": 0.0}
+
+        q_words = set(query_text.lower().split())
+        q_emb = self.scorer.encode_text(query_text)
+        scored = []
+        for cand in candidate_passages:
+            p_words = set(cand.get("text", "").lower().split())
+            keyword_overlap = len(q_words.intersection(p_words)) / max(1, len(q_words))
+            x_emb = cand.get("embedding", self.scorer.encode_text(cand.get("text", "")))
+            dense_sim = self.scorer.cosine_similarity(q_emb, x_emb)
+            combined_score = 0.5 * keyword_overlap + 0.5 * dense_sim
+            scored.append((cand, combined_score))
+        
+        scored.sort(key=lambda x: x[1], reverse=True)
+        top_cand, top_score = scored[0]
+        pred_det = top_cand.get("determination", "REQUIRES-REVIEW")
+        return {
+            "baseline": "Naive-RAG",
+            "retrieved_passage": top_cand.get("text", ""),
+            "determination": pred_det,
+            "is_correct": (pred_det == gold_det),
+            "score": float(top_score)
+        }
+
+    def benchmark_all_baselines(self, queries: List[Dict[str, Any]], candidate_passages: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """
+        Executes real Vector-RAG and Naive-RAG baselines; marks uninstalled external baselines as NOT MEASURED.
+        """
+        v_accs = []
+        n_accs = []
+
+        for q in queries:
+            q_text = q.get("question", "")
+            g_det = q.get("gold_determination", "")
+            v_res = self.run_vector_rag_query(q_text, candidate_passages, g_det)
+            n_res = self.run_naive_rag_query(q_text, candidate_passages, g_det)
+            v_accs.append(1.0 if v_res["is_correct"] else 0.0)
+            n_accs.append(1.0 if n_res["is_correct"] else 0.0)
+
+        return {
+            "Vector-RAG": {
+                "status": "EXECUTED",
+                "mean_accuracy": float(np.mean(v_accs)) if v_accs else 0.0,
+                "std_accuracy": float(np.std(v_accs)) if v_accs else 0.0
+            },
+            "Naive-RAG": {
+                "status": "EXECUTED",
+                "mean_accuracy": float(np.mean(n_accs)) if n_accs else 0.0,
+                "std_accuracy": float(np.std(n_accs)) if n_accs else 0.0
+            },
+            "GraphRAG": {
+                "status": "NOT MEASURED",
+                "reason": "Microsoft GraphRAG repository not installed in environment"
+            },
+            "LightRAG": {
+                "status": "NOT MEASURED",
+                "reason": "LightRAG repository not installed in environment"
+            },
+            "HippoRAG": {
+                "status": "NOT MEASURED",
+                "reason": "HippoRAG repository not installed in environment"
             }
-        return results
+        }
