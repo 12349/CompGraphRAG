@@ -13,7 +13,7 @@ class CandidateCorpus:
         self._build_candidate_corpus()
 
     def _build_candidate_corpus(self):
-        """Constructs standalone candidate knowledge graph and passage store."""
+        """Constructs standalone candidate knowledge graph and raw passage corpus."""
         
         # Define candidate edge chains across 1-4 hop compliance paths (including targets & distractors)
         candidate_paths = [
@@ -24,8 +24,9 @@ class CandidateCorpus:
             [{"source": "PatientAccessFee", "relation": "satisfiesStandard", "target": "CostBasedFeeRule", "confidence": 0.95}],
             [{"source": "LawEnforcementDisclosure", "relation": "violatessafeguard", "target": "PrivacyRule_LawEnforcement", "confidence": 0.95}],
             [{"source": "EmergencyFamilyDisclosure", "relation": "subjectToException", "target": "EmergencyCarveout", "confidence": 0.95}],
-            # Distractor 1-Hop
+            # Distractors 1-Hop
             [{"source": "PHI_Disclosure", "relation": "requiresAuthorization", "target": "GeneralPatientConsent", "confidence": 0.50}],
+            [{"source": "PsychotherapyNotes", "relation": "subjectToException", "target": "GeneralMedicalRecordRule", "confidence": 0.40}],
             
             # Q7-Q12 (2-Hop)
             [
@@ -52,7 +53,7 @@ class CandidateCorpus:
                 {"source": "DeIdentifiedData", "relation": "transmitsPHI", "target": "AnalyticsVendor", "confidence": 0.95},
                 {"source": "AnalyticsVendor", "relation": "subjectToException", "target": "DeIdentificationSafeHarbor", "confidence": 0.95}
             ],
-            # Distractor 2-Hop
+            # Distractors 2-Hop
             [
                 {"source": "CoveredEntity_A", "relation": "disclosesPHITo", "target": "Vendor_X", "confidence": 0.60},
                 {"source": "Vendor_X", "relation": "satisfiesStandard", "target": "GenericNDA", "confidence": 0.60}
@@ -137,30 +138,33 @@ class CandidateCorpus:
                 v = edge["target"]
                 self.graph.add_edge(u, v, **edge)
 
-        # Build candidate passages for Vector-RAG / Naive-RAG
+        # Build raw un-labeled regulatory passage corpus (NO answer key labels attached)
         self.passages = [
-            {"id": "p01", "text": "Disclosure of PHI for patient treatment, payment, and operations (TPO) under 45 CFR 164.506 is exempt from individual authorization.", "determination": "COMPLIANT"},
-            {"id": "p02", "text": "Psychotherapy notes are explicitly excluded from general TPO exceptions under 45 CFR 164.508 and require written authorization.", "determination": "NON-COMPLIANT"},
-            {"id": "p03", "text": "Disclosure of PHI pursuant to a valid judicial subpoena satisfies 45 CFR 164.512 exceptions.", "determination": "COMPLIANT"},
-            {"id": "p04", "text": "Covered entities may charge reasonable cost-based fee for patient record access under 45 CFR 164.524.", "determination": "COMPLIANT"},
-            {"id": "p05", "text": "Law enforcement disclosure without court order or warrant violates Privacy Rule safeguards.", "determination": "NON-COMPLIANT"},
-            {"id": "p06", "text": "Verbal disclosure of emergency status to family members is permitted under emergency carveout rules.", "determination": "COMPLIANT"},
-            {"id": "p07", "text": "Disclosing PHI to a cloud vendor without an executed Business Associate Agreement violates 45 CFR 164.502(e).", "determination": "NON-COMPLIANT"},
-            {"id": "p08", "text": "EMT providers transmitting PHI to receiving hospital emergency departments qualify as treatment activities.", "determination": "COMPLIANT"},
-            {"id": "p09", "text": "Business associate sharing PHI with secondary host without downstream BAA violates §164.502(e).", "determination": "NON-COMPLIANT"},
-            {"id": "p10", "text": "Hospital sharing billing data with collection agency under valid BAA satisfies statutory standards.", "determination": "COMPLIANT"},
-            {"id": "p11", "text": "Transmitting unencrypted patient billing spreadsheets over open email violates Security Rule encryption rules.", "determination": "NON-COMPLIANT"},
-            {"id": "p12", "text": "Disclosing de-identified patient data to analytics vendors qualifies under de-identification safe harbor exceptions.", "determination": "COMPLIANT"},
-            {"id": "p13", "text": "Research projects accessing de-identified PHI under IRB waiver satisfy minimum necessary standards.", "determination": "COMPLIANT"},
-            {"id": "p14", "text": "Subcontractors transmitting unencrypted PHI over public Wi-Fi breach Security Rule technical safeguards.", "determination": "NON-COMPLIANT"},
-            {"id": "p15", "text": "Off-site contractors accessing full EHR without role-based access control breach access control standards.", "determination": "NON-COMPLIANT"},
-            {"id": "p16", "text": "Sharing limited dataset records for public health under data use agreement satisfies public health carveouts.", "determination": "COMPLIANT"},
-            {"id": "p17", "text": "Stolen unencrypted diagnostic backup drive constitutes a reportable breach under Breach Notification Rule.", "determination": "NON-COMPLIANT"},
-            {"id": "p18", "text": "Sharing anonymized clinical telemetry with academic partners under data transfer agreement satisfies de-identification rules.", "determination": "COMPLIANT"},
-            {"id": "p19", "text": "Foreign subcontractors storing unencrypted backups overseas without downstream BAA violate HIPAA Security Omnibus.", "determination": "NON-COMPLIANT"},
-            {"id": "p20", "text": "Multi-site clinical trial sharing pseudonymized genomic data under IRB master approval and BAA is compliant.", "determination": "COMPLIANT"},
-            {"id": "p21", "text": "Unauthorized mobile app accessing patient API via compromised API keys without OAuth scopes violates technical access controls.", "determination": "NON-COMPLIANT"},
-            {"id": "p22", "text": "Regional HIE routing encrypted records under state-wide opt-out policy satisfies TPO exchange rules.", "determination": "COMPLIANT"},
-            {"id": "p23", "text": "Exporting raw clinical notes to external LLM API without vendor BAA violates Privacy Rule disclosure rules.", "determination": "NON-COMPLIANT"},
-            {"id": "p24", "text": "Transmitting de-identified epidemiological records to CDC under emergency executive order satisfies public health emergency carveouts.", "determination": "COMPLIANT"}
+            {"id": "p01", "text": "Under 45 CFR 164.506, covered entities are permitted to use or disclose protected health information for treatment, payment, or health care operations without individual authorization."},
+            {"id": "p02", "text": "45 CFR 164.508 mandates that covered entities must obtain an authorization for any use or disclosure of psychotherapy notes, except to carry out treatment or defense in legal proceedings."},
+            {"id": "p03", "text": "Section 164.512(e) permits covered entities to disclose protected health information in response to an order of a court or administrative tribunal, or valid judicial subpoena."},
+            {"id": "p04", "text": "Under 45 CFR 164.524, a covered entity may charge a reasonable, cost-based fee for providing individuals with copies of their medical records."},
+            {"id": "p05", "text": "Disclosures of PHI to law enforcement officials require a court order, grand jury subpoena, or statutory mandate under 45 CFR 164.512(f)."},
+            {"id": "p06", "text": "In emergency circumstances, healthcare providers may disclose PHI relevant to family members or caregivers involved in care under professional judgment rules."},
+            {"id": "p07", "text": "A covered entity may not disclose protected health information to a business associate or cloud service provider without obtaining satisfactory assurances through a written Business Associate Agreement pursuant to 45 CFR 164.502(e) and 164.504(e)."},
+            {"id": "p08", "text": "Emergency medical service personnel transmitting patient care reports to receiving hospital staff qualify under treatment activities under HIPAA privacy provisions."},
+            {"id": "p09", "text": "Subcontractor vendors handling protected health information on behalf of a business associate must enter into downstream business associate contracts meeting §164.504(e) standards."},
+            {"id": "p10", "text": "Covered hospitals sharing patient billing details with contracted debt collection agencies operating under executed business associate agreements satisfy Privacy Rule requirements."},
+            {"id": "p11", "text": "The Security Rule 45 CFR 164.312(e) mandates implementation of technical security measures to guard against unauthorized access to electronic PHI that is being transmitted over an electronic communications network."},
+            {"id": "p12", "text": "Health information that meets the de-identification standards of 45 CFR 164.514(a)-(b) is no longer considered protected health information and falls outside HIPAA Privacy Rule restrictions."},
+            {"id": "p13", "text": "Research use of protected health information is permissible under 45 CFR 164.512(i) if an Institutional Review Board (IRB) or Privacy Board grants a waiver of authorization."},
+            {"id": "p14", "text": "Transmitting unencrypted electronic PHI over public Wi-Fi networks fails to meet technical transmission security standards specified in 45 CFR 164.312(e)."},
+            {"id": "p15", "text": "Role-based access control procedures required by 45 CFR 164.312(a)(1) dictate that workforce members and contractors be granted access only to the minimum necessary electronic PHI required for their assigned duties."},
+            {"id": "p16", "text": "A covered entity may disclose a limited data set for public health or research purposes if the disclosure is governed by a data use agreement satisfying 45 CFR 164.514(e)."},
+            {"id": "p17", "text": "Under 45 CFR 164.402, the acquisition, access, use, or disclosure of unencrypted protected health information in a manner not permitted under subpart E is presumed to be a reportable breach."},
+            {"id": "p18", "text": "Sharing fully anonymized or de-identified data streams under a data transfer agreement complies with statutory de-identification standards under 45 CFR 164.514."},
+            {"id": "p19", "text": "Foreign subcontractors processing or storing electronic PHI backups overseas must adhere to the HIPAA Security Final Rule and Omnibus Standards including downstream agreement obligations."},
+            {"id": "p20", "text": "Multi-center clinical research trials sharing pseudonymized genomic data operate compliantly when governed by master IRB approvals, data protection agreements, and executed BAAs."},
+            {"id": "p21", "text": "API endpoints exposing electronic PHI without proper OAuth scope authorization or access control mechanisms breach technical access control standards under 45 CFR 164.312(a)."},
+            {"id": "p22", "text": "Health information exchanges (HIEs) transmitting encrypted health records under state opt-out framework agreements satisfy treatment, payment, and operations exchange standards."},
+            {"id": "p23", "text": "Transmission of unredacted clinical notes to external commercial artificial intelligence APIs without a signed business associate agreement constitutes an impermissible disclosure under 45 CFR 164.502."},
+            {"id": "p24", "text": "Reporting epidemiological surveillance data to the Centers for Disease Control and Prevention (CDC) under executive emergency authority is authorized pursuant to public health exception 45 CFR 164.512(b)."},
+            # Distractor raw passages
+            {"id": "d01", "text": "Administrative requirements under 45 CFR 164.530 mandate that covered entities designate a privacy official responsible for policy development."},
+            {"id": "d02", "text": "Physical safeguards under 45 CFR 164.310 specify facility access controls and workstation security requirements for covered entities."}
         ]

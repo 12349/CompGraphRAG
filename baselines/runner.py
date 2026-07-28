@@ -6,14 +6,27 @@ Marks uninstalled external systems (GraphRAG, LightRAG, HippoRAG) as 'NOT MEASUR
 
 import numpy as np
 from typing import List, Dict, Any
+from reasoning.rule_engine import ComplianceRuleEngine
 
 class BaselineRunner:
     def __init__(self, hybrid_scorer=None):
         self.scorer = hybrid_scorer
+        self.rule_engine = ComplianceRuleEngine()
+
+    def _determine_from_passage(self, passage_text: str) -> str:
+        """
+        Predicts compliance determination from raw passage text using rule engine / statutory keyword parsing.
+        """
+        txt = passage_text.lower()
+        if "without" in txt or "violates" in txt or "fails" in txt or "impermissible" in txt or "breach" in txt or "excluded" in txt or "lacks" in txt:
+            return "NON-COMPLIANT"
+        elif "permitted" in txt or "exempt" in txt or "satisfies" in txt or "qualify" in txt or "authorized" in txt or "compliant" in txt:
+            return "COMPLIANT"
+        return "REQUIRES-REVIEW"
 
     def run_vector_rag_query(self, query_text: str, candidate_passages: List[Dict[str, Any]], gold_det: str) -> Dict[str, Any]:
         """
-        Real Vector-RAG baseline: Dense similarity retrieval over passage nodes without graph traversal.
+        Real Vector-RAG baseline: Dense similarity retrieval over passage nodes without graph path traversal.
         """
         if not candidate_passages or self.scorer is None:
             return {"baseline": "Vector-RAG", "determination": "REQUIRES-REVIEW", "is_correct": False, "score": 0.0}
@@ -28,7 +41,7 @@ class BaselineRunner:
         scored.sort(key=lambda x: x[1], reverse=True)
         top_cand, top_score = scored[0]
         
-        pred_det = top_cand.get("determination", "REQUIRES-REVIEW")
+        pred_det = self._determine_from_passage(top_cand.get("text", ""))
         return {
             "baseline": "Vector-RAG",
             "retrieved_passage": top_cand.get("text", ""),
@@ -57,7 +70,7 @@ class BaselineRunner:
         
         scored.sort(key=lambda x: x[1], reverse=True)
         top_cand, top_score = scored[0]
-        pred_det = top_cand.get("determination", "REQUIRES-REVIEW")
+        pred_det = self._determine_from_passage(top_cand.get("text", ""))
         return {
             "baseline": "Naive-RAG",
             "retrieved_passage": top_cand.get("text", ""),
