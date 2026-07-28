@@ -4,7 +4,8 @@
     "confidence_signal_source": "Top candidate path hybrid_score computed by HybridScorer",
     "calibration_split_size": 12,
     "test_split_size": 12,
-    "total_candidate_passages_pool_size": 26
+    "total_candidate_passages_pool_size": 26,
+    "explanation_seed_strategy": "Item-ID MD5 deterministic hash seed"
   },
   "total_queries_evaluated": 24,
   "overall_compgraphrag_accuracy": 0.8333333333333334,
@@ -41,7 +42,7 @@
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Regarding the query 'Does disclosure of PHI for patient treatment require patient...': Audit analysis indicates the following compliance path. Step 1: Verification reveals PHI_Disclosure --(subjectToException)--> TPO_Exception.",
+      "explanation_narrative": "Compliance trajectory analysis for 'Does disclosure of PHI for patient treatment require patient...': Step 1: Entity PHI_Disclosure is linked via subjectToException to TPO_Exception.",
       "extracted_explanation_triples": [
         {
           "source": "PHI_Disclosure",
@@ -68,7 +69,7 @@
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Regarding the query 'Are psychotherapy notes subject to the general TPO disclosur...': Audit analysis indicates the following compliance path. Step 1: Entity PsychotherapyNotes is linked via excludedFrom to TPO_Exception.",
+      "explanation_narrative": "Compliance trajectory analysis for 'Are psychotherapy notes subject to the general TPO disclosur...': Step 1: Entity PsychotherapyNotes is linked via excludedFrom to TPO_Exception.",
       "extracted_explanation_triples": [
         {
           "source": "PsychotherapyNotes",
@@ -95,7 +96,7 @@
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Regarding the query 'Is disclosure of PHI pursuant to a valid judicial subpoena c...': Audit analysis indicates the following compliance path. Step 1: Verification reveals PHI_Disclosure --(subjectToException)--> JudicialSubpoena_Exception.",
+      "explanation_narrative": "Regulatory path verification report: Step 1: Entity PHI_Disclosure is linked via subjectToException to JudicialSubpoena_Exception.",
       "extracted_explanation_triples": [
         {
           "source": "PHI_Disclosure",
@@ -122,7 +123,7 @@
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Regarding the query 'Can a covered entity charge reasonable cost-based fees for p...': Audit analysis indicates the following compliance path. Step 1: Subgraph edge shows PatientAccessFee satisfiesStandard CostBasedFeeRule.",
+      "explanation_narrative": "Compliance trajectory analysis for 'Can a covered entity charge reasonable cost-based fees for p...': Step 1: Subgraph edge shows PatientAccessFee satisfiesStandard CostBasedFeeRule.",
       "extracted_explanation_triples": [
         {
           "source": "PatientAccessFee",
@@ -149,7 +150,7 @@
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Regulatory path verification report: Step 1: Subgraph edge shows PHI_Disclosure subjectToException JudicialSubpoena_Exception.",
+      "explanation_narrative": "Regarding the query 'Does sharing PHI with law enforcement without a court order ...': Audit analysis indicates the following compliance path. Step 1: Subgraph edge shows PHI_Disclosure subjectToException JudicialSubpoena_Exception.",
       "extracted_explanation_triples": [
         {
           "source": "PHI_Disclosure",
@@ -182,7 +183,7 @@
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Regulatory path verification report: Step 1: Entity Hospital_A is linked via disclosesPHITo to CollectionAgency_B. Step 2: Subgraph edge shows CollectionAgency_B satisfiesStandard BAA_Agreement.",
+      "explanation_narrative": "Compliance trajectory analysis for 'Does verbal disclosure of patient status to family members d...': Step 1: Verification reveals Hospital_A --(disclosesPHITo)--> CollectionAgency_B. Step 2: Verification reveals CollectionAgency_B --(satisfiesStandard)--> BAA_Agreement.",
       "extracted_explanation_triples": [
         {
           "source": "Hospital_A",
@@ -215,7 +216,7 @@
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Compliance trajectory analysis for 'Can a Covered Entity disclose PHI to a cloud vendor without ...': Step 1: Entity PHI_Disclosure is linked via subjectToException to TPO_Exception.",
+      "explanation_narrative": "Compliance trajectory analysis for 'Can a Covered Entity disclose PHI to a cloud vendor without ...': Step 1: Subgraph edge shows PHI_Disclosure subjectToException TPO_Exception.",
       "extracted_explanation_triples": [
         {
           "source": "PHI_Disclosure",
@@ -248,7 +249,7 @@
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Regarding the query 'Is an emergency medical technician allowed to share PHI with...': Audit analysis indicates the following compliance path. Step 1: Subgraph edge shows EMT_Provider transmitsPHI Hospital_ED. Step 2: Subgraph edge shows Hospital_ED qualifiesAs TreatmentActivity.",
+      "explanation_narrative": "Regulatory path verification report: Step 1: Subgraph edge shows EMT_Provider transmitsPHI Hospital_ED. Step 2: Verification reveals Hospital_ED --(qualifiesAs)--> TreatmentActivity.",
       "extracted_explanation_triples": [
         {
           "source": "EMT_Provider",
@@ -281,7 +282,7 @@
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Compliance trajectory analysis for 'Does a business associate transmitting PHI to a secondary cl...': Step 1: Verification reveals PHI_Disclosure --(subjectToException)--> TPO_Exception.",
+      "explanation_narrative": "Regulatory path verification report: Step 1: Subgraph edge shows PHI_Disclosure subjectToException TPO_Exception.",
       "extracted_explanation_triples": [
         {
           "source": "PHI_Disclosure",
@@ -314,7 +315,7 @@
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Regulatory path verification report: Step 1: Entity Hospital_A is linked via disclosesPHITo to CollectionAgency_B. Step 2: Subgraph edge shows CollectionAgency_B satisfiesStandard BAA_Agreement.",
+      "explanation_narrative": "Regarding the query 'Can a hospital share billing information with an external co...': Audit analysis indicates the following compliance path. Step 1: Entity Hospital_A is linked via disclosesPHITo to CollectionAgency_B. Step 2: Subgraph edge shows CollectionAgency_B satisfiesStandard BAA_Agreement.",
       "extracted_explanation_triples": [
         {
           "source": "Hospital_A",
@@ -353,7 +354,7 @@
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Compliance trajectory analysis for 'Is sending unencrypted patient billing spreadsheets over ope...': Step 1: Verification reveals BillingDepartment --(transmitsData)--> UnencryptedEmail. Step 2: Subgraph edge shows UnencryptedEmail violatessafeguard SecurityRule_Encryption.",
+      "explanation_narrative": "Regarding the query 'Is sending unencrypted patient billing spreadsheets over ope...': Audit analysis indicates the following compliance path. Step 1: Entity BillingDepartment is linked via transmitsData to UnencryptedEmail. Step 2: Subgraph edge shows UnencryptedEmail violatessafeguard SecurityRule_Encryption.",
       "extracted_explanation_triples": [
         {
           "source": "BillingDepartment",
@@ -404,7 +405,7 @@
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Compliance trajectory analysis for 'Does disclosing de-identified patient data to a marketing an...': Step 1: Subgraph edge shows MobileApp_Vendor accessesData PatientTelemetryAPI. Step 2: Verification reveals PatientTelemetryAPI --(traversesNetwork)--> CompromisedAPIKey. Step 3: (Intermediate path segment connecting to OAuthScopePolicy is abstracted in summary). Step 4: Subgraph edge shows OAuthScopePolicy violatessafeguard TechnicalAccessControls.",
+      "explanation_narrative": "Compliance trajectory analysis for 'Does disclosing de-identified patient data to a marketing an...': Step 1: Verification reveals MobileApp_Vendor --(accessesData)--> PatientTelemetryAPI. Step 2: Subgraph edge shows PatientTelemetryAPI traversesNetwork CompromisedAPIKey. Step 3: Verification reveals CompromisedAPIKey --(lacksAgreement)--> OAuthScopePolicy. Step 4: Verification reveals OAuthScopePolicy --(violatessafeguard)--> TechnicalAccessControls.",
       "extracted_explanation_triples": [
         {
           "source": "MobileApp_Vendor",
@@ -461,7 +462,7 @@
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Compliance trajectory analysis for 'If a research project accesses de-identified data via a work...': Step 1: Subgraph edge shows ResearchProject_X usesData DeIdentifiedPHI. Step 2: Verification reveals DeIdentifiedPHI --(governedBy)--> IRB_Waiver. Step 3: Entity IRB_Waiver is linked via satisfiesStandard to MinimumNecessaryStandard.",
+      "explanation_narrative": "Regarding the query 'If a research project accesses de-identified data via a work...': Audit analysis indicates the following compliance path. Step 1: Subgraph edge shows ResearchProject_X usesData DeIdentifiedPHI. Step 2: Subgraph edge shows DeIdentifiedPHI governedBy IRB_Waiver. Step 3: Subgraph edge shows IRB_Waiver satisfiesStandard MinimumNecessaryStandard.",
       "extracted_explanation_triples": [
         {
           "source": "ResearchProject_X",
@@ -512,7 +513,7 @@
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Regarding the query 'Does transmitting unencrypted PHI over public Wi-Fi by a sub...': Audit analysis indicates the following compliance path. Step 1: Verification reveals Subcontractor_C --(transmitsData)--> UnencryptedPHI. Step 2: Verification reveals UnencryptedPHI --(traversesNetwork)--> PublicWiFi. Step 3: Verification reveals PublicWiFi --(violatessafeguard)--> TechnicalSafeguardsRule.",
+      "explanation_narrative": "Compliance trajectory analysis for 'Does transmitting unencrypted PHI over public Wi-Fi by a sub...': Step 1: Entity Subcontractor_C is linked via transmitsData to UnencryptedPHI. Step 2: Entity UnencryptedPHI is linked via traversesNetwork to PublicWiFi. Step 3: Subgraph edge shows PublicWiFi violatessafeguard TechnicalSafeguardsRule.",
       "extracted_explanation_triples": [
         {
           "source": "Subcontractor_C",
@@ -563,7 +564,7 @@
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Regarding the query 'Does an off-site IT contractor accessing full EHR records wi...': Audit analysis indicates the following compliance path. Step 1: Entity ITContractor_M is linked via accessesData to FullEHR_Record. Step 2: Entity FullEHR_Record is linked via lacksAgreement to RoleBasedAccessControl. Step 3: Entity RoleBasedAccessControl is linked via violatessafeguard to AccessControlStandard.",
+      "explanation_narrative": "Regulatory path verification report: Step 1: Subgraph edge shows ITContractor_M accessesData FullEHR_Record. Step 2: Subgraph edge shows FullEHR_Record lacksAgreement RoleBasedAccessControl. Step 3: Subgraph edge shows RoleBasedAccessControl violatessafeguard AccessControlStandard.",
       "extracted_explanation_triples": [
         {
           "source": "ITContractor_M",
@@ -614,7 +615,7 @@
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Compliance trajectory analysis for 'Can a covered entity share limited dataset records for publi...': Step 1: Subgraph edge shows PublicHealthAgency requestsData LimitedDataSet. Step 2: Subgraph edge shows LimitedDataSet governedBy DataUseAgreement. Step 3: Entity DataUseAgreement is linked via satisfiesStandard to PublicHealthCarveout.",
+      "explanation_narrative": "Regarding the query 'Can a covered entity share limited dataset records for publi...': Audit analysis indicates the following compliance path. Step 1: Entity PublicHealthAgency is linked via requestsData to LimitedDataSet. Step 2: Entity LimitedDataSet is linked via governedBy to DataUseAgreement. Step 3: Verification reveals DataUseAgreement --(satisfiesStandard)--> PublicHealthCarveout.",
       "extracted_explanation_triples": [
         {
           "source": "PublicHealthAgency",
@@ -665,7 +666,7 @@
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Regulatory path verification report: Step 1: Subgraph edge shows StolenBackupDrive containsData UnencryptedDiagnosticPHI. Step 2: Subgraph edge shows UnencryptedDiagnosticPHI traversesNetwork PhysicalTheftIncident. Step 3: Subgraph edge shows PhysicalTheftIncident violatessafeguard BreachNotificationRule.",
+      "explanation_narrative": "Compliance trajectory analysis for 'Is a stolen unencrypted backup drive containing patient diag...': Step 1: Entity StolenBackupDrive is linked via containsData to UnencryptedDiagnosticPHI. Step 2: Subgraph edge shows UnencryptedDiagnosticPHI traversesNetwork PhysicalTheftIncident. Step 3: Subgraph edge shows PhysicalTheftIncident violatessafeguard BreachNotificationRule.",
       "extracted_explanation_triples": [
         {
           "source": "StolenBackupDrive",
@@ -716,7 +717,7 @@
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Regarding the query 'Does sharing anonymized clinical trial telemetry with an aca...': Audit analysis indicates the following compliance path. Step 1: Entity AcademicPartner is linked via usesData to AnonymizedTelemetry. Step 2: Subgraph edge shows AnonymizedTelemetry governedBy DataTransferAgreement. Step 3: Entity DataTransferAgreement is linked via satisfiesStandard to DeIdentificationRule.",
+      "explanation_narrative": "Regulatory path verification report: Step 1: Subgraph edge shows AcademicPartner usesData AnonymizedTelemetry. Step 2: (Intermediate path segment connecting to DataTransferAgreement is abstracted in summary). Step 3: Verification reveals DataTransferAgreement --(satisfiesStandard)--> DeIdentificationRule.",
       "extracted_explanation_triples": [
         {
           "source": "AcademicPartner",
@@ -773,7 +774,7 @@
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Regulatory path verification report: Step 1: Entity ForeignSubcontractor is linked via transmitsData to UnencryptedPHI_Backup. Step 2: Verification reveals UnencryptedPHI_Backup --(traversesNetwork)--> OverseasServer. Step 3: (Intermediate path segment connecting to DownstreamBAA is abstracted in summary). Step 4: Entity DownstreamBAA is linked via violatessafeguard to HIPAA_Security_Omnibus.",
+      "explanation_narrative": "Compliance trajectory analysis for 'Does a secondary subcontractor storing unencrypted backups o...': Step 1: Verification reveals ForeignSubcontractor --(transmitsData)--> UnencryptedPHI_Backup. Step 2: Verification reveals UnencryptedPHI_Backup --(traversesNetwork)--> OverseasServer. Step 3: (Intermediate path segment connecting to DownstreamBAA is abstracted in summary). Step 4: Subgraph edge shows DownstreamBAA violatessafeguard HIPAA_Security_Omnibus.",
       "extracted_explanation_triples": [
         {
           "source": "ForeignSubcontractor",
@@ -836,7 +837,7 @@
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Regulatory path verification report: Step 1: Verification reveals MultiSiteTrial --(usesData)--> PseudonymizedGenomicPHI. Step 2: Entity PseudonymizedGenomicPHI is linked via governedBy to IRB_MasterApproval. Step 3: (Intermediate path segment connecting to MasterBAA_Agreement is abstracted in summary). Step 4: Verification reveals MasterBAA_Agreement --(subjectToException)--> ResearchExemptionStandard.",
+      "explanation_narrative": "Regulatory path verification report: Step 1: Verification reveals MultiSiteTrial --(usesData)--> PseudonymizedGenomicPHI. Step 2: Entity PseudonymizedGenomicPHI is linked via governedBy to IRB_MasterApproval. Step 3: Subgraph edge shows IRB_MasterApproval satisfiesStandard MasterBAA_Agreement. Step 4: Entity MasterBAA_Agreement is linked via subjectToException to ResearchExemptionStandard.",
       "extracted_explanation_triples": [
         {
           "source": "MultiSiteTrial",
@@ -899,7 +900,7 @@
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Regarding the query 'Does an unauthorized third-party mobile app capturing patien...': Audit analysis indicates the following compliance path. Step 1: Subgraph edge shows MobileApp_Vendor accessesData PatientTelemetryAPI. Step 2: Verification reveals PatientTelemetryAPI --(traversesNetwork)--> CompromisedAPIKey. Step 3: (Intermediate path segment connecting to OAuthScopePolicy is abstracted in summary). Step 4: Entity OAuthScopePolicy is linked via violatessafeguard to TechnicalAccessControls.",
+      "explanation_narrative": "Regulatory path verification report: Step 1: Verification reveals MobileApp_Vendor --(accessesData)--> PatientTelemetryAPI. Step 2: Verification reveals PatientTelemetryAPI --(traversesNetwork)--> CompromisedAPIKey. Step 3: Verification reveals CompromisedAPIKey --(lacksAgreement)--> OAuthScopePolicy. Step 4: Entity OAuthScopePolicy is linked via violatessafeguard to TechnicalAccessControls.",
       "extracted_explanation_triples": [
         {
           "source": "MobileApp_Vendor",
@@ -962,7 +963,7 @@
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Regarding the query 'Can a regional health information exchange (HIE) route encry...': Audit analysis indicates the following compliance path. Step 1: Entity Regional_HIE is linked via transmitsPHI to EncryptedHealthRecord. Step 2: (Intermediate path segment connecting to StatewideOptOutPolicy is abstracted in summary). Step 3: Entity StatewideOptOutPolicy is linked via satisfiesStandard to HIE_ParticipationAgreement. Step 4: Verification reveals HIE_ParticipationAgreement --(subjectToException)--> TPO_ExchangeRule.",
+      "explanation_narrative": "Regulatory path verification report: Step 1: Subgraph edge shows Regional_HIE transmitsPHI EncryptedHealthRecord. Step 2: (Intermediate path segment connecting to StatewideOptOutPolicy is abstracted in summary). Step 3: Verification reveals StatewideOptOutPolicy --(satisfiesStandard)--> HIE_ParticipationAgreement. Step 4: Subgraph edge shows HIE_ParticipationAgreement subjectToException TPO_ExchangeRule.",
       "extracted_explanation_triples": [
         {
           "source": "Regional_HIE",
@@ -1025,7 +1026,7 @@
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Compliance trajectory analysis for 'Is exporting raw unredacted clinical notes to an external LL...': Step 1: Entity HospitalSystem is linked via transmitsPHI to RawClinicalNotes. Step 2: (Intermediate path segment connecting to ExternalLLM_API is abstracted in summary). Step 3: (Intermediate path segment connecting to VendorBAA_Document is abstracted in summary). Step 4: Subgraph edge shows VendorBAA_Document violatessafeguard PrivacyRule_Disclosure.",
+      "explanation_narrative": "Compliance trajectory analysis for 'Is exporting raw unredacted clinical notes to an external LL...': Step 1: Subgraph edge shows HospitalSystem transmitsPHI RawClinicalNotes. Step 2: Subgraph edge shows RawClinicalNotes traversesNetwork ExternalLLM_API. Step 3: (Intermediate path segment connecting to VendorBAA_Document is abstracted in summary). Step 4: Verification reveals VendorBAA_Document --(violatessafeguard)--> PrivacyRule_Disclosure.",
       "extracted_explanation_triples": [
         {
           "source": "HospitalSystem",
@@ -1088,7 +1089,7 @@
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Regulatory path verification report: Step 1: Subgraph edge shows StateHealthDept transmitsData EpidemiologicalRecords. Step 2: Entity EpidemiologicalRecords is linked via governedBy to ExecutiveEmergencyOrder. Step 3: (Intermediate path segment connecting to CDC_Mandate is abstracted in summary). Step 4: Entity CDC_Mandate is linked via subjectToException to PublicHealthEmergencyCarveout.",
+      "explanation_narrative": "Compliance trajectory analysis for 'Does transmitting de-identified epidemiological records to t...': Step 1: Entity StateHealthDept is linked via transmitsData to EpidemiologicalRecords. Step 2: Subgraph edge shows EpidemiologicalRecords governedBy ExecutiveEmergencyOrder. Step 3: (Intermediate path segment connecting to CDC_Mandate is abstracted in summary). Step 4: Entity CDC_Mandate is linked via subjectToException to PublicHealthEmergencyCarveout.",
       "extracted_explanation_triples": [
         {
           "source": "StateHealthDept",

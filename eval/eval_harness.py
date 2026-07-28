@@ -8,6 +8,7 @@ Saves raw json outputs to results/eval_results_raw.json.
 import json
 import os
 import random
+import hashlib
 import networkx as nx
 import numpy as np
 from typing import List, Dict, Any, Tuple
@@ -72,7 +73,7 @@ class CompGraphRAGEvaluator:
         """
         Genuinely free-text explanation generation & Information Extraction (IE) pipeline:
         1. Free-generates a natural language narrative paragraph describing the compliance finding based on path context.
-           Uses stochastic phrasing variations without any hardcoded edge-allowlist lookup table.
+           Uses stochastic phrasing variations controlled by a deterministic seed derived from item ID.
         2. Information Extraction (IE) scans narrative_text to parse asserted subject-relation-target triples.
         """
         if not path:
@@ -81,7 +82,7 @@ class CompGraphRAGEvaluator:
         if seed is not None:
             rng = random.Random(seed)
         else:
-            rng = random.Random()
+            rng = random.Random(42)
 
         # Stochastic natural language paraphrasing templates for free-form generation
         intro_templates = [
@@ -98,15 +99,14 @@ class CompGraphRAGEvaluator:
             r = edge.get("relation", "")
             t = edge.get("target", "")
             
-            # Stochastic phrasing variations
+            # Phrasing variations
             connectors = [
                 f"Step {i}: Entity {s} is linked via {r} to {t}.",
                 f"Step {i}: Subgraph edge shows {s} {r} {t}.",
                 f"Step {i}: Verification reveals {s} --({r})--> {t}."
             ]
             
-            # Stochastic omission in natural language summary narrative (simulating realistic LLM summarization)
-            # LLMs frequently condense multi-hop paths by summarizing intermediate administrative edges
+            # Stochastic omission in natural language summary narrative (simulating LLM summarization)
             if len(path) >= 3 and i > 1 and i < len(path) and rng.random() < 0.4:
                 sentences.append(f"Step {i}: (Intermediate path segment connecting to {t} is abstracted in summary).")
             else:
@@ -115,14 +115,12 @@ class CompGraphRAGEvaluator:
         narrative_text = " ".join(sentences)
 
         # Step 2: Information Extraction (IE) parsing directly from narrative_text
-        # Scans narrative_text for mentioned entities and relation assertions
         extracted_triples = []
         for edge in path:
             s = edge.get("source", "")
             r = edge.get("relation", "")
             t = edge.get("target", "")
             
-            # Genuine token extraction check: Triple is extracted ONLY if both source and target entities appear in narrative_text
             if s.lower() in narrative_text.lower() and t.lower() in narrative_text.lower():
                 extracted_triples.append({
                     "source": s,
@@ -135,7 +133,7 @@ class CompGraphRAGEvaluator:
 
     def run_explanation_nondeterminism_test(self, item_id: str = "Q13-3HOP") -> List[Dict[str, Any]]:
         """
-        Task 2 Non-Determinism Test: Runs explanation generation 3 separate times on the same item to demonstrate output variation.
+        Task 2 Non-Determinism Test: Runs explanation generation 3 separate times on the same item with different seeds.
         """
         target_item = None
         for item in self.dataset:
@@ -143,7 +141,7 @@ class CompGraphRAGEvaluator:
                 target_item = item
                 break
         if not target_item:
-            target_item = self.dataset[12] # Fallback Q13-3HOP
+            target_item = self.dataset[12]
 
         q_text = target_item.get("question", "")
         hop = target_item.get("hop_count", 3)
@@ -151,7 +149,7 @@ class CompGraphRAGEvaluator:
 
         runs = []
         for run_idx in range(1, 4):
-            narrative, triples = self._generate_explanation_narrative_and_triples(q_text, retrieved_path, seed=run_idx*42)
+            narrative, triples = self._generate_explanation_narrative_and_triples(q_text, retrieved_path, seed=run_idx*100)
             faith_res = self.faithfulness_evaluator.evaluate_faithfulness(triples, retrieved_path)
             runs.append({
                 "run": run_idx,
@@ -231,7 +229,7 @@ class CompGraphRAGEvaluator:
             vector_acc_by_hop[hop].append(v_score)
             vec_scores.append(v_score)
 
-            # TASK 3: Track top-retrieved candidate passage per item for Vector-RAG vs Naive-RAG
+            # Track top-retrieved candidate passage per item for Vector-RAG vs Naive-RAG
             per_item_top_passages.append({
                 "id": q_id,
                 "vector_rag_top_passage_text": vec_res.get("retrieved_passage", "")[:80] + "...",
@@ -239,8 +237,11 @@ class CompGraphRAGEvaluator:
                 "passages_match": (vec_res.get("retrieved_passage") == naive_res.get("retrieved_passage"))
             })
 
-            # Faithfulness evaluation using free-text generator & IE extraction
-            explanation_narrative, extracted_explanation = self._generate_explanation_narrative_and_triples(q_text, retrieved_path, seed=idx+1)
+            # TASK A: Fixed item-ID deterministic seed for 100% run-to-run reproducibility
+            item_seed = int(hashlib.md5(q_id.encode('utf-8')).hexdigest(), 16) % (2**31 - 1)
+            explanation_narrative, extracted_explanation = self._generate_explanation_narrative_and_triples(
+                q_text, retrieved_path, seed=item_seed
+            )
             faith_result = self.faithfulness_evaluator.evaluate_faithfulness(
                 extracted_explanation_triples=extracted_explanation,
                 retrieved_subgraph_edges=retrieved_path
@@ -304,7 +305,8 @@ class CompGraphRAGEvaluator:
                 "confidence_signal_source": "Top candidate path hybrid_score computed by HybridScorer",
                 "calibration_split_size": n_cal,
                 "test_split_size": len(test_items),
-                "total_candidate_passages_pool_size": len(self.corpus.passages)
+                "total_candidate_passages_pool_size": len(self.corpus.passages),
+                "explanation_seed_strategy": "Item-ID MD5 deterministic hash seed"
             },
             "total_queries_evaluated": n_total,
             "overall_compgraphrag_accuracy": float(np.mean(cg_scores)),
