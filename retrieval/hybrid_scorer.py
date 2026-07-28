@@ -9,15 +9,18 @@ import numpy as np
 from typing import List, Dict, Any, Tuple
 
 class HybridScorer:
-    def __init__(self, alpha: float = 0.4, beta: float = 0.5, gamma: float = 0.1, decay_lambda: float = 0.85):
+    def __init__(self, alpha: float = 0.4, beta: float = 0.5, gamma: float = 0.1, decay_lambda: float = 0.85, force_hash_fallback: bool = False):
         assert abs((alpha + beta + gamma) - 1.0) < 1e-4, "Weights alpha, beta, gamma must sum to 1.0"
         self.alpha = alpha
         self.beta = beta
         self.gamma = gamma
         self.decay_lambda = decay_lambda
+        self.force_hash_fallback = force_hash_fallback
         self._st_model = None
 
     def _get_encoder(self):
+        if self.force_hash_fallback:
+            return False
         if self._st_model is None:
             try:
                 from sentence_transformers import SentenceTransformer
