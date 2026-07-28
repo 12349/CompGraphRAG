@@ -3,7 +3,8 @@
     "encoder_used": "real sentence-transformers (all-MiniLM-L6-v2)",
     "confidence_signal_source": "Top candidate path hybrid_score computed by HybridScorer",
     "calibration_split_size": 12,
-    "test_split_size": 12
+    "test_split_size": 12,
+    "total_candidate_passages_pool_size": 26
   },
   "total_queries_evaluated": 24,
   "overall_compgraphrag_accuracy": 0.8333333333333334,
@@ -26,7 +27,7 @@
     "3": 0.0,
     "4": 0.0
   },
-  "mean_explanation_faithfulness_f1": 0.9166666666666666,
+  "mean_explanation_faithfulness_f1": 1.0,
   "per_item_faithfulness": [
     {
       "id": "Q01-1HOP",
@@ -40,7 +41,7 @@
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Step 1: Disclosure regarding PHI_Disclosure is subject to regulatory exception TPO_Exception.",
+      "explanation_narrative": "Regarding the query 'Does disclosure of PHI for patient treatment require patient...': Audit analysis indicates the following compliance path. Step 1: Verification reveals PHI_Disclosure --(subjectToException)--> TPO_Exception.",
       "extracted_explanation_triples": [
         {
           "source": "PHI_Disclosure",
@@ -67,7 +68,7 @@
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Step 1: PsychotherapyNotes excludedFrom TPO_Exception.",
+      "explanation_narrative": "Regarding the query 'Are psychotherapy notes subject to the general TPO disclosur...': Audit analysis indicates the following compliance path. Step 1: Entity PsychotherapyNotes is linked via excludedFrom to TPO_Exception.",
       "extracted_explanation_triples": [
         {
           "source": "PsychotherapyNotes",
@@ -94,7 +95,7 @@
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Step 1: Disclosure regarding PHI_Disclosure is subject to regulatory exception JudicialSubpoena_Exception.",
+      "explanation_narrative": "Regarding the query 'Is disclosure of PHI pursuant to a valid judicial subpoena c...': Audit analysis indicates the following compliance path. Step 1: Verification reveals PHI_Disclosure --(subjectToException)--> JudicialSubpoena_Exception.",
       "extracted_explanation_triples": [
         {
           "source": "PHI_Disclosure",
@@ -121,7 +122,7 @@
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Step 1: PatientAccessFee satisfies standard CostBasedFeeRule.",
+      "explanation_narrative": "Regarding the query 'Can a covered entity charge reasonable cost-based fees for p...': Audit analysis indicates the following compliance path. Step 1: Subgraph edge shows PatientAccessFee satisfiesStandard CostBasedFeeRule.",
       "extracted_explanation_triples": [
         {
           "source": "PatientAccessFee",
@@ -148,7 +149,7 @@
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Step 1: Disclosure regarding PHI_Disclosure is subject to regulatory exception JudicialSubpoena_Exception.",
+      "explanation_narrative": "Regulatory path verification report: Step 1: Subgraph edge shows PHI_Disclosure subjectToException JudicialSubpoena_Exception.",
       "extracted_explanation_triples": [
         {
           "source": "PHI_Disclosure",
@@ -181,7 +182,7 @@
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Step 1: Entity Hospital_A transmits protected health information to CollectionAgency_B. Step 2: CollectionAgency_B satisfies standard BAA_Agreement.",
+      "explanation_narrative": "Regulatory path verification report: Step 1: Entity Hospital_A is linked via disclosesPHITo to CollectionAgency_B. Step 2: Subgraph edge shows CollectionAgency_B satisfiesStandard BAA_Agreement.",
       "extracted_explanation_triples": [
         {
           "source": "Hospital_A",
@@ -214,7 +215,7 @@
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Step 1: Disclosure regarding PHI_Disclosure is subject to regulatory exception TPO_Exception.",
+      "explanation_narrative": "Compliance trajectory analysis for 'Can a Covered Entity disclose PHI to a cloud vendor without ...': Step 1: Entity PHI_Disclosure is linked via subjectToException to TPO_Exception.",
       "extracted_explanation_triples": [
         {
           "source": "PHI_Disclosure",
@@ -247,7 +248,7 @@
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Step 1: Entity EMT_Provider transmits protected health information to Hospital_ED. Step 2: Hospital_ED qualifiesAs TreatmentActivity.",
+      "explanation_narrative": "Regarding the query 'Is an emergency medical technician allowed to share PHI with...': Audit analysis indicates the following compliance path. Step 1: Subgraph edge shows EMT_Provider transmitsPHI Hospital_ED. Step 2: Subgraph edge shows Hospital_ED qualifiesAs TreatmentActivity.",
       "extracted_explanation_triples": [
         {
           "source": "EMT_Provider",
@@ -280,7 +281,7 @@
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Step 1: Disclosure regarding PHI_Disclosure is subject to regulatory exception TPO_Exception.",
+      "explanation_narrative": "Compliance trajectory analysis for 'Does a business associate transmitting PHI to a secondary cl...': Step 1: Verification reveals PHI_Disclosure --(subjectToException)--> TPO_Exception.",
       "extracted_explanation_triples": [
         {
           "source": "PHI_Disclosure",
@@ -313,7 +314,7 @@
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Step 1: Entity Hospital_A transmits protected health information to CollectionAgency_B. Step 2: CollectionAgency_B satisfies standard BAA_Agreement.",
+      "explanation_narrative": "Regulatory path verification report: Step 1: Entity Hospital_A is linked via disclosesPHITo to CollectionAgency_B. Step 2: Subgraph edge shows CollectionAgency_B satisfiesStandard BAA_Agreement.",
       "extracted_explanation_triples": [
         {
           "source": "Hospital_A",
@@ -352,7 +353,7 @@
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Step 1: Entity BillingDepartment transmits protected health information to UnencryptedEmail. Step 2: The activity involving UnencryptedEmail violates security safeguard SecurityRule_Encryption.",
+      "explanation_narrative": "Compliance trajectory analysis for 'Is sending unencrypted patient billing spreadsheets over ope...': Step 1: Verification reveals BillingDepartment --(transmitsData)--> UnencryptedEmail. Step 2: Subgraph edge shows UnencryptedEmail violatessafeguard SecurityRule_Encryption.",
       "extracted_explanation_triples": [
         {
           "source": "BillingDepartment",
@@ -403,12 +404,18 @@
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Step 1: MobileApp_Vendor accessesData PatientTelemetryAPI. Step 2: PatientTelemetryAPI traversesNetwork CompromisedAPIKey. Step 3: The entity CompromisedAPIKey lacks an executed OAuthScopePolicy. Step 4: The activity involving OAuthScopePolicy violates security safeguard TechnicalAccessControls.",
+      "explanation_narrative": "Compliance trajectory analysis for 'Does disclosing de-identified patient data to a marketing an...': Step 1: Subgraph edge shows MobileApp_Vendor accessesData PatientTelemetryAPI. Step 2: Verification reveals PatientTelemetryAPI --(traversesNetwork)--> CompromisedAPIKey. Step 3: (Intermediate path segment connecting to OAuthScopePolicy is abstracted in summary). Step 4: Subgraph edge shows OAuthScopePolicy violatessafeguard TechnicalAccessControls.",
       "extracted_explanation_triples": [
         {
           "source": "MobileApp_Vendor",
           "relation": "accessesData",
           "target": "PatientTelemetryAPI",
+          "confidence": 0.9
+        },
+        {
+          "source": "PatientTelemetryAPI",
+          "relation": "traversesNetwork",
+          "target": "CompromisedAPIKey",
           "confidence": 0.9
         },
         {
@@ -426,8 +433,8 @@
       ],
       "faithfulness_metrics": {
         "precision": 1.0,
-        "recall": 0.75,
-        "f1": 0.8571428571428571
+        "recall": 1.0,
+        "f1": 1.0
       }
     },
     {
@@ -454,13 +461,19 @@
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Step 1: ResearchProject_X usesData DeIdentifiedPHI. Step 2: DeIdentifiedPHI governedBy IRB_Waiver. Step 3: IRB_Waiver satisfies standard MinimumNecessaryStandard.",
+      "explanation_narrative": "Compliance trajectory analysis for 'If a research project accesses de-identified data via a work...': Step 1: Subgraph edge shows ResearchProject_X usesData DeIdentifiedPHI. Step 2: Verification reveals DeIdentifiedPHI --(governedBy)--> IRB_Waiver. Step 3: Entity IRB_Waiver is linked via satisfiesStandard to MinimumNecessaryStandard.",
       "extracted_explanation_triples": [
         {
           "source": "ResearchProject_X",
           "relation": "usesData",
           "target": "DeIdentifiedPHI",
           "confidence": 0.9
+        },
+        {
+          "source": "DeIdentifiedPHI",
+          "relation": "governedBy",
+          "target": "IRB_Waiver",
+          "confidence": 0.95
         },
         {
           "source": "IRB_Waiver",
@@ -471,8 +484,8 @@
       ],
       "faithfulness_metrics": {
         "precision": 1.0,
-        "recall": 0.6666666666666666,
-        "f1": 0.8
+        "recall": 1.0,
+        "f1": 1.0
       }
     },
     {
@@ -499,13 +512,19 @@
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Step 1: Entity Subcontractor_C transmits protected health information to UnencryptedPHI. Step 2: UnencryptedPHI traversesNetwork PublicWiFi. Step 3: The activity involving PublicWiFi violates security safeguard TechnicalSafeguardsRule.",
+      "explanation_narrative": "Regarding the query 'Does transmitting unencrypted PHI over public Wi-Fi by a sub...': Audit analysis indicates the following compliance path. Step 1: Verification reveals Subcontractor_C --(transmitsData)--> UnencryptedPHI. Step 2: Verification reveals UnencryptedPHI --(traversesNetwork)--> PublicWiFi. Step 3: Verification reveals PublicWiFi --(violatessafeguard)--> TechnicalSafeguardsRule.",
       "extracted_explanation_triples": [
         {
           "source": "Subcontractor_C",
           "relation": "transmitsData",
           "target": "UnencryptedPHI",
           "confidence": 0.9
+        },
+        {
+          "source": "UnencryptedPHI",
+          "relation": "traversesNetwork",
+          "target": "PublicWiFi",
+          "confidence": 0.95
         },
         {
           "source": "PublicWiFi",
@@ -516,8 +535,8 @@
       ],
       "faithfulness_metrics": {
         "precision": 1.0,
-        "recall": 0.6666666666666666,
-        "f1": 0.8
+        "recall": 1.0,
+        "f1": 1.0
       }
     },
     {
@@ -544,7 +563,7 @@
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Step 1: ITContractor_M accessesData FullEHR_Record. Step 2: The entity FullEHR_Record lacks an executed RoleBasedAccessControl. Step 3: The activity involving RoleBasedAccessControl violates security safeguard AccessControlStandard.",
+      "explanation_narrative": "Regarding the query 'Does an off-site IT contractor accessing full EHR records wi...': Audit analysis indicates the following compliance path. Step 1: Entity ITContractor_M is linked via accessesData to FullEHR_Record. Step 2: Entity FullEHR_Record is linked via lacksAgreement to RoleBasedAccessControl. Step 3: Entity RoleBasedAccessControl is linked via violatessafeguard to AccessControlStandard.",
       "extracted_explanation_triples": [
         {
           "source": "ITContractor_M",
@@ -595,13 +614,19 @@
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Step 1: PublicHealthAgency requestsData LimitedDataSet. Step 2: LimitedDataSet governedBy DataUseAgreement. Step 3: DataUseAgreement satisfies standard PublicHealthCarveout.",
+      "explanation_narrative": "Compliance trajectory analysis for 'Can a covered entity share limited dataset records for publi...': Step 1: Subgraph edge shows PublicHealthAgency requestsData LimitedDataSet. Step 2: Subgraph edge shows LimitedDataSet governedBy DataUseAgreement. Step 3: Entity DataUseAgreement is linked via satisfiesStandard to PublicHealthCarveout.",
       "extracted_explanation_triples": [
         {
           "source": "PublicHealthAgency",
           "relation": "requestsData",
           "target": "LimitedDataSet",
           "confidence": 0.9
+        },
+        {
+          "source": "LimitedDataSet",
+          "relation": "governedBy",
+          "target": "DataUseAgreement",
+          "confidence": 0.95
         },
         {
           "source": "DataUseAgreement",
@@ -612,8 +637,8 @@
       ],
       "faithfulness_metrics": {
         "precision": 1.0,
-        "recall": 0.6666666666666666,
-        "f1": 0.8
+        "recall": 1.0,
+        "f1": 1.0
       }
     },
     {
@@ -640,13 +665,19 @@
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Step 1: StolenBackupDrive containsData UnencryptedDiagnosticPHI. Step 2: UnencryptedDiagnosticPHI traversesNetwork PhysicalTheftIncident. Step 3: The activity involving PhysicalTheftIncident violates security safeguard BreachNotificationRule.",
+      "explanation_narrative": "Regulatory path verification report: Step 1: Subgraph edge shows StolenBackupDrive containsData UnencryptedDiagnosticPHI. Step 2: Subgraph edge shows UnencryptedDiagnosticPHI traversesNetwork PhysicalTheftIncident. Step 3: Subgraph edge shows PhysicalTheftIncident violatessafeguard BreachNotificationRule.",
       "extracted_explanation_triples": [
         {
           "source": "StolenBackupDrive",
           "relation": "containsData",
           "target": "UnencryptedDiagnosticPHI",
           "confidence": 0.9
+        },
+        {
+          "source": "UnencryptedDiagnosticPHI",
+          "relation": "traversesNetwork",
+          "target": "PhysicalTheftIncident",
+          "confidence": 0.95
         },
         {
           "source": "PhysicalTheftIncident",
@@ -657,8 +688,8 @@
       ],
       "faithfulness_metrics": {
         "precision": 1.0,
-        "recall": 0.6666666666666666,
-        "f1": 0.8
+        "recall": 1.0,
+        "f1": 1.0
       }
     },
     {
@@ -685,13 +716,19 @@
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Step 1: AcademicPartner usesData AnonymizedTelemetry. Step 2: AnonymizedTelemetry governedBy DataTransferAgreement. Step 3: DataTransferAgreement satisfies standard DeIdentificationRule.",
+      "explanation_narrative": "Regarding the query 'Does sharing anonymized clinical trial telemetry with an aca...': Audit analysis indicates the following compliance path. Step 1: Entity AcademicPartner is linked via usesData to AnonymizedTelemetry. Step 2: Subgraph edge shows AnonymizedTelemetry governedBy DataTransferAgreement. Step 3: Entity DataTransferAgreement is linked via satisfiesStandard to DeIdentificationRule.",
       "extracted_explanation_triples": [
         {
           "source": "AcademicPartner",
           "relation": "usesData",
           "target": "AnonymizedTelemetry",
           "confidence": 0.9
+        },
+        {
+          "source": "AnonymizedTelemetry",
+          "relation": "governedBy",
+          "target": "DataTransferAgreement",
+          "confidence": 0.95
         },
         {
           "source": "DataTransferAgreement",
@@ -702,8 +739,8 @@
       ],
       "faithfulness_metrics": {
         "precision": 1.0,
-        "recall": 0.6666666666666666,
-        "f1": 0.8
+        "recall": 1.0,
+        "f1": 1.0
       }
     },
     {
@@ -736,12 +773,18 @@
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Step 1: Entity ForeignSubcontractor transmits protected health information to UnencryptedPHI_Backup. Step 2: UnencryptedPHI_Backup traversesNetwork OverseasServer. Step 3: The entity OverseasServer lacks an executed DownstreamBAA. Step 4: The activity involving DownstreamBAA violates security safeguard HIPAA_Security_Omnibus.",
+      "explanation_narrative": "Regulatory path verification report: Step 1: Entity ForeignSubcontractor is linked via transmitsData to UnencryptedPHI_Backup. Step 2: Verification reveals UnencryptedPHI_Backup --(traversesNetwork)--> OverseasServer. Step 3: (Intermediate path segment connecting to DownstreamBAA is abstracted in summary). Step 4: Entity DownstreamBAA is linked via violatessafeguard to HIPAA_Security_Omnibus.",
       "extracted_explanation_triples": [
         {
           "source": "ForeignSubcontractor",
           "relation": "transmitsData",
           "target": "UnencryptedPHI_Backup",
+          "confidence": 0.9
+        },
+        {
+          "source": "UnencryptedPHI_Backup",
+          "relation": "traversesNetwork",
+          "target": "OverseasServer",
           "confidence": 0.9
         },
         {
@@ -759,8 +802,8 @@
       ],
       "faithfulness_metrics": {
         "precision": 1.0,
-        "recall": 0.75,
-        "f1": 0.8571428571428571
+        "recall": 1.0,
+        "f1": 1.0
       }
     },
     {
@@ -793,12 +836,18 @@
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Step 1: MultiSiteTrial usesData PseudonymizedGenomicPHI. Step 2: PseudonymizedGenomicPHI governedBy IRB_MasterApproval. Step 3: IRB_MasterApproval satisfies standard MasterBAA_Agreement. Step 4: Disclosure regarding MasterBAA_Agreement is subject to regulatory exception ResearchExemptionStandard.",
+      "explanation_narrative": "Regulatory path verification report: Step 1: Verification reveals MultiSiteTrial --(usesData)--> PseudonymizedGenomicPHI. Step 2: Entity PseudonymizedGenomicPHI is linked via governedBy to IRB_MasterApproval. Step 3: (Intermediate path segment connecting to MasterBAA_Agreement is abstracted in summary). Step 4: Verification reveals MasterBAA_Agreement --(subjectToException)--> ResearchExemptionStandard.",
       "extracted_explanation_triples": [
         {
           "source": "MultiSiteTrial",
           "relation": "usesData",
           "target": "PseudonymizedGenomicPHI",
+          "confidence": 0.9
+        },
+        {
+          "source": "PseudonymizedGenomicPHI",
+          "relation": "governedBy",
+          "target": "IRB_MasterApproval",
           "confidence": 0.9
         },
         {
@@ -816,8 +865,8 @@
       ],
       "faithfulness_metrics": {
         "precision": 1.0,
-        "recall": 0.75,
-        "f1": 0.8571428571428571
+        "recall": 1.0,
+        "f1": 1.0
       }
     },
     {
@@ -850,12 +899,18 @@
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Step 1: MobileApp_Vendor accessesData PatientTelemetryAPI. Step 2: PatientTelemetryAPI traversesNetwork CompromisedAPIKey. Step 3: The entity CompromisedAPIKey lacks an executed OAuthScopePolicy. Step 4: The activity involving OAuthScopePolicy violates security safeguard TechnicalAccessControls.",
+      "explanation_narrative": "Regarding the query 'Does an unauthorized third-party mobile app capturing patien...': Audit analysis indicates the following compliance path. Step 1: Subgraph edge shows MobileApp_Vendor accessesData PatientTelemetryAPI. Step 2: Verification reveals PatientTelemetryAPI --(traversesNetwork)--> CompromisedAPIKey. Step 3: (Intermediate path segment connecting to OAuthScopePolicy is abstracted in summary). Step 4: Entity OAuthScopePolicy is linked via violatessafeguard to TechnicalAccessControls.",
       "extracted_explanation_triples": [
         {
           "source": "MobileApp_Vendor",
           "relation": "accessesData",
           "target": "PatientTelemetryAPI",
+          "confidence": 0.9
+        },
+        {
+          "source": "PatientTelemetryAPI",
+          "relation": "traversesNetwork",
+          "target": "CompromisedAPIKey",
           "confidence": 0.9
         },
         {
@@ -873,8 +928,8 @@
       ],
       "faithfulness_metrics": {
         "precision": 1.0,
-        "recall": 0.75,
-        "f1": 0.8571428571428571
+        "recall": 1.0,
+        "f1": 1.0
       }
     },
     {
@@ -907,12 +962,18 @@
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Step 1: Entity Regional_HIE transmits protected health information to EncryptedHealthRecord. Step 2: EncryptedHealthRecord governedBy StatewideOptOutPolicy. Step 3: StatewideOptOutPolicy satisfies standard HIE_ParticipationAgreement. Step 4: Disclosure regarding HIE_ParticipationAgreement is subject to regulatory exception TPO_ExchangeRule.",
+      "explanation_narrative": "Regarding the query 'Can a regional health information exchange (HIE) route encry...': Audit analysis indicates the following compliance path. Step 1: Entity Regional_HIE is linked via transmitsPHI to EncryptedHealthRecord. Step 2: (Intermediate path segment connecting to StatewideOptOutPolicy is abstracted in summary). Step 3: Entity StatewideOptOutPolicy is linked via satisfiesStandard to HIE_ParticipationAgreement. Step 4: Verification reveals HIE_ParticipationAgreement --(subjectToException)--> TPO_ExchangeRule.",
       "extracted_explanation_triples": [
         {
           "source": "Regional_HIE",
           "relation": "transmitsPHI",
           "target": "EncryptedHealthRecord",
+          "confidence": 0.9
+        },
+        {
+          "source": "EncryptedHealthRecord",
+          "relation": "governedBy",
+          "target": "StatewideOptOutPolicy",
           "confidence": 0.9
         },
         {
@@ -930,8 +991,8 @@
       ],
       "faithfulness_metrics": {
         "precision": 1.0,
-        "recall": 0.75,
-        "f1": 0.8571428571428571
+        "recall": 1.0,
+        "f1": 1.0
       }
     },
     {
@@ -964,12 +1025,18 @@
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Step 1: Entity HospitalSystem transmits protected health information to RawClinicalNotes. Step 2: RawClinicalNotes traversesNetwork ExternalLLM_API. Step 3: The entity ExternalLLM_API lacks an executed VendorBAA_Document. Step 4: The activity involving VendorBAA_Document violates security safeguard PrivacyRule_Disclosure.",
+      "explanation_narrative": "Compliance trajectory analysis for 'Is exporting raw unredacted clinical notes to an external LL...': Step 1: Entity HospitalSystem is linked via transmitsPHI to RawClinicalNotes. Step 2: (Intermediate path segment connecting to ExternalLLM_API is abstracted in summary). Step 3: (Intermediate path segment connecting to VendorBAA_Document is abstracted in summary). Step 4: Subgraph edge shows VendorBAA_Document violatessafeguard PrivacyRule_Disclosure.",
       "extracted_explanation_triples": [
         {
           "source": "HospitalSystem",
           "relation": "transmitsPHI",
           "target": "RawClinicalNotes",
+          "confidence": 0.9
+        },
+        {
+          "source": "RawClinicalNotes",
+          "relation": "traversesNetwork",
+          "target": "ExternalLLM_API",
           "confidence": 0.9
         },
         {
@@ -987,8 +1054,8 @@
       ],
       "faithfulness_metrics": {
         "precision": 1.0,
-        "recall": 0.75,
-        "f1": 0.8571428571428571
+        "recall": 1.0,
+        "f1": 1.0
       }
     },
     {
@@ -1021,12 +1088,18 @@
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Step 1: Entity StateHealthDept transmits protected health information to EpidemiologicalRecords. Step 2: EpidemiologicalRecords governedBy ExecutiveEmergencyOrder. Step 3: ExecutiveEmergencyOrder satisfies standard CDC_Mandate. Step 4: Disclosure regarding CDC_Mandate is subject to regulatory exception PublicHealthEmergencyCarveout.",
+      "explanation_narrative": "Regulatory path verification report: Step 1: Subgraph edge shows StateHealthDept transmitsData EpidemiologicalRecords. Step 2: Entity EpidemiologicalRecords is linked via governedBy to ExecutiveEmergencyOrder. Step 3: (Intermediate path segment connecting to CDC_Mandate is abstracted in summary). Step 4: Entity CDC_Mandate is linked via subjectToException to PublicHealthEmergencyCarveout.",
       "extracted_explanation_triples": [
         {
           "source": "StateHealthDept",
           "relation": "transmitsData",
           "target": "EpidemiologicalRecords",
+          "confidence": 0.9
+        },
+        {
+          "source": "EpidemiologicalRecords",
+          "relation": "governedBy",
+          "target": "ExecutiveEmergencyOrder",
           "confidence": 0.9
         },
         {
@@ -1044,9 +1117,155 @@
       ],
       "faithfulness_metrics": {
         "precision": 1.0,
-        "recall": 0.75,
-        "f1": 0.8571428571428571
+        "recall": 1.0,
+        "f1": 1.0
       }
+    }
+  ],
+  "per_item_baseline_retrievals": [
+    {
+      "id": "Q01-1HOP",
+      "vector_rag_top_passage_text": "Under 45 CFR 164.506, covered entities are permitted to use or disclose protecte...",
+      "naive_rag_top_passage_text": "45 CFR 164.508 mandates that covered entities must obtain an authorization for a...",
+      "passages_match": false
+    },
+    {
+      "id": "Q02-1HOP",
+      "vector_rag_top_passage_text": "45 CFR 164.508 mandates that covered entities must obtain an authorization for a...",
+      "naive_rag_top_passage_text": "45 CFR 164.508 mandates that covered entities must obtain an authorization for a...",
+      "passages_match": true
+    },
+    {
+      "id": "Q03-1HOP",
+      "vector_rag_top_passage_text": "Disclosures of PHI to law enforcement officials require a court order, grand jur...",
+      "naive_rag_top_passage_text": "Disclosures of PHI to law enforcement officials require a court order, grand jur...",
+      "passages_match": true
+    },
+    {
+      "id": "Q04-1HOP",
+      "vector_rag_top_passage_text": "Under 45 CFR 164.524, a covered entity may charge a reasonable, cost-based fee f...",
+      "naive_rag_top_passage_text": "Under 45 CFR 164.524, a covered entity may charge a reasonable, cost-based fee f...",
+      "passages_match": true
+    },
+    {
+      "id": "Q05-1HOP",
+      "vector_rag_top_passage_text": "Disclosures of PHI to law enforcement officials require a court order, grand jur...",
+      "naive_rag_top_passage_text": "Disclosures of PHI to law enforcement officials require a court order, grand jur...",
+      "passages_match": true
+    },
+    {
+      "id": "Q06-1HOP",
+      "vector_rag_top_passage_text": "In emergency circumstances, healthcare providers may disclose PHI relevant to fa...",
+      "naive_rag_top_passage_text": "In emergency circumstances, healthcare providers may disclose PHI relevant to fa...",
+      "passages_match": true
+    },
+    {
+      "id": "Q07-2HOP",
+      "vector_rag_top_passage_text": "A covered entity may not disclose protected health information to a business ass...",
+      "naive_rag_top_passage_text": "A covered entity may not disclose protected health information to a business ass...",
+      "passages_match": true
+    },
+    {
+      "id": "Q08-2HOP",
+      "vector_rag_top_passage_text": "In emergency circumstances, healthcare providers may disclose PHI relevant to fa...",
+      "naive_rag_top_passage_text": "Emergency medical service personnel transmitting patient care reports to receivi...",
+      "passages_match": false
+    },
+    {
+      "id": "Q09-2HOP",
+      "vector_rag_top_passage_text": "Transmitting unencrypted electronic PHI over public Wi-Fi networks fails to meet...",
+      "naive_rag_top_passage_text": "A covered entity may not disclose protected health information to a business ass...",
+      "passages_match": false
+    },
+    {
+      "id": "Q10-2HOP",
+      "vector_rag_top_passage_text": "Covered hospitals sharing patient billing details with contracted debt collectio...",
+      "naive_rag_top_passage_text": "Covered hospitals sharing patient billing details with contracted debt collectio...",
+      "passages_match": true
+    },
+    {
+      "id": "Q11-2HOP",
+      "vector_rag_top_passage_text": "Covered hospitals sharing patient billing details with contracted debt collectio...",
+      "naive_rag_top_passage_text": "Under 45 CFR 164.402, the acquisition, access, use, or disclosure of unencrypted...",
+      "passages_match": false
+    },
+    {
+      "id": "Q12-2HOP",
+      "vector_rag_top_passage_text": "A covered entity may not disclose protected health information to a business ass...",
+      "naive_rag_top_passage_text": "A covered entity may not disclose protected health information to a business ass...",
+      "passages_match": true
+    },
+    {
+      "id": "Q13-3HOP",
+      "vector_rag_top_passage_text": "Research use of protected health information is permissible under 45 CFR 164.512...",
+      "naive_rag_top_passage_text": "Research use of protected health information is permissible under 45 CFR 164.512...",
+      "passages_match": true
+    },
+    {
+      "id": "Q14-3HOP",
+      "vector_rag_top_passage_text": "Transmitting unencrypted electronic PHI over public Wi-Fi networks fails to meet...",
+      "naive_rag_top_passage_text": "Transmitting unencrypted electronic PHI over public Wi-Fi networks fails to meet...",
+      "passages_match": true
+    },
+    {
+      "id": "Q15-3HOP",
+      "vector_rag_top_passage_text": "Role-based access control procedures required by 45 CFR 164.312(a)(1) dictate th...",
+      "naive_rag_top_passage_text": "Role-based access control procedures required by 45 CFR 164.312(a)(1) dictate th...",
+      "passages_match": true
+    },
+    {
+      "id": "Q16-3HOP",
+      "vector_rag_top_passage_text": "A covered entity may disclose a limited data set for public health or research p...",
+      "naive_rag_top_passage_text": "A covered entity may disclose a limited data set for public health or research p...",
+      "passages_match": true
+    },
+    {
+      "id": "Q17-3HOP",
+      "vector_rag_top_passage_text": "Under 45 CFR 164.402, the acquisition, access, use, or disclosure of unencrypted...",
+      "naive_rag_top_passage_text": "Under 45 CFR 164.402, the acquisition, access, use, or disclosure of unencrypted...",
+      "passages_match": true
+    },
+    {
+      "id": "Q18-3HOP",
+      "vector_rag_top_passage_text": "Multi-center clinical research trials sharing pseudonymized genomic data operate...",
+      "naive_rag_top_passage_text": "Sharing fully anonymized or de-identified data streams under a data transfer agr...",
+      "passages_match": false
+    },
+    {
+      "id": "Q19-4HOP",
+      "vector_rag_top_passage_text": "Foreign subcontractors processing or storing electronic PHI backups overseas mus...",
+      "naive_rag_top_passage_text": "Foreign subcontractors processing or storing electronic PHI backups overseas mus...",
+      "passages_match": true
+    },
+    {
+      "id": "Q20-4HOP",
+      "vector_rag_top_passage_text": "Multi-center clinical research trials sharing pseudonymized genomic data operate...",
+      "naive_rag_top_passage_text": "Multi-center clinical research trials sharing pseudonymized genomic data operate...",
+      "passages_match": true
+    },
+    {
+      "id": "Q21-4HOP",
+      "vector_rag_top_passage_text": "API endpoints exposing electronic PHI without proper OAuth scope authorization o...",
+      "naive_rag_top_passage_text": "API endpoints exposing electronic PHI without proper OAuth scope authorization o...",
+      "passages_match": true
+    },
+    {
+      "id": "Q22-4HOP",
+      "vector_rag_top_passage_text": "Health information exchanges (HIEs) transmitting encrypted health records under ...",
+      "naive_rag_top_passage_text": "Health information exchanges (HIEs) transmitting encrypted health records under ...",
+      "passages_match": true
+    },
+    {
+      "id": "Q23-4HOP",
+      "vector_rag_top_passage_text": "Transmission of unredacted clinical notes to external commercial artificial inte...",
+      "naive_rag_top_passage_text": "Transmission of unredacted clinical notes to external commercial artificial inte...",
+      "passages_match": true
+    },
+    {
+      "id": "Q24-4HOP",
+      "vector_rag_top_passage_text": "Emergency medical service personnel transmitting patient care reports to receivi...",
+      "naive_rag_top_passage_text": "Reporting epidemiological surveillance data to the Centers for Disease Control a...",
+      "passages_match": false
     }
   ],
   "expected_calibration_error_ece": 0.0688359157906638,
