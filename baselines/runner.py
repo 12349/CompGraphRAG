@@ -1,6 +1,7 @@
 """
 Baseline Runner module for CompGraphRAG Comparative Analysis.
 Executes real Vector-RAG and Naive-RAG baselines over candidate corpus text passages.
+Uses the SAME ComplianceRuleEngine as CompGraphRAG over retrieved passage edges for fair determination evaluation.
 Marks uninstalled external systems (GraphRAG, LightRAG, HippoRAG) as 'NOT MEASURED'.
 """
 
@@ -13,16 +14,20 @@ class BaselineRunner:
         self.scorer = hybrid_scorer
         self.rule_engine = ComplianceRuleEngine()
 
-    def _determine_from_passage(self, passage_text: str) -> str:
+    def _determine_from_passage(self, passage: Dict[str, Any]) -> str:
         """
-        Predicts compliance determination from raw passage text using rule engine / statutory keyword parsing.
+        Predicts compliance determination from retrieved passage using the exact SAME ComplianceRuleEngine as CompGraphRAG.
+        This ensures both CompGraphRAG and Baselines share identical answer-readout capability.
         """
-        txt = passage_text.lower()
-        if "without" in txt or "violates" in txt or "fails" in txt or "impermissible" in txt or "breach" in txt or "excluded" in txt or "lacks" in txt:
-            return "NON-COMPLIANT"
-        elif "permitted" in txt or "exempt" in txt or "satisfies" in txt or "qualify" in txt or "authorized" in txt or "compliant" in txt:
+        edges = passage.get("edges", [])
+        if not edges:
+            txt = passage.get("text", "").lower()
+            if "without" in txt or "violates" in txt or "fails" in txt or "impermissible" in txt or "breach" in txt:
+                return "NON-COMPLIANT"
             return "COMPLIANT"
-        return "REQUIRES-REVIEW"
+
+        rule_res = self.rule_engine.evaluate_subgraph(edges)
+        return rule_res["suggested_determination"]
 
     def run_vector_rag_query(self, query_text: str, candidate_passages: List[Dict[str, Any]], gold_det: str) -> Dict[str, Any]:
         """
@@ -41,7 +46,7 @@ class BaselineRunner:
         scored.sort(key=lambda x: x[1], reverse=True)
         top_cand, top_score = scored[0]
         
-        pred_det = self._determine_from_passage(top_cand.get("text", ""))
+        pred_det = self._determine_from_passage(top_cand)
         return {
             "baseline": "Vector-RAG",
             "retrieved_passage": top_cand.get("text", ""),
@@ -70,7 +75,7 @@ class BaselineRunner:
         
         scored.sort(key=lambda x: x[1], reverse=True)
         top_cand, top_score = scored[0]
-        pred_det = self._determine_from_passage(top_cand.get("text", ""))
+        pred_det = self._determine_from_passage(top_cand)
         return {
             "baseline": "Naive-RAG",
             "retrieved_passage": top_cand.get("text", ""),
