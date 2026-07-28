@@ -48,6 +48,7 @@ class CompGraphRAGEvaluator:
         self.conformal = ConformalPredictor(alpha=0.1)
         self.validator = StatisticalValidator()
         self.baseline_runner = BaselineRunner(hybrid_scorer=self.scorer)
+        self.raw_random_floats_log = []
 
     def _retrieve_top_path(self, query_text: str, hop_count: int) -> Tuple[List[Dict[str, Any]], float]:
         """
@@ -92,6 +93,7 @@ class CompGraphRAGEvaluator:
         ]
         
         sentences = [rng.choice(intro_templates)]
+        included_edges = []
         
         # Generative path description with stochastic sentence structuring (no hardcoded edge filters)
         for i, edge in enumerate(path, 1):
@@ -107,16 +109,28 @@ class CompGraphRAGEvaluator:
             ]
             
             # Stochastic omission in natural language summary narrative (simulating LLM summarization)
-            if len(path) >= 3 and i > 1 and i < len(path) and rng.random() < 0.4:
-                sentences.append(f"Step {i}: (Intermediate path segment connecting to {t} is abstracted in summary).")
+            if len(path) >= 3 and i > 1 and i < len(path):
+                r_val = rng.random()
+                self.raw_random_floats_log.append({
+                    "step": i,
+                    "edge": f"{s}->{t}",
+                    "random_val": r_val,
+                    "omitted": (r_val < 0.4)
+                })
+                if r_val < 0.4:
+                    sentences.append(f"Step {i}: (Intermediate sub-hop is abstracted in summary narrative).")
+                else:
+                    sentences.append(rng.choice(connectors))
+                    included_edges.append(edge)
             else:
                 sentences.append(rng.choice(connectors))
+                included_edges.append(edge)
 
         narrative_text = " ".join(sentences)
 
         # Step 2: Information Extraction (IE) parsing directly from narrative_text
         extracted_triples = []
-        for edge in path:
+        for edge in included_edges:
             s = edge.get("source", "")
             r = edge.get("relation", "")
             t = edge.get("target", "")
@@ -164,6 +178,7 @@ class CompGraphRAGEvaluator:
         """
         Runs complete non-circular benchmark evaluation over the gold dataset.
         """
+        self.raw_random_floats_log = []
         st_encoder = self.scorer._get_encoder()
         encoder_name = "real sentence-transformers (all-MiniLM-L6-v2)" if st_encoder else "hash pseudo-embedding fallback"
 
@@ -237,7 +252,7 @@ class CompGraphRAGEvaluator:
                 "passages_match": (vec_res.get("retrieved_passage") == naive_res.get("retrieved_passage"))
             })
 
-            # TASK A: Fixed item-ID deterministic seed for 100% run-to-run reproducibility
+            # TASK 1: Literal call site with deterministic item-ID seed
             item_seed = int(hashlib.md5(q_id.encode('utf-8')).hexdigest(), 16) % (2**31 - 1)
             explanation_narrative, extracted_explanation = self._generate_explanation_narrative_and_triples(
                 q_text, retrieved_path, seed=item_seed
@@ -317,6 +332,7 @@ class CompGraphRAGEvaluator:
             "mean_explanation_faithfulness_f1": float(np.mean(faithfulness_scores)),
             "per_item_faithfulness": per_item_faithfulness_records,
             "per_item_baseline_retrievals": per_item_top_passages,
+            "raw_random_floats_log": self.raw_random_floats_log,
             "expected_calibration_error_ece": ece_score,
             "statistical_validation": stats_output,
             "all_baselines_summary": all_baselines
