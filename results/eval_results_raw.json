@@ -7,13 +7,18 @@
     "total_candidate_passages_pool_size": 26,
     "explanation_seed_strategy": "Item-ID MD5 deterministic hash seed"
   },
+  "entity_linking_metrics": {
+    "precision": 0.21910883234412645,
+    "recall": 0.84375,
+    "f1": 0.34787889353588125
+  },
   "total_queries_evaluated": 24,
-  "overall_compgraphrag_accuracy": 0.875,
+  "overall_compgraphrag_accuracy": 0.9583333333333334,
   "overall_vector_rag_accuracy": 0.875,
   "compgraphrag_accuracy_by_hop": {
-    "1": 0.8333333333333334,
-    "2": 0.6666666666666666,
-    "3": 1.0,
+    "1": 1.0,
+    "2": 1.0,
+    "3": 0.8333333333333334,
     "4": 1.0
   },
   "vector_rag_accuracy_by_hop": {
@@ -23,12 +28,12 @@
     "4": 1.0
   },
   "hop_marginal_benefit_h4_h8": {
-    "1": 0.0,
-    "2": 0.0,
-    "3": 0.0,
+    "1": 0.16666666666666663,
+    "2": 0.33333333333333337,
+    "3": -0.16666666666666663,
     "4": 0.0
   },
-  "mean_explanation_faithfulness_f1": 0.9761904761904763,
+  "mean_explanation_faithfulness_f1": 0.967857142857143,
   "per_item_faithfulness": [
     {
       "id": "Q01-1HOP",
@@ -144,18 +149,18 @@
       "hop_count": 1,
       "retrieved_subgraph_edges": [
         {
-          "source": "PHI_Disclosure",
-          "relation": "subjectToException",
-          "target": "JudicialSubpoena_Exception",
+          "source": "LawEnforcementDisclosure",
+          "relation": "violatessafeguard",
+          "target": "PrivacyRule_LawEnforcement",
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Regarding the query 'Does sharing PHI with law enforcement without a court order ...': Audit analysis indicates the following compliance path. Step 1: Subgraph edge shows PHI_Disclosure subjectToException JudicialSubpoena_Exception.",
+      "explanation_narrative": "Regarding the query 'Does sharing PHI with law enforcement without a court order ...': Audit analysis indicates the following compliance path. Step 1: Subgraph edge shows LawEnforcementDisclosure violatessafeguard PrivacyRule_LawEnforcement.",
       "extracted_explanation_triples": [
         {
-          "source": "PHI_Disclosure",
-          "relation": "subjectToException",
-          "target": "JudicialSubpoena_Exception",
+          "source": "LawEnforcementDisclosure",
+          "relation": "violatessafeguard",
+          "target": "PrivacyRule_LawEnforcement",
           "confidence": 0.95
         }
       ],
@@ -171,30 +176,18 @@
       "hop_count": 1,
       "retrieved_subgraph_edges": [
         {
-          "source": "Hospital_A",
-          "relation": "disclosesPHITo",
-          "target": "CollectionAgency_B",
-          "confidence": 0.95
-        },
-        {
-          "source": "CollectionAgency_B",
-          "relation": "satisfiesStandard",
-          "target": "BAA_Agreement",
+          "source": "EmergencyFamilyDisclosure",
+          "relation": "subjectToException",
+          "target": "EmergencyCarveout",
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Compliance trajectory analysis for 'Does verbal disclosure of patient status to family members d...': Step 1: Verification reveals Hospital_A --(disclosesPHITo)--> CollectionAgency_B. Step 2: Verification reveals CollectionAgency_B --(satisfiesStandard)--> BAA_Agreement.",
+      "explanation_narrative": "Compliance trajectory analysis for 'Does verbal disclosure of patient status to family members d...': Step 1: Verification reveals EmergencyFamilyDisclosure --(subjectToException)--> EmergencyCarveout.",
       "extracted_explanation_triples": [
         {
-          "source": "Hospital_A",
-          "relation": "disclosesPHITo",
-          "target": "CollectionAgency_B",
-          "confidence": 0.95
-        },
-        {
-          "source": "CollectionAgency_B",
-          "relation": "satisfiesStandard",
-          "target": "BAA_Agreement",
+          "source": "EmergencyFamilyDisclosure",
+          "relation": "subjectToException",
+          "target": "EmergencyCarveout",
           "confidence": 0.95
         }
       ],
@@ -210,18 +203,30 @@
       "hop_count": 2,
       "retrieved_subgraph_edges": [
         {
-          "source": "PHI_Disclosure",
-          "relation": "subjectToException",
-          "target": "TPO_Exception",
+          "source": "CoveredEntity_A",
+          "relation": "disclosesPHITo",
+          "target": "CloudVendor_B",
+          "confidence": 0.9
+        },
+        {
+          "source": "CloudVendor_B",
+          "relation": "lacksAgreement",
+          "target": "BAA_Document",
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Compliance trajectory analysis for 'Can a Covered Entity disclose PHI to a cloud vendor without ...': Step 1: Subgraph edge shows PHI_Disclosure subjectToException TPO_Exception.",
+      "explanation_narrative": "Compliance trajectory analysis for 'Can a Covered Entity disclose PHI to a cloud vendor without ...': Step 1: Subgraph edge shows CoveredEntity_A disclosesPHITo CloudVendor_B. Step 2: Subgraph edge shows CloudVendor_B lacksAgreement BAA_Document.",
       "extracted_explanation_triples": [
         {
-          "source": "PHI_Disclosure",
-          "relation": "subjectToException",
-          "target": "TPO_Exception",
+          "source": "CoveredEntity_A",
+          "relation": "disclosesPHITo",
+          "target": "CloudVendor_B",
+          "confidence": 0.9
+        },
+        {
+          "source": "CloudVendor_B",
+          "relation": "lacksAgreement",
+          "target": "BAA_Document",
           "confidence": 0.95
         }
       ],
@@ -237,30 +242,18 @@
       "hop_count": 2,
       "retrieved_subgraph_edges": [
         {
-          "source": "EMT_Provider",
-          "relation": "transmitsPHI",
-          "target": "Hospital_ED",
-          "confidence": 0.95
-        },
-        {
-          "source": "Hospital_ED",
-          "relation": "qualifiesAs",
-          "target": "TreatmentActivity",
+          "source": "EmergencyFamilyDisclosure",
+          "relation": "subjectToException",
+          "target": "EmergencyCarveout",
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Regulatory path verification report: Step 1: Subgraph edge shows EMT_Provider transmitsPHI Hospital_ED. Step 2: Verification reveals Hospital_ED --(qualifiesAs)--> TreatmentActivity.",
+      "explanation_narrative": "Regulatory path verification report: Step 1: Subgraph edge shows EmergencyFamilyDisclosure subjectToException EmergencyCarveout.",
       "extracted_explanation_triples": [
         {
-          "source": "EMT_Provider",
-          "relation": "transmitsPHI",
-          "target": "Hospital_ED",
-          "confidence": 0.95
-        },
-        {
-          "source": "Hospital_ED",
-          "relation": "qualifiesAs",
-          "target": "TreatmentActivity",
+          "source": "EmergencyFamilyDisclosure",
+          "relation": "subjectToException",
+          "target": "EmergencyCarveout",
           "confidence": 0.95
         }
       ],
@@ -276,18 +269,30 @@
       "hop_count": 2,
       "retrieved_subgraph_edges": [
         {
-          "source": "PHI_Disclosure",
-          "relation": "subjectToException",
-          "target": "TPO_Exception",
+          "source": "BusinessAssociate_1",
+          "relation": "disclosesPHITo",
+          "target": "SubcontractorHost_2",
+          "confidence": 0.9
+        },
+        {
+          "source": "SubcontractorHost_2",
+          "relation": "lacksAgreement",
+          "target": "SubcontractorBAA",
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Regulatory path verification report: Step 1: Subgraph edge shows PHI_Disclosure subjectToException TPO_Exception.",
+      "explanation_narrative": "Regulatory path verification report: Step 1: Subgraph edge shows BusinessAssociate_1 disclosesPHITo SubcontractorHost_2. Step 2: Verification reveals SubcontractorHost_2 --(lacksAgreement)--> SubcontractorBAA.",
       "extracted_explanation_triples": [
         {
-          "source": "PHI_Disclosure",
-          "relation": "subjectToException",
-          "target": "TPO_Exception",
+          "source": "BusinessAssociate_1",
+          "relation": "disclosesPHITo",
+          "target": "SubcontractorHost_2",
+          "confidence": 0.9
+        },
+        {
+          "source": "SubcontractorHost_2",
+          "relation": "lacksAgreement",
+          "target": "SubcontractorBAA",
           "confidence": 0.95
         }
       ],
@@ -522,42 +527,18 @@
       "hop_count": 3,
       "retrieved_subgraph_edges": [
         {
-          "source": "ITContractor_M",
-          "relation": "accessesData",
-          "target": "FullEHR_Record",
-          "confidence": 0.9
-        },
-        {
-          "source": "FullEHR_Record",
-          "relation": "lacksAgreement",
-          "target": "RoleBasedAccessControl",
-          "confidence": 0.95
-        },
-        {
-          "source": "RoleBasedAccessControl",
-          "relation": "violatessafeguard",
-          "target": "AccessControlStandard",
+          "source": "PatientAccessFee",
+          "relation": "satisfiesStandard",
+          "target": "CostBasedFeeRule",
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Regulatory path verification report: Step 1: Subgraph edge shows ITContractor_M accessesData FullEHR_Record. Step 2: Subgraph edge shows FullEHR_Record lacksAgreement RoleBasedAccessControl. Step 3: Subgraph edge shows RoleBasedAccessControl violatessafeguard AccessControlStandard.",
+      "explanation_narrative": "Regulatory path verification report: Step 1: Subgraph edge shows PatientAccessFee satisfiesStandard CostBasedFeeRule.",
       "extracted_explanation_triples": [
         {
-          "source": "ITContractor_M",
-          "relation": "accessesData",
-          "target": "FullEHR_Record",
-          "confidence": 0.9
-        },
-        {
-          "source": "FullEHR_Record",
-          "relation": "lacksAgreement",
-          "target": "RoleBasedAccessControl",
-          "confidence": 0.95
-        },
-        {
-          "source": "RoleBasedAccessControl",
-          "relation": "violatessafeguard",
-          "target": "AccessControlStandard",
+          "source": "PatientAccessFee",
+          "relation": "satisfiesStandard",
+          "target": "CostBasedFeeRule",
           "confidence": 0.95
         }
       ],
@@ -675,37 +656,43 @@
       "hop_count": 3,
       "retrieved_subgraph_edges": [
         {
-          "source": "Hospital_A",
-          "relation": "disclosesPHITo",
-          "target": "CollectionAgency_B",
+          "source": "AcademicPartner",
+          "relation": "usesData",
+          "target": "AnonymizedTelemetry",
+          "confidence": 0.9
+        },
+        {
+          "source": "AnonymizedTelemetry",
+          "relation": "governedBy",
+          "target": "DataTransferAgreement",
           "confidence": 0.95
         },
         {
-          "source": "CollectionAgency_B",
+          "source": "DataTransferAgreement",
           "relation": "satisfiesStandard",
-          "target": "BAA_Agreement",
+          "target": "DeIdentificationRule",
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Regulatory path verification report: Step 1: Subgraph edge shows Hospital_A disclosesPHITo CollectionAgency_B. Step 2: Subgraph edge shows CollectionAgency_B satisfiesStandard BAA_Agreement.",
+      "explanation_narrative": "Regulatory path verification report: Step 1: Subgraph edge shows AcademicPartner usesData AnonymizedTelemetry. Step 2: (Intermediate sub-hop is abstracted in summary narrative). Step 3: Verification reveals DataTransferAgreement --(satisfiesStandard)--> DeIdentificationRule.",
       "extracted_explanation_triples": [
         {
-          "source": "Hospital_A",
-          "relation": "disclosesPHITo",
-          "target": "CollectionAgency_B",
-          "confidence": 0.95
+          "source": "AcademicPartner",
+          "relation": "usesData",
+          "target": "AnonymizedTelemetry",
+          "confidence": 0.9
         },
         {
-          "source": "CollectionAgency_B",
+          "source": "DataTransferAgreement",
           "relation": "satisfiesStandard",
-          "target": "BAA_Agreement",
+          "target": "DeIdentificationRule",
           "confidence": 0.95
         }
       ],
       "faithfulness_metrics": {
         "precision": 1.0,
-        "recall": 1.0,
-        "f1": 1.0
+        "recall": 0.6666666666666666,
+        "f1": 0.8
       }
     },
     {
@@ -1224,12 +1211,6 @@
     },
     {
       "step": 2,
-      "edge": "FullEHR_Record->RoleBasedAccessControl",
-      "random_val": 0.5967413010742667,
-      "omitted": false
-    },
-    {
-      "step": 2,
       "edge": "LimitedDataSet->DataUseAgreement",
       "random_val": 0.8842244684948132,
       "omitted": false
@@ -1239,6 +1220,12 @@
       "edge": "UnencryptedDiagnosticPHI->PhysicalTheftIncident",
       "random_val": 0.7890893060912736,
       "omitted": false
+    },
+    {
+      "step": 2,
+      "edge": "AnonymizedTelemetry->DataTransferAgreement",
+      "random_val": 0.2822835962732533,
+      "omitted": true
     },
     {
       "step": 2,
@@ -1313,14 +1300,14 @@
       "omitted": true
     }
   ],
-  "expected_calibration_error_ece": 0.010480487727456661,
+  "expected_calibration_error_ece": 0.0,
   "statistical_validation": {
     "paired_difference": {
-      "mean_diff": 0.0,
-      "std_diff": 0.5,
-      "t_statistic": 0.0,
-      "t_p_value": 1.0,
-      "wilcoxon_p_value": 1.0
+      "mean_diff": 0.08333333333333333,
+      "std_diff": 0.3996526269427266,
+      "t_statistic": 1.0,
+      "t_p_value": 0.3277158061428582,
+      "wilcoxon_p_value": 0.31731050786291415
     },
     "tost_equivalence": {
       "status": "NOT MEASURED",
@@ -1329,12 +1316,12 @@
     "holm_bonferroni": {
       "hypotheses_tested_count": 2,
       "raw_p_values": [
-        1.0,
-        1.0
+        0.3277158061428582,
+        0.31731050786291415
       ],
       "adjusted_p_values": [
-        1.0,
-        1.0
+        0.3277158061428582,
+        0.6346210157258283
       ]
     }
   },

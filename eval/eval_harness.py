@@ -1,7 +1,7 @@
 """
 Comprehensive evaluation harness for CompGraphRAG framework.
-Executes non-circular un-leaked retrieval, hybrid path scoring, explanation faithfulness,
-split conformal calibration, ECE calculation, and pre-registered statistical validation.
+Executes non-circular un-leaked retrieval, hybrid path scoring, entity-grounded candidate selection,
+explanation faithfulness, split conformal calibration, ECE calculation, and statistical validation.
 Saves raw json outputs to results/eval_results_raw.json.
 """
 
@@ -50,21 +50,69 @@ class CompGraphRAGEvaluator:
         self.baseline_runner = BaselineRunner(hybrid_scorer=self.scorer)
         self.raw_random_floats_log = []
 
+    def evaluate_entity_linking(self) -> Dict[str, float]:
+        """
+        Measures entity linking precision, recall, and F1 across all dataset queries.
+        """
+        precs, recs = [], []
+        for item in self.dataset:
+            q_text = item.get("question", "")
+            gold_edges = item.get("gold_evidence_subgraph", [])
+            gold_nodes = set()
+            for e in gold_edges:
+                gold_nodes.add(e.get("source"))
+                gold_nodes.add(e.get("target"))
+                
+            linked_res = self.entity_linker.link_query_entities(q_text)
+            pred_nodes = set([n for n, c in linked_res if c >= 0.25])
+            
+            if not pred_nodes:
+                prec = 0.0
+                rec = 0.0
+            else:
+                true_pos = len(pred_nodes.intersection(gold_nodes))
+                prec = true_pos / len(pred_nodes)
+                rec = true_pos / len(gold_nodes) if gold_nodes else 0.0
+                
+            precs.append(prec)
+            recs.append(rec)
+            
+        m_p = float(np.mean(precs)) if precs else 0.0
+        m_r = float(np.mean(recs)) if recs else 0.0
+        f1 = (2 * m_p * m_r) / (m_p + m_r) if (m_p + m_r) > 0 else 0.0
+        return {"precision": m_p, "recall": m_r, "f1": f1}
+
     def _retrieve_top_path(self, query_text: str, hop_count: int) -> Tuple[List[Dict[str, Any]], float]:
         """
-        Un-leaked retrieval pipeline: Given ONLY query_text, retrieve and score candidate graph paths.
+        Un-leaked entity-grounded retrieval pipeline:
+        1. Uses EntityLinker to ground query text to knowledge graph nodes.
+        2. Scores candidate graph paths using hybrid scoring up-weighted by entity-grounding overlap.
         Returns (top_path_edges, hybrid_score).
         """
         q_emb = self.scorer.encode_text(query_text)
         candidate_paths = self.corpus.candidate_paths
+        
+        # Ground query entities
+        linked_entities = self.entity_linker.link_query_entities(query_text)
+        linked_nodes_set = set(n for n, c in linked_entities if c >= 0.25)
         
         scored_candidates = []
         for path in candidate_paths:
             path_text = " ".join([f"{e['source']} {e['relation']} {e['target']}" for e in path])
             x_emb = self.scorer.encode_text(path_text)
             
-            score = self.scorer.score_candidate(q_emb=q_emb, x_emb=x_emb, path=path, authority_score=1.0)
-            scored_candidates.append((path, score))
+            base_score = self.scorer.score_candidate(q_emb=q_emb, x_emb=x_emb, path=path, authority_score=1.0)
+            
+            # Entity grounding ratio
+            path_nodes = set()
+            for e in path:
+                path_nodes.add(e.get("source"))
+                path_nodes.add(e.get("target"))
+                
+            grounding_ratio = len(path_nodes.intersection(linked_nodes_set)) / max(1, len(path_nodes))
+            grounded_score = base_score * (1.0 + 0.4 * grounding_ratio)
+            
+            scored_candidates.append((path, grounded_score))
 
         scored_candidates.sort(key=lambda x: x[1], reverse=True)
         top_path, top_score = scored_candidates[0]
@@ -85,7 +133,6 @@ class CompGraphRAGEvaluator:
         else:
             rng = random.Random(42)
 
-        # Stochastic natural language paraphrasing templates for free-form generation
         intro_templates = [
             f"Regarding the query '{query_text[:60]}...': Audit analysis indicates the following compliance path.",
             f"Compliance trajectory analysis for '{query_text[:60]}...':",
@@ -95,20 +142,17 @@ class CompGraphRAGEvaluator:
         sentences = [rng.choice(intro_templates)]
         included_edges = []
         
-        # Generative path description with stochastic sentence structuring (no hardcoded edge filters)
         for i, edge in enumerate(path, 1):
             s = edge.get("source", "")
             r = edge.get("relation", "")
             t = edge.get("target", "")
             
-            # Phrasing variations
             connectors = [
                 f"Step {i}: Entity {s} is linked via {r} to {t}.",
                 f"Step {i}: Subgraph edge shows {s} {r} {t}.",
                 f"Step {i}: Verification reveals {s} --({r})--> {t}."
             ]
             
-            # Stochastic omission in natural language summary narrative (simulating LLM summarization)
             if len(path) >= 3 and i > 1 and i < len(path):
                 r_val = rng.random()
                 self.raw_random_floats_log.append({
@@ -128,7 +172,6 @@ class CompGraphRAGEvaluator:
 
         narrative_text = " ".join(sentences)
 
-        # Step 2: Information Extraction (IE) parsing directly from narrative_text
         extracted_triples = []
         for edge in included_edges:
             s = edge.get("source", "")
@@ -146,9 +189,6 @@ class CompGraphRAGEvaluator:
         return narrative_text, extracted_triples
 
     def run_explanation_nondeterminism_test(self, item_id: str = "Q13-3HOP") -> List[Dict[str, Any]]:
-        """
-        Task 2 Non-Determinism Test: Runs explanation generation 3 separate times on the same item with different seeds.
-        """
         target_item = None
         for item in self.dataset:
             if item.get("id") == item_id:
@@ -182,11 +222,13 @@ class CompGraphRAGEvaluator:
         st_encoder = self.scorer._get_encoder()
         encoder_name = "real sentence-transformers (all-MiniLM-L6-v2)" if st_encoder else "hash pseudo-embedding fallback"
 
-        # Split dataset 50/50: 12 calibration items, 12 test items
         n_total = len(self.dataset)
         n_cal = n_total // 2
         cal_items = self.dataset[:n_cal]
         test_items = self.dataset[n_cal:]
+
+        # Measure Entity Linking metrics
+        el_metrics = self.evaluate_entity_linking()
 
         # Step 1: Conformal Calibration on calibration split
         cal_scores = []
@@ -288,7 +330,6 @@ class CompGraphRAGEvaluator:
 
         ece_score = self.validator.compute_ece(model_probs, accuracies)
 
-        # TASK 1 FIX: Single source of truth for mean faithfulness computation over per_item_faithfulness_records
         all_f1s = [rec["faithfulness_metrics"]["f1"] for rec in per_item_faithfulness_records]
         mean_faithfulness = float(np.mean(all_f1s))
 
@@ -325,6 +366,7 @@ class CompGraphRAGEvaluator:
                 "total_candidate_passages_pool_size": len(self.corpus.passages),
                 "explanation_seed_strategy": "Item-ID MD5 deterministic hash seed"
             },
+            "entity_linking_metrics": el_metrics,
             "total_queries_evaluated": n_total,
             "overall_compgraphrag_accuracy": float(np.mean(cg_scores)),
             "overall_vector_rag_accuracy": float(np.mean(vec_scores)),
