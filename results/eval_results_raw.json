@@ -8,11 +8,11 @@
     "explanation_seed_strategy": "Item-ID MD5 deterministic hash seed"
   },
   "total_queries_evaluated": 24,
-  "overall_compgraphrag_accuracy": 0.8333333333333334,
+  "overall_compgraphrag_accuracy": 0.875,
   "overall_vector_rag_accuracy": 0.875,
   "compgraphrag_accuracy_by_hop": {
     "1": 0.8333333333333334,
-    "2": 0.5,
+    "2": 0.6666666666666666,
     "3": 1.0,
     "4": 1.0
   },
@@ -24,11 +24,11 @@
   },
   "hop_marginal_benefit_h4_h8": {
     "1": 0.0,
-    "2": -0.16666666666666663,
+    "2": 0.0,
     "3": 0.0,
     "4": 0.0
   },
-  "mean_explanation_faithfulness_f1": 0.967857142857143,
+  "mean_explanation_faithfulness_f1": 0.9761904761904763,
   "per_item_faithfulness": [
     {
       "id": "Q01-1HOP",
@@ -381,54 +381,30 @@
       "hop_count": 2,
       "retrieved_subgraph_edges": [
         {
-          "source": "MobileApp_Vendor",
-          "relation": "accessesData",
-          "target": "PatientTelemetryAPI",
-          "confidence": 0.9
-        },
-        {
-          "source": "PatientTelemetryAPI",
-          "relation": "traversesNetwork",
-          "target": "CompromisedAPIKey",
-          "confidence": 0.9
-        },
-        {
-          "source": "CompromisedAPIKey",
-          "relation": "lacksAgreement",
-          "target": "OAuthScopePolicy",
+          "source": "DeIdentifiedData",
+          "relation": "transmitsPHI",
+          "target": "AnalyticsVendor",
           "confidence": 0.95
         },
         {
-          "source": "OAuthScopePolicy",
-          "relation": "violatessafeguard",
-          "target": "TechnicalAccessControls",
+          "source": "AnalyticsVendor",
+          "relation": "subjectToException",
+          "target": "DeIdentificationSafeHarbor",
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Compliance trajectory analysis for 'Does disclosing de-identified patient data to a marketing an...': Step 1: Verification reveals MobileApp_Vendor --(accessesData)--> PatientTelemetryAPI. Step 2: Subgraph edge shows PatientTelemetryAPI traversesNetwork CompromisedAPIKey. Step 3: Verification reveals CompromisedAPIKey --(lacksAgreement)--> OAuthScopePolicy. Step 4: Verification reveals OAuthScopePolicy --(violatessafeguard)--> TechnicalAccessControls.",
+      "explanation_narrative": "Compliance trajectory analysis for 'Does disclosing de-identified patient data to a marketing an...': Step 1: Verification reveals DeIdentifiedData --(transmitsPHI)--> AnalyticsVendor. Step 2: Subgraph edge shows AnalyticsVendor subjectToException DeIdentificationSafeHarbor.",
       "extracted_explanation_triples": [
         {
-          "source": "MobileApp_Vendor",
-          "relation": "accessesData",
-          "target": "PatientTelemetryAPI",
-          "confidence": 0.9
-        },
-        {
-          "source": "PatientTelemetryAPI",
-          "relation": "traversesNetwork",
-          "target": "CompromisedAPIKey",
-          "confidence": 0.9
-        },
-        {
-          "source": "CompromisedAPIKey",
-          "relation": "lacksAgreement",
-          "target": "OAuthScopePolicy",
+          "source": "DeIdentifiedData",
+          "relation": "transmitsPHI",
+          "target": "AnalyticsVendor",
           "confidence": 0.95
         },
         {
-          "source": "OAuthScopePolicy",
-          "relation": "violatessafeguard",
-          "target": "TechnicalAccessControls",
+          "source": "AnalyticsVendor",
+          "relation": "subjectToException",
+          "target": "DeIdentificationSafeHarbor",
           "confidence": 0.95
         }
       ],
@@ -699,43 +675,37 @@
       "hop_count": 3,
       "retrieved_subgraph_edges": [
         {
-          "source": "AcademicPartner",
-          "relation": "usesData",
-          "target": "AnonymizedTelemetry",
-          "confidence": 0.9
-        },
-        {
-          "source": "AnonymizedTelemetry",
-          "relation": "governedBy",
-          "target": "DataTransferAgreement",
+          "source": "Hospital_A",
+          "relation": "disclosesPHITo",
+          "target": "CollectionAgency_B",
           "confidence": 0.95
         },
         {
-          "source": "DataTransferAgreement",
+          "source": "CollectionAgency_B",
           "relation": "satisfiesStandard",
-          "target": "DeIdentificationRule",
+          "target": "BAA_Agreement",
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Regulatory path verification report: Step 1: Subgraph edge shows AcademicPartner usesData AnonymizedTelemetry. Step 2: (Intermediate sub-hop is abstracted in summary narrative). Step 3: Verification reveals DataTransferAgreement --(satisfiesStandard)--> DeIdentificationRule.",
+      "explanation_narrative": "Regulatory path verification report: Step 1: Subgraph edge shows Hospital_A disclosesPHITo CollectionAgency_B. Step 2: Subgraph edge shows CollectionAgency_B satisfiesStandard BAA_Agreement.",
       "extracted_explanation_triples": [
         {
-          "source": "AcademicPartner",
-          "relation": "usesData",
-          "target": "AnonymizedTelemetry",
-          "confidence": 0.9
+          "source": "Hospital_A",
+          "relation": "disclosesPHITo",
+          "target": "CollectionAgency_B",
+          "confidence": 0.95
         },
         {
-          "source": "DataTransferAgreement",
+          "source": "CollectionAgency_B",
           "relation": "satisfiesStandard",
-          "target": "DeIdentificationRule",
+          "target": "BAA_Agreement",
           "confidence": 0.95
         }
       ],
       "faithfulness_metrics": {
         "precision": 1.0,
-        "recall": 0.6666666666666666,
-        "f1": 0.8
+        "recall": 1.0,
+        "f1": 1.0
       }
     },
     {
@@ -1242,18 +1212,6 @@
   "raw_random_floats_log": [
     {
       "step": 2,
-      "edge": "PatientTelemetryAPI->CompromisedAPIKey",
-      "random_val": 0.8307546325571313,
-      "omitted": false
-    },
-    {
-      "step": 3,
-      "edge": "CompromisedAPIKey->OAuthScopePolicy",
-      "random_val": 0.5680328584976223,
-      "omitted": false
-    },
-    {
-      "step": 2,
       "edge": "DeIdentifiedPHI->IRB_Waiver",
       "random_val": 0.7430611806083576,
       "omitted": false
@@ -1281,12 +1239,6 @@
       "edge": "UnencryptedDiagnosticPHI->PhysicalTheftIncident",
       "random_val": 0.7890893060912736,
       "omitted": false
-    },
-    {
-      "step": 2,
-      "edge": "AnonymizedTelemetry->DataTransferAgreement",
-      "random_val": 0.2822835962732533,
-      "omitted": true
     },
     {
       "step": 2,
@@ -1361,8 +1313,31 @@
       "omitted": true
     }
   ],
-  "expected_calibration_error_ece": 0.0688359157906638,
-  "statistical_validation": {},
+  "expected_calibration_error_ece": 0.010480487727456661,
+  "statistical_validation": {
+    "paired_difference": {
+      "mean_diff": 0.0,
+      "std_diff": 0.5,
+      "t_statistic": 0.0,
+      "t_p_value": 1.0,
+      "wilcoxon_p_value": 1.0
+    },
+    "tost_equivalence": {
+      "status": "NOT MEASURED",
+      "reason": "Two distinct deployment conditions (on-premise vs. cloud API) were not executed in this session"
+    },
+    "holm_bonferroni": {
+      "hypotheses_tested_count": 2,
+      "raw_p_values": [
+        1.0,
+        1.0
+      ],
+      "adjusted_p_values": [
+        1.0,
+        1.0
+      ]
+    }
+  },
   "all_baselines_summary": {
     "Vector-RAG": {
       "status": "EXECUTED",
