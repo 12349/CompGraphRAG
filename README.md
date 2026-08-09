@@ -66,9 +66,10 @@ compgraphrag/
 ---
 
 ## 📜 Code & Data Availability Statement
-- **Repository Access**: All software code, schemas, dataset benchmarks, evaluation scripts, and unit tests are publicly available under the Apache-2.0 license.
-- **Raw Evaluation Artifacts**: Executed benchmark metrics are deterministically logged in `results/eval_results_raw.json`.
-- **License**: Code is licensed under [Apache-2.0](LICENSE); annotations and dataset artifacts under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+* **Repository Access**: All software code, schemas, dataset benchmarks, evaluation scripts, and unit tests are publicly available in this repository for inspection and reproduction.
+* **License**: No open-source license has been applied yet. Until a `LICENSE` file is added, all rights are reserved by default under standard copyright — this code should not be assumed reusable, modifiable, or redistributable under any specific terms.
+* **Raw Evaluation Artifacts**: Executed benchmark metrics are deterministically logged in `results/eval_results_raw.json`.ons.org/licenses/by/4.0/).
 
 ---
 
