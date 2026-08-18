@@ -1,13 +1,28 @@
 # CompGraphRAG: A Knowledge Graph-Augmented Retrieval Framework for Intelligent Enterprise Compliance Workflows — A HIPAA Case Study
 
-**Author**: Mahaboob Johny Shaik  
-**Affiliation**: Independent Researcher, Denton, TX, USA  
-**Email**: `Mahaboobshaikusa@gmail.com`  
+> [!CAUTION]
+> **PRE-AUDIT DRAFT — BENCHMARK TABLE CORRECTED 2026-08-18.**
+> The original abstract and Section V table in this draft contained fabricated numbers (100% CG accuracy, p<0.005, HippoRAG/GraphRAG/LightRAG figures that were never measured). Those figures have been replaced below with real harness output from `docs/AUDIT_LOG_2026-08-18.md`. The canonical paper is `CompGraphRAG_Paper.docx` at the repo root (N=6 honest pilot framing).
+
+**Author**: Mahaboob Johny Shaik
+**Affiliation**: Independent Researcher, Denton, TX, USA
+**Email**: `Mahaboobshaikusa@gmail.com`
 
 ---
 
 ## Abstract
-Enterprise compliance determination — for example, deciding whether a specific healthcare data disclosure satisfies HIPAA mandates — requires reasoning across relationally distributed, heterogeneous documents including regulations, contracts, clinical policies, and access logs. Standard vector-based Retrieval-Augmented Generation (RAG) treats these documents as flat, isolated chunks and degrades on multi-hop regulatory queries due to passage isolation. We discover and formalize the **graph-hop scaling law ($H4/H8$)**: the marginal accuracy advantage of knowledge-graph-augmented retrieval over dense vector retrieval scales directly with query hop complexity (growing from $+0.0\%$ at 1-hop to $+83.3\%$ at 4-hop multi-hop reasoning). 
+Enterprise compliance determination — for example, deciding whether a specific healthcare data disclosure satisfies HIPAA mandates — requires reasoning across relationally distributed, heterogeneous documents including regulations, contracts, clinical policies, and access logs. Standard vector-based Retrieval-Augmented Generation (RAG) treats these documents as flat, isolated chunks and degrades on multi-hop regulatory queries due to passage isolation.
+
+We present **CompGraphRAG**, a framework that unifies:
+1. A schema-based knowledge graph ontology (TBox/ABox) with temporal versioning of regulatory concepts ($45\text{ C.F.R. } \S 164.502/\S 164.506$),
+2. A formal hybrid retrieval scoring function combining dense bi-encoder similarity, graph-path decay $\lambda^{h-1}$, and Personalized PageRank (PPR) node authority,
+3. A neuro-symbolic rule-check layer that evaluates declarative regulatory exceptions prior to generation,
+4. Audit-grade explainability via traversable justification subgraphs ($\pi$) evaluated with a quantitative faithfulness metric, and
+5. Split conformal prediction that furnishes distribution-free confidence sets $C(q)$ and routes low-confidence determinations to human review.
+
+We formalize compliance determination as a function $f: \mathcal{Q} \times \mathcal{D} \times G \to (d, c, \pi)$ and evaluate it on a 24-item synthetic HIPAA compliance-QA benchmark (hash-embedding encoder). **On this pilot benchmark**: CompGraphRAG achieves 70.8% overall accuracy vs. 79.2% for Vector-RAG and 83.3% for Naive-RAG. The paired t-test (p=0.5385) and Wilcoxon test (p=0.5271) are not statistically significant. The monotonically-growing hop-scaling hypothesis (H4/H8) is **not supported** on this dataset. Mean explanation faithfulness F1 = 0.9798. ECE = 0.1469. GraphRAG, LightRAG, and HippoRAG were **not measured**. See `docs/AUDIT_LOG_2026-08-18.md` for the full audit record.
+
+**Index Terms** — Retrieval-Augmented Generation, Knowledge Graphs, Enterprise Compliance, HIPAA, Explainable AI, Conformal Prediction, Neuro-Symbolic Reasoning, Multi-Hop Question Answering, Uncertainty Quantification.
 
 We present **CompGraphRAG**, a framework that unifies:
 1. A schema-based knowledge graph ontology (TBox/ABox) with temporal versioning of regulatory concepts ($45\text{ C.F.R. } \S 164.502/\S 164.506$),
@@ -150,19 +165,23 @@ $$\mathbf{\text{FinalDetermination}(q) = \begin{cases} y, & \text{if } C(q) = \{
 ### A. Benchmark Results Table
 
 ```
-TABLE II: EMPIRICAL BENCHMARK COMPARISON (N = 24 EXPANDED HIPAA SET)
+TABLE II: EMPIRICAL BENCHMARK — REAL HARNESS OUTPUT (N=24, hash-embedding encoder)
+3 runs, identical output. See docs/AUDIT_LOG_2026-08-18.md.
 
 Model / Paradigm        1-Hop Acc  2-Hop Acc  3-Hop Acc  4-Hop Acc  Overall Acc  Faithfulness F1  ECE
------------------------------------------------------------------------------------------------------
-Vector-RAG (Dense)       90.0%      65.0%      45.0%      25.0%       37.5%           N/A        0.2800
-Naive-RAG (Top-k)        85.0%      55.0%      35.0%      15.0%       41.7%           N/A        0.2500
-GraphRAG                 88.0%      62.0%      50.0%      33.3%       58.3%          0.7200      0.1800
-LightRAG                 92.0%      75.0%      68.0%      50.0%       75.0%          0.8100      0.1400
-HippoRAG                 94.0%      90.0%      88.0%      83.3%       91.7%          0.8900      0.0900
-CompGraphRAG (Ours)     100.0%     100.0%     100.0%     100.0%      100.0%          1.0000      0.0500
------------------------------------------------------------------------------------------------------
-CompGraphRAG Benefit     +10.0%     +35.0%     +55.0%     +75.0%      +62.5%          ---         ---
+------------------------------------------------------------------------------------------------------
+Vector-RAG (Dense)       66.7%      66.7%      83.3%     100.0%       79.2%           N/A        ---
+Naive-RAG (Top-k)        ---        ---        ---        ---         83.3%           N/A        ---
+GraphRAG              NOT MEASURED  (not installed)
+LightRAG              NOT MEASURED  (not installed)
+HippoRAG              NOT MEASURED  (not installed)
+CompGraphRAG (Ours)      83.3%      50.0%      66.7%      83.3%       70.8%          0.9798      0.1469
+------------------------------------------------------------------------------------------------------
+Marginal Benefit        +16.7%     -16.7%     -16.7%     -16.7%       -8.3%
 ```
+
+**H4/H8 (monotonically growing advantage with hop distance): NOT SUPPORTED on this dataset.**
+Vector-RAG leads overall (79.2% vs 70.8%). CompGraphRAG leads only at 1-hop.
 
 ```
 Hop-Scaling Marginal Benefit Curve (H4/H8):
@@ -179,10 +198,11 @@ Marginal Benefit (%)
             Figure 2: Hop-Scaling Marginal Benefit Regression Curve
 ```
 
-### B. Statistical Validation Results
-- **Paired $t$-Test**: Mean accuracy difference $+0.3750$, $t = 3.7148$, $p = 1.1389 \times 10^{-3}$.
-- **Wilcoxon Signed-Rank Test**: $p = 2.6998 \times 10^{-3}$.
-- **TOST Equivalence Test** ($\delta = 0.05$): $p = 0.0000$, establishing deployment boundary equivalence.
+### B. Statistical Validation Results (Real Harness Output)
+- **Paired $t$-Test**: Mean accuracy difference $-0.0833$, $t = -0.6244$, $p = 0.5385$ — **NOT STATISTICALLY SIGNIFICANT**.
+- **Wilcoxon Signed-Rank Test**: $p = 0.5271$ — **NOT STATISTICALLY SIGNIFICANT**.
+- **Holm-Bonferroni adjusted p-values**: $[0.5385, 1.0]$.
+- **TOST Equivalence Test**: NOT MEASURED (requires two deployment conditions; not executed).
 
 ---
 

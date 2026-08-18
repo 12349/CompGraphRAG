@@ -19,8 +19,8 @@ CompGraphRAG is an open-source, knowledge-graph-augmented hybrid retrieval and r
 
 ### 1. Installation
 ```bash
-git clone https://github.com/compgraphrag/compgraphrag.git
-cd compgraphrag
+git clone https://github.com/12349/CompGraphRAG.git
+cd CompGraphRAG
 pip install -r requirements.txt
 ```
 
@@ -65,10 +65,35 @@ compgraphrag/
 
 ---
 
+## 📊 Verified Benchmark Results (N=24, hash-embedding encoder)
+
+> Results from `python3 run_demo.py --stats --baselines` — three runs, identical output. See `docs/AUDIT_LOG_2026-08-18.md` for full audit details.
+
+| Hop Tier | n | Vector-RAG Acc. | CompGraphRAG Acc. | Marginal Benefit |
+|:---|:---:|:---:|:---:|:---:|
+| 1-Hop | 6 | 66.7% | **83.3%** | +16.7% |
+| 2-Hop | 6 | 66.7% | **50.0%** | −16.7% |
+| 3-Hop | 6 | 83.3% | **66.7%** | −16.7% |
+| 4-Hop | 6 | **100.0%** | 83.3% | −16.7% |
+| **Overall** | **24** | **79.2%** | **70.8%** | **−8.3%** |
+
+- **Naive-RAG**: 83.3% overall
+- **Explanation Faithfulness F1**: 0.9798 (mean across 24 items; 19/24 = 1.0, 5 items < 1.0)
+- **ECE**: 0.1469
+- **Paired t-test**: mean diff = −0.0833, t = −0.6244, p = 0.5385 — **not significant**
+- **Wilcoxon**: p = 0.5271 — **not significant**
+- **H4/H8 (monotonically growing advantage)**: **NOT supported** on this dataset
+- **GraphRAG / LightRAG / HippoRAG**: NOT MEASURED (not installed)
+
+> **Note on N=6 pilot (paper)**: The canonical paper (`CompGraphRAG_Paper.docx` / `CompGraphRAG_Paper_extracted.txt`) describes a separate, earlier N=6 proof-of-concept pilot — not these N=24 results. The paper is explicit that those results are descriptive only and that statistical tests are a pre-registered plan.
+
+---
+
 ## 📜 Code & Data Availability Statement
-- **Repository Access**: All software code, schemas, dataset benchmarks, evaluation scripts, and unit tests are publicly available under the Apache-2.0 license.
+- **Repository Access**: All software code, schemas, dataset benchmarks, evaluation scripts, and unit tests are publicly available under the MIT License.
 - **Raw Evaluation Artifacts**: Executed benchmark metrics are deterministically logged in `results/eval_results_raw.json`.
-- **License**: Code is licensed under [Apache-2.0](LICENSE); annotations and dataset artifacts under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+- **Canonical Paper**: `CompGraphRAG_Paper.docx` at the repo root. The shorter file in `docs/archive/` is an earlier draft.
+- **License**: Code is licensed under [MIT](LICENSE); annotations and dataset artifacts under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
 
 ---
 
