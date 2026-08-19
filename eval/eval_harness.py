@@ -120,10 +120,14 @@ class CompGraphRAGEvaluator:
 
     def _generate_explanation_narrative_and_triples(self, query_text: str, path: List[Dict[str, Any]], seed: int = None) -> Tuple[str, List[Dict[str, Any]]]:
         """
-        Genuinely free-text explanation generation & Information Extraction (IE) pipeline:
-        1. Free-generates a natural language narrative paragraph describing the compliance finding based on path context.
+        Explanation generation & Information Extraction (IE) pipeline:
+        1. Free-generates a natural language narrative paragraph describing the compliance finding.
            Uses stochastic phrasing variations controlled by a deterministic seed derived from item ID.
-        2. Information Extraction (IE) scans narrative_text to parse asserted subject-relation-target triples.
+        2. Information Extraction (IE): reads the generated narrative TEXT ONLY via regex pattern
+           matching. Does NOT access retrieved_path or included_edges during extraction.
+           This ensures Precision is independently computable — a misstatement or omission in
+           the narrative will produce an extracted triple that fails to match retrieved_path,
+           correctly lowering Precision below 1.0.
         """
         if not path:
             return "No relevant compliance path was identified.", []
@@ -172,21 +176,53 @@ class CompGraphRAGEvaluator:
 
         narrative_text = " ".join(sentences)
 
+        # --- Text-only IE: parse triples from narrative_text via regex ---
+        # No access to included_edges or path during extraction.
+        # Matches the three connector template patterns written above:
+        #   Pattern A: "Entity {s} is linked via {r} to {t}."
+        #   Pattern B: "Subgraph edge shows {s} {r} {t}."
+        #   Pattern C: "Verification reveals {s} --({r})--> {t}."
+        # Each pattern is anchored to a "Step N:" prefix to avoid false positives
+        # from entity names that appear in the intro sentence.
+        import re as _re
         extracted_triples = []
-        for edge in included_edges:
-            s = edge.get("source", "")
-            r = edge.get("relation", "")
-            t = edge.get("target", "")
-            
-            if s.lower() in narrative_text.lower() and t.lower() in narrative_text.lower():
-                extracted_triples.append({
-                    "source": s,
-                    "relation": r,
-                    "target": t,
-                    "confidence": edge.get("confidence", 0.9)
-                })
+        seen_triples = set()
+
+        # Pattern A: "Step N: Entity S is linked via R to T."
+        for m in _re.finditer(
+            r"Step \d+: Entity (\S+) is linked via (\S+) to (\S+)\.",
+            narrative_text
+        ):
+            s2, r2, t2 = m.group(1), m.group(2), m.group(3)
+            key = (s2, r2, t2)
+            if key not in seen_triples:
+                seen_triples.add(key)
+                extracted_triples.append({"source": s2, "relation": r2, "target": t2, "confidence": 0.9})
+
+        # Pattern B: "Step N: Subgraph edge shows S R T."
+        for m in _re.finditer(
+            r"Step \d+: Subgraph edge shows (\S+) (\S+) (\S+)\.",
+            narrative_text
+        ):
+            s2, r2, t2 = m.group(1), m.group(2), m.group(3)
+            key = (s2, r2, t2)
+            if key not in seen_triples:
+                seen_triples.add(key)
+                extracted_triples.append({"source": s2, "relation": r2, "target": t2, "confidence": 0.9})
+
+        # Pattern C: "Step N: Verification reveals S --({R})--> T."
+        for m in _re.finditer(
+            r"Step \d+: Verification reveals (\S+) --\((\S+)\)--> (\S+)\.",
+            narrative_text
+        ):
+            s2, r2, t2 = m.group(1), m.group(2), m.group(3)
+            key = (s2, r2, t2)
+            if key not in seen_triples:
+                seen_triples.add(key)
+                extracted_triples.append({"source": s2, "relation": r2, "target": t2, "confidence": 0.9})
 
         return narrative_text, extracted_triples
+
 
     def run_explanation_nondeterminism_test(self, item_id: str = "Q13-3HOP") -> List[Dict[str, Any]]:
         target_item = None
