@@ -251,6 +251,7 @@ class CompGraphRAGEvaluator:
         # Step 2: Evaluation on test split and full dataset
         compgraph_acc_by_hop = {1: [], 2: [], 3: [], 4: []}
         vector_acc_by_hop = {1: [], 2: [], 3: [], 4: []}
+        naive_acc_by_hop = {1: [], 2: [], 3: [], 4: []}  # Task 4 instrumentation: Naive-RAG per-hop tracking
 
         cg_scores = []
         vec_scores = []
@@ -285,11 +286,18 @@ class CompGraphRAGEvaluator:
             vector_acc_by_hop[hop].append(v_score)
             vec_scores.append(v_score)
 
+            # Task 4 instrumentation: track Naive-RAG per-hop accuracy
+            n_score = 1.0 if naive_res["is_correct"] else 0.0
+            naive_acc_by_hop[hop].append(n_score)
+
             # Track top-retrieved candidate passage per item for Vector-RAG vs Naive-RAG
             per_item_top_passages.append({
                 "id": q_id,
+                "hop_count": hop,
                 "vector_rag_top_passage_text": vec_res.get("retrieved_passage", "")[:80] + "...",
+                "vector_rag_correct": vec_res["is_correct"],
                 "naive_rag_top_passage_text": naive_res.get("retrieved_passage", "")[:80] + "...",
+                "naive_rag_correct": naive_res["is_correct"],
                 "passages_match": (vec_res.get("retrieved_passage") == naive_res.get("retrieved_passage"))
             })
 
@@ -319,13 +327,16 @@ class CompGraphRAGEvaluator:
         # Calculate Per-Hop Absolute Accuracies and Marginal Benefits
         cg_abs_acc_by_hop = {}
         vec_abs_acc_by_hop = {}
+        naive_abs_acc_by_hop = {}  # Task 4 instrumentation
         hop_marginal_benefits = {}
 
         for h in [1, 2, 3, 4]:
             cg_acc = float(np.mean(compgraph_acc_by_hop[h])) if compgraph_acc_by_hop[h] else 0.0
             v_acc = float(np.mean(vector_acc_by_hop[h])) if vector_acc_by_hop[h] else 0.0
+            n_acc = float(np.mean(naive_acc_by_hop[h])) if naive_acc_by_hop[h] else 0.0  # Task 4
             cg_abs_acc_by_hop[str(h)] = cg_acc
             vec_abs_acc_by_hop[str(h)] = v_acc
+            naive_abs_acc_by_hop[str(h)] = n_acc  # Task 4
             hop_marginal_benefits[str(h)] = float(cg_acc - v_acc)
 
         ece_score = self.validator.compute_ece(model_probs, accuracies)
@@ -372,6 +383,7 @@ class CompGraphRAGEvaluator:
             "overall_vector_rag_accuracy": float(np.mean(vec_scores)),
             "compgraphrag_accuracy_by_hop": cg_abs_acc_by_hop,
             "vector_rag_accuracy_by_hop": vec_abs_acc_by_hop,
+            "naive_rag_accuracy_by_hop": naive_abs_acc_by_hop,  # Task 4 instrumentation
             "hop_marginal_benefit_h4_h8": hop_marginal_benefits,
             "mean_explanation_faithfulness_f1": mean_faithfulness,
             "per_item_faithfulness": per_item_faithfulness_records,
