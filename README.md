@@ -65,27 +65,30 @@ compgraphrag/
 
 ---
 
-## 📊 Verified Benchmark Results (N=24, hash-embedding encoder)
+## 📊 Verified Benchmark Results (N=24, real `all-MiniLM-L6-v2` encoder)
 
-> Results from `python3 run_demo.py --stats --baselines` — three runs, identical output. See `docs/AUDIT_LOG_2026-08-18.md` for full audit details.
+> Results from `python3 run_demo.py --stats --baselines` — three deterministic runs, identical output. Locked to `docs/LOCKED_RESULTS_2026-08-18.md` (commit `9c35c4e`). See `docs/AUDIT_LOG_2026-08-18.md` for full audit history.
 
-| Hop Tier | n | Vector-RAG Acc. | CompGraphRAG Acc. | Marginal Benefit |
-|:---|:---:|:---:|:---:|:---:|
-| 1-Hop | 6 | 66.7% | **83.3%** | +16.7% |
-| 2-Hop | 6 | 66.7% | **50.0%** | −16.7% |
-| 3-Hop | 6 | 83.3% | **66.7%** | −16.7% |
-| 4-Hop | 6 | **100.0%** | 83.3% | −16.7% |
-| **Overall** | **24** | **79.2%** | **70.8%** | **−8.3%** |
+| Hop Tier | n | Vector-RAG | Naive-RAG | CompGraphRAG | CG vs VR |
+|:---------|:-:|:----------:|:---------:|:------------:|:--------:|
+| 1-Hop    | 6 | 83.3%      | 66.7%     | **100.0%**   | +16.7%   |
+| 2-Hop    | 6 | 66.7%      | 83.3%     | **100.0%**   | +33.3%   |
+| 3-Hop    | 6 | 100.0%     | 100.0%    | **100.0%**   | +0.0%    |
+| 4-Hop    | 6 | 100.0%     | 100.0%    | **100.0%**   | +0.0%    |
+| **Overall** | **24** | **87.5%** | **87.5%** | **100.0%** | **+12.5%** |
 
-- **Naive-RAG**: 83.3% overall
-- **Explanation Faithfulness F1**: 0.9798 (mean across 24 items; 19/24 = 1.0, 5 items < 1.0)
-- **ECE**: 0.1469
-- **Paired t-test**: mean diff = −0.0833, t = −0.6244, p = 0.5385 — **not significant**
-- **Wilcoxon**: p = 0.5271 — **not significant**
-- **H4/H8 (monotonically growing advantage)**: **NOT supported** on this dataset
+- **Explanation Faithfulness F1**: 0.9679 (mean across 24 items; 19/24 = 1.0, 5 items < 1.0 due to stochastic edge abstraction)
+- **ECE**: 0.0114 (well-calibrated)
+- **Paired t-test**: mean diff = +0.1250, t = 1.8127, p = 0.0830 — not significant at α=0.05
+- **Wilcoxon**: p = 0.0833 — not significant at α=0.05
+- **Cohen's d**: 0.37 | **Study power at n=24**: 40% | **n needed for 80% power**: 60 (at observed d=0.37)
 - **GraphRAG / LightRAG / HippoRAG**: NOT MEASURED (not installed)
 
-> **Note on N=6 pilot (paper)**: The canonical paper (`CompGraphRAG_Paper.docx` / `CompGraphRAG_Paper_extracted.txt`) describes a separate, earlier N=6 proof-of-concept pilot — not these N=24 results. The paper is explicit that those results are descriptive only and that statistical tests are a pre-registered plan.
+**What the advantage is**: All 3 discordant items (CG correct, VR/NR wrong) are explained by **graph-grounded entity disambiguation** — the entity linker surfaces a legally critical node (e.g. `JudicialSubpoena_Exception`, `UnencryptedEmail`, `DeIdentifiedData`) that distinguishes two passages sharing surface vocabulary but encoding opposite compliance determinations. Flat retrieval is fooled by topic similarity; graph-path retrieval is not.
+
+**What the advantage is NOT (yet)**: The hop-scaling hypothesis (H4/H8) is untestable on this benchmark — both baselines achieve 100% at 3-hop and 4-hop. The benchmark needs adversarially constructed hard distractors per tier before H4/H8 can be evaluated. This is a design limitation of the current pilot, documented in `docs/STAGE2_FINDINGS_2026-08-18.md`.
+
+> **Note on hash-encoder runs**: Earlier runs (pre-Stage 1 audit) used a hash-bucket pseudo-embedding fallback, producing 70.8%/79.2% CG/VR numbers. Those are retired. All canonical numbers above use the real sentence-transformers encoder.
 
 ---
 
