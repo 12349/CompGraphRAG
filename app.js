@@ -1,27 +1,29 @@
 /**
- * CompGraphRAG Tactical Audit Terminal — Palantir Foundry Engine & Canvas Visualizer
+ * CompGraphRAG — Enterprise Compliance Intelligence Platform
+ * Complete Interactive JavaScript Engine
  */
 
-// Dataset Presets
-const PRESET_QUERIES = {
+// ════════════════════════════════════════════
+// DATA
+// ════════════════════════════════════════════
+
+const SCENARIOS = {
   "Q2-HIPAA-2HOP": {
     id: "Q2-HIPAA-2HOP",
     question: "Can a Covered Entity disclose PHI to a cloud vendor without an executed Business Associate Agreement?",
     hopCount: 2,
-    goldDetermination: "NON-COMPLIANT",
+    determination: "NON-COMPLIANT",
     nodes: [
-      { id: "CoveredEntity_A", label: "[ROLE] CoveredEntity_A", type: "Role", x: 120, y: 240 },
-      { id: "CloudVendor_B", label: "[ROLE] CloudVendor_B", type: "Role", x: 380, y: 240 },
-      { id: "BAA_Document", label: "[OBLIGATION] BAA_Document", type: "Obligation", x: 640, y: 240 }
+      { id: "CoveredEntity_A", label: "CoveredEntity_A", type: "Role" },
+      { id: "CloudVendor_B",   label: "CloudVendor_B",   type: "Role" },
+      { id: "BAA_Document",    label: "BAA_Document",    type: "Obligation" }
     ],
     edges: [
-      { source: "CoveredEntity_A", target: "CloudVendor_B", relation: "disclosesPHITo", confidence: 1.0 },
-      { source: "CloudVendor_B", target: "BAA_Document", relation: "lacksAgreement", confidence: 1.0 }
+      { source: "CoveredEntity_A", target: "CloudVendor_B", relation: "disclosesPHITo",  confidence: 1.0 },
+      { source: "CloudVendor_B",   target: "BAA_Document",  relation: "lacksAgreement",  confidence: 1.0 }
     ],
-    triggeredRules: [
-      { rule_id: "RULE-HIPAA-BAA-REQUIRED", recommendation: "NON-COMPLIANT", finding: "PHI disclosed to Business Associate without executed BAA document." }
-    ],
-    nlWalk: "Step 1: [CoveredEntity_A] --(disclosesPHITo)--> [CloudVendor_B]. Step 2: [CloudVendor_B] --(lacksAgreement)--> [BAA_Document].",
+    triggeredRules: [{ rule_id: "RULE-HIPAA-BAA-REQUIRED", recommendation: "NON-COMPLIANT", finding: "PHI disclosed to Business Associate without executed BAA document." }],
+    nlWalk: "Step 1: [CoveredEntity_A] --(disclosesPHITo)--> [CloudVendor_B]\nStep 2: [CloudVendor_B] --(lacksAgreement)--> [BAA_Document]",
     conformalSet: ["NON-COMPLIANT"],
     requiresAudit: false,
     hybridScores: { dense: 0.82, graph: 0.95, auth: 1.0, final: 0.903 }
@@ -30,22 +32,20 @@ const PRESET_QUERIES = {
     id: "Q3-HIPAA-3HOP",
     question: "If a research project accesses de-identified data via a workforce member under an IRB waiver, does it violate the minimum necessary standard?",
     hopCount: 3,
-    goldDetermination: "COMPLIANT",
+    determination: "COMPLIANT",
     nodes: [
-      { id: "ResearchProject_X", label: "[ROLE] ResearchProject_X", type: "Role", x: 100, y: 240 },
-      { id: "DeIdentifiedPHI", label: "[DATA] DeIdentifiedPHI", type: "DataType", x: 280, y: 240 },
-      { id: "IRB_Waiver", label: "[EXCEPTION] IRB_Waiver", type: "Exception", x: 460, y: 240 },
-      { id: "MinNecessary", label: "[OBLIGATION] MinNecessary", type: "Obligation", x: 640, y: 240 }
+      { id: "ResearchProject_X", label: "ResearchProject_X", type: "Role" },
+      { id: "DeIdentifiedPHI",   label: "DeIdentifiedPHI",   type: "DataType" },
+      { id: "IRB_Waiver",        label: "IRB_Waiver",        type: "Exception" },
+      { id: "MinNecessary",      label: "MinNecessary",      type: "Obligation" }
     ],
     edges: [
-      { source: "ResearchProject_X", target: "DeIdentifiedPHI", relation: "usesData", confidence: 0.95 },
-      { source: "DeIdentifiedPHI", target: "IRB_Waiver", relation: "governedBy", confidence: 1.0 },
-      { source: "IRB_Waiver", target: "MinNecessary", relation: "satisfiesStandard", confidence: 1.0 }
+      { source: "ResearchProject_X", target: "DeIdentifiedPHI", relation: "usesData",          confidence: 0.95 },
+      { source: "DeIdentifiedPHI",   target: "IRB_Waiver",      relation: "governedBy",         confidence: 1.0 },
+      { source: "IRB_Waiver",        target: "MinNecessary",    relation: "satisfiesStandard",  confidence: 1.0 }
     ],
-    triggeredRules: [
-      { rule_id: "RULE-HIPAA-TPO-EXCEPTION", recommendation: "COMPLIANT", finding: "Disclosure satisfies statutory IRB research exception requirements." }
-    ],
-    nlWalk: "Step 1: [ResearchProject_X] --(usesData)--> [DeIdentifiedPHI]. Step 2: [DeIdentifiedPHI] --(governedBy)--> [IRB_Waiver]. Step 3: [IRB_Waiver] --(satisfiesStandard)--> [MinNecessary].",
+    triggeredRules: [{ rule_id: "RULE-HIPAA-TPO-EXCEPTION", recommendation: "COMPLIANT", finding: "Disclosure satisfies statutory IRB research exception requirements." }],
+    nlWalk: "Step 1: [ResearchProject_X] --(usesData)--> [DeIdentifiedPHI]\nStep 2: [DeIdentifiedPHI] --(governedBy)--> [IRB_Waiver]\nStep 3: [IRB_Waiver] --(satisfiesStandard)--> [MinNecessary]",
     conformalSet: ["COMPLIANT"],
     requiresAudit: false,
     hybridScores: { dense: 0.78, graph: 0.98, auth: 1.0, final: 0.902 }
@@ -54,18 +54,16 @@ const PRESET_QUERIES = {
     id: "Q1-HIPAA-1HOP",
     question: "Does disclosure of PHI for patient treatment require patient authorization under 45 CFR 164.506?",
     hopCount: 1,
-    goldDetermination: "COMPLIANT",
+    determination: "COMPLIANT",
     nodes: [
-      { id: "PHI_Disclosure", label: "[DATA] PHI_Disclosure", type: "DataType", x: 200, y: 240 },
-      { id: "TPO_Exception", label: "[EXCEPTION] TPO_Exception", type: "Exception", x: 560, y: 240 }
+      { id: "PHI_Disclosure", label: "PHI_Disclosure", type: "DataType" },
+      { id: "TPO_Exception",  label: "TPO_Exception",  type: "Exception" }
     ],
     edges: [
       { source: "PHI_Disclosure", target: "TPO_Exception", relation: "subjectToException", confidence: 1.0 }
     ],
-    triggeredRules: [
-      { rule_id: "RULE-HIPAA-TPO-EXCEPTION", recommendation: "COMPLIANT", finding: "Disclosure permitted under §164.506 Treatment exception." }
-    ],
-    nlWalk: "Step 1: [PHI_Disclosure] --(subjectToException)--> [TPO_Exception].",
+    triggeredRules: [{ rule_id: "RULE-HIPAA-TPO-EXCEPTION", recommendation: "COMPLIANT", finding: "Disclosure permitted under §164.506 Treatment exception." }],
+    nlWalk: "Step 1: [PHI_Disclosure] --(subjectToException)--> [TPO_Exception]",
     conformalSet: ["COMPLIANT"],
     requiresAudit: false,
     hybridScores: { dense: 0.91, graph: 1.0, auth: 1.0, final: 0.964 }
@@ -74,260 +72,980 @@ const PRESET_QUERIES = {
     id: "Q6-HIPAA-3HOP",
     question: "Does transmitting unencrypted PHI over public Wi-Fi by a subcontractor without technical safeguards breach the Security Rule?",
     hopCount: 3,
-    goldDetermination: "NON-COMPLIANT",
+    determination: "NON-COMPLIANT",
     nodes: [
-      { id: "Subcontractor_C", label: "[ROLE] Subcontractor_C", type: "Role", x: 100, y: 240 },
-      { id: "UnencryptedPHI", label: "[DATA] UnencryptedPHI", type: "DataType", x: 280, y: 240 },
-      { id: "PublicWiFi", label: "[INCIDENT] PublicWiFi", type: "Incident", x: 460, y: 240 },
-      { id: "SecurityRule", label: "[RULE] SecurityRule", type: "Rule", x: 640, y: 240 }
+      { id: "Subcontractor_C", label: "Subcontractor_C", type: "Role" },
+      { id: "UnencryptedPHI",  label: "UnencryptedPHI",  type: "DataType" },
+      { id: "PublicWiFi",      label: "PublicWiFi",      type: "Incident" },
+      { id: "SecurityRule",    label: "SecurityRule",    type: "Rule" }
     ],
     edges: [
-      { source: "Subcontractor_C", target: "UnencryptedPHI", relation: "transmitsData", confidence: 1.0 },
-      { source: "UnencryptedPHI", target: "PublicWiFi", relation: "traversesNetwork", confidence: 1.0 },
-      { source: "PublicWiFi", target: "SecurityRule", relation: "violatesSafeguard", confidence: 1.0 }
+      { source: "Subcontractor_C", target: "UnencryptedPHI", relation: "transmitsData",     confidence: 1.0 },
+      { source: "UnencryptedPHI",  target: "PublicWiFi",     relation: "traversesNetwork",  confidence: 1.0 },
+      { source: "PublicWiFi",      target: "SecurityRule",   relation: "violatesSafeguard", confidence: 1.0 }
     ],
-    triggeredRules: [
-      { rule_id: "RULE-HIPAA-MIN-NECESSARY", recommendation: "NON-COMPLIANT", finding: "Transmission violates §164.312 Technical Safeguards requirements." }
-    ],
-    nlWalk: "Step 1: [Subcontractor_C] --(transmitsData)--> [UnencryptedPHI]. Step 2: [UnencryptedPHI] --(traversesNetwork)--> [PublicWiFi]. Step 3: [PublicWiFi] --(violatesSafeguard)--> [SecurityRule].",
+    triggeredRules: [{ rule_id: "RULE-HIPAA-MIN-NECESSARY", recommendation: "NON-COMPLIANT", finding: "Transmission violates §164.312 Technical Safeguards requirements." }],
+    nlWalk: "Step 1: [Subcontractor_C] --(transmitsData)--> [UnencryptedPHI]\nStep 2: [UnencryptedPHI] --(traversesNetwork)--> [PublicWiFi]\nStep 3: [PublicWiFi] --(violatesSafeguard)--> [SecurityRule]",
     conformalSet: ["NON-COMPLIANT"],
     requiresAudit: false,
     hybridScores: { dense: 0.74, graph: 0.96, auth: 1.0, final: 0.876 }
   }
 };
 
-let currentScenarioKey = "Q2-HIPAA-2HOP";
-let showEdgeLabels = true;
+// Node colors — muted ink palette, single amber accent
+// Avoids the neon purple/cyan AI-design tell
+const NODE_COLORS = {
+  Role:       { fill: '#18181b', stroke: '#d4953a', text: '#e8b872' },
+  DataType:   { fill: '#16161a', stroke: '#7b80c0', text: '#a5a8d8' },
+  Exception:  { fill: '#141a16', stroke: '#4d9b6b', text: '#7dc49a' },
+  Obligation: { fill: '#1c1810', stroke: '#92672b', text: '#d4953a' },
+  Incident:   { fill: '#1a1212', stroke: '#b45454', text: '#d98282' },
+  Rule:       { fill: '#1a1212', stroke: '#8c6060', text: '#c09090' }
+};
+
+// ════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════
+
+let currentKey = "Q2-HIPAA-2HOP";
+let showLabels = true;
 let currentAuditResult = null;
+let heroAnimFrame = null;
+let heroNodes = [];
+let heroEdges = [];
+let particles = [];
+let graphNodes = [];
+let graphAnimProgress = 0;
+let graphAnimRunning = false;
 
-// Guide Modal Toggle
-function toggleGuideModal(show) {
-  const modal = document.getElementById('guideModal');
-  if (show) modal.classList.add('active');
-  else modal.classList.remove('active');
+// ════════════════════════════════════════════
+// NAV & CLOCK
+// ════════════════════════════════════════════
+
+function navClick(el, sectionId) {
+  event.preventDefault();
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById(sectionId).scrollIntoView({ behavior: 'smooth' });
 }
 
-// Tab Navigation
-function switchTab(tabId) {
-  document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
-  document.querySelectorAll('.nav-tab-btn').forEach(el => el.classList.remove('active'));
-  
-  document.getElementById(tabId).classList.add('active');
-  event.currentTarget.classList.add('active');
+// ─── Mobile hamburger ───────────────────────────────────
+function toggleMobileMenu() {
+  const btn    = document.getElementById('hamburgerBtn');
+  const drawer = document.getElementById('mobileNavDrawer');
+  const isOpen = drawer.classList.toggle('open');
+  btn.classList.toggle('open', isOpen);
+  // Prevent body scroll when drawer is open
+  document.body.style.overflow = isOpen ? 'hidden' : '';
+}
 
-  if (tabId === 'tab-analytics') {
-    renderAnalyticsCharts();
+function mobileNavClick(sectionId) {
+  // Close drawer first
+  const btn    = document.getElementById('hamburgerBtn');
+  const drawer = document.getElementById('mobileNavDrawer');
+  drawer.classList.remove('open');
+  btn.classList.remove('open');
+  document.body.style.overflow = '';
+  // Then scroll (slight delay so animation feels smooth)
+  setTimeout(() => {
+    const target = document.getElementById(sectionId);
+    if (target) target.scrollIntoView({ behavior: 'smooth' });
+  }, 260);
+}
+
+// Close drawer when tapping outside
+document.addEventListener('click', (e) => {
+  const drawer = document.getElementById('mobileNavDrawer');
+  const btn    = document.getElementById('hamburgerBtn');
+  if (!drawer || !btn) return;
+  if (drawer.classList.contains('open') &&
+      !drawer.contains(e.target) &&
+      !btn.contains(e.target)) {
+    drawer.classList.remove('open');
+    btn.classList.remove('open');
+    document.body.style.overflow = '';
   }
+});
+// ────────────────────────────────────────────────────────
+
+function updateClock() {
+  const el = document.getElementById('navClock');
+  if (!el) return;
+  const now = new Date();
+  const hh = String(now.getHours()).padStart(2,'0');
+  const mm = String(now.getMinutes()).padStart(2,'0');
+  const ss = String(now.getSeconds()).padStart(2,'0');
+  el.textContent = `${hh}:${mm}:${ss}`;
 }
 
-// Load Scenario Preset
-function loadPresetQuery() {
-  const select = document.getElementById('presetSelect');
-  currentScenarioKey = select.value;
-  const scenario = PRESET_QUERIES[currentScenarioKey];
-  
-  document.getElementById('queryText').value = scenario.question;
-  document.getElementById('hopCountBadge').innerText = `${scenario.hopCount}-HOP`;
-  
-  renderCanvasGraph(scenario);
-}
+// Scroll-based navbar
+window.addEventListener('scroll', () => {
+  const nav = document.getElementById('navbar');
+  if (window.scrollY > 20) nav.classList.add('scrolled');
+  else nav.classList.remove('scrolled');
 
-// Pipeline Execution Simulation
-function runAuditPipeline() {
-  const scenario = PRESET_QUERIES[currentScenarioKey];
-  
-  for (let i = 1; i <= 4; i++) {
-    document.getElementById(`step-${i}`).classList.remove('active');
+  // Close mobile drawer on scroll
+  const drawer = document.getElementById('mobileNavDrawer');
+  const btn    = document.getElementById('hamburgerBtn');
+  if (drawer && drawer.classList.contains('open') && window.scrollY > 80) {
+    drawer.classList.remove('open');
+    btn.classList.remove('open');
+    document.body.style.overflow = '';
   }
-  
-  let step = 1;
-  const interval = setInterval(() => {
-    document.getElementById(`step-${step}`).classList.add('active');
-    step++;
-    if (step > 4) {
-      clearInterval(interval);
-      displayAuditResult(scenario);
+
+  // Highlight active nav link
+  const sections = ['section-hero','section-how','section-demo','section-metrics','section-architecture','section-research'];
+  const links = document.querySelectorAll('.nav-link');
+  let current = '';
+  sections.forEach((id, i) => {
+    const el = document.getElementById(id);
+    if (el && el.getBoundingClientRect().top <= 100) current = i;
+  });
+  links.forEach((l, i) => {
+    if (i === current) l.classList.add('active');
+    else l.classList.remove('active');
+  });
+});
+
+// ════════════════════════════════════════════
+// PARTICLE BACKGROUND
+// ════════════════════════════════════════════
+
+function initParticles() {
+  // Particle canvas is hidden via CSS — no-op
+  // The hero knowledge graph provides sufficient visual interest
+}
+
+// ════════════════════════════════════════════
+// HERO GRAPH ANIMATION
+// ════════════════════════════════════════════
+
+function initHeroGraph() {
+  const canvas = document.getElementById('heroGraphCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+
+  function resize() {
+    const dpr = window.devicePixelRatio || 1;
+    const w = canvas.parentElement.clientWidth;
+    const h = canvas.parentElement.clientHeight;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    ctx.scale(dpr, dpr);
+    return { w, h };
+  }
+
+  let { w, h } = resize();
+  window.addEventListener('resize', () => { const r = resize(); w = r.w; h = r.h; });
+
+  // Create animated hero nodes — amber/slate palette, no neon
+  const typeColors = ['#d4953a','#7b80c0','#4d9b6b','#92672b','#8c6060','#d4953a','#7b80c0','#4d9b6b','#92672b'];
+  const labels = ['CoveredEntity','PHI_Disclosure','BAA_Document','TPO_Exception','IRB_Waiver','MinNecessary','SecurityRule','CloudVendor','DeIdentifiedPHI'];
+
+  heroNodes = labels.map((l, i) => ({
+    label: l,
+    color: typeColors[i % typeColors.length],
+    x: (0.15 + (i % 3) * 0.35) * (w || 600),
+    y: (0.2 + Math.floor(i / 3) * 0.3) * (h || 400),
+    vx: (Math.random() - 0.5) * 0.4,
+    vy: (Math.random() - 0.5) * 0.4,
+    r: 28 + Math.random() * 10,
+    pulse: Math.random() * Math.PI * 2
+  }));
+
+  heroEdges = [];
+  for (let i = 0; i < heroNodes.length - 1; i++) {
+    if (Math.random() > 0.3) {
+      heroEdges.push({ from: i, to: i + 1 });
     }
-  }, 150);
-}
+  }
+  heroEdges.push({ from: 0, to: 3 }, { from: 2, to: 5 }, { from: 6, to: 1 });
 
-function displayAuditResult(scenario) {
-  const badge = document.getElementById('determinationBadge');
-  badge.className = 'status-indicator ';
-  
-  if (scenario.goldDetermination === 'COMPLIANT') {
-    badge.classList.add('status-pass');
-    badge.innerText = 'STATUS: PASS [COMPLIANT]';
-  } else if (scenario.goldDetermination === 'NON-COMPLIANT') {
-    badge.classList.add('status-fail');
-    badge.innerText = 'STATUS: FLAGGED [NON_COMPLIANT]';
-  } else {
-    badge.classList.add('status-warn');
-    badge.innerText = 'STATUS: WARN [REQUIRES_AUDIT]';
+  let t = 0;
+
+  function draw() {
+    ctx.clearRect(0, 0, w, h);
+    t += 0.01;
+
+    // Subtle grid
+    ctx.strokeStyle = 'rgba(99,102,241,0.04)';
+    ctx.lineWidth = 1;
+    for (let x = 0; x < w; x += 40) {
+      ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,h); ctx.stroke();
+    }
+    for (let y = 0; y < h; y += 40) {
+      ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke();
+    }
+
+    // Edges — simple amber lines, moving dash offset
+    heroEdges.forEach(e => {
+      const n1 = heroNodes[e.from], n2 = heroNodes[e.to];
+      ctx.beginPath();
+      ctx.moveTo(n1.x, n1.y);
+      ctx.lineTo(n2.x, n2.y);
+      ctx.strokeStyle = 'rgba(212,149,58,0.22)';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([5, 6]);
+      ctx.lineDashOffset = -t * 10;
+      ctx.stroke();
+      ctx.setLineDash([]);
+    });
+
+    // Nodes — clean circles, amber accent stroke
+    heroNodes.forEach(node => {
+      const pulse = Math.sin(t * 1.2 + node.pulse) * 2;  // subtle, not dramatic
+
+      // Node circle — dark fill, muted stroke
+      ctx.beginPath();
+      ctx.arc(node.x, node.y, node.r + pulse, 0, Math.PI * 2);
+      ctx.fillStyle = '#111113';
+      ctx.fill();
+      ctx.strokeStyle = node.color;
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      // Label
+      ctx.fillStyle = node.color;
+      ctx.font = '500 8px Inter, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      const shortLabel = node.label.length > 12 ? node.label.slice(0, 11) + '…' : node.label;
+      ctx.fillText(shortLabel, node.x, node.y);
+
+      // Float animation
+      node.x += node.vx;
+      node.y += node.vy;
+
+      // Soft boundary bounce
+      const margin = node.r + 10;
+      if (node.x < margin || node.x > w - margin) node.vx *= -1;
+      if (node.y < margin || node.y > h - margin) node.vy *= -1;
+
+      node.x = Math.max(margin, Math.min(w - margin, node.x));
+      node.y = Math.max(margin, Math.min(h - margin, node.y));
+    });
+
+    heroAnimFrame = requestAnimationFrame(draw);
   }
 
-  document.getElementById('nlWalkText').innerText = scenario.nlWalk;
-  document.getElementById('conformalSetText').innerHTML = `
-    COVERAGE_GUARANTEE (1-α): 90.0%<br>
-    CONFORMAL_SET C(q): [${scenario.conformalSet.join(', ')}]<br>
-    HYBRID_SCORE: ${scenario.hybridScores.final} (Dense: ${scenario.hybridScores.dense}, Graph: ${scenario.hybridScores.graph})
+  draw();
+}
+
+// ════════════════════════════════════════════
+// COUNTER ANIMATIONS
+// ════════════════════════════════════════════
+
+function animateCounters(selector) {
+  const els = document.querySelectorAll(selector);
+  els.forEach(el => {
+    const target = parseFloat(el.dataset.target);
+    const suffix = el.dataset.suffix || '';
+    const duration = 1800;
+    const start = performance.now();
+
+    function step(now) {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      const ease = 1 - Math.pow(1 - progress, 3);
+      const current = target * ease;
+      el.textContent = (current % 1 === 0 || current > 99) ? current.toFixed(1) + suffix : current.toFixed(2) + suffix;
+      if (progress < 1) requestAnimationFrame(step);
+    }
+
+    requestAnimationFrame(step);
+  });
+}
+
+function setupIntersectionObserver() {
+  const heroStats = document.querySelectorAll('.hero-stat-val');
+  const kpiVals = document.querySelectorAll('.animate-counter');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting && !entry.target.dataset.animated) {
+        entry.target.dataset.animated = 'true';
+        const target = parseFloat(entry.target.dataset.target);
+        const suffix = entry.target.dataset.suffix || '';
+        const duration = 1600;
+        const start = performance.now();
+
+        function step(now) {
+          const elapsed = now - start;
+          const progress = Math.min(elapsed / duration, 1);
+          const ease = 1 - Math.pow(1 - progress, 3);
+          const current = target * ease;
+          if (entry.target.classList.contains('hero-stat-val')) {
+            entry.target.textContent = current.toFixed(1);
+          } else {
+            entry.target.textContent = current.toFixed(1) + suffix;
+          }
+          if (progress < 1) requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+      }
+    });
+  }, { threshold: 0.3 });
+
+  heroStats.forEach(el => observer.observe(el));
+  kpiVals.forEach(el => observer.observe(el));
+
+  // Entity linker bars
+  const elBars = document.querySelectorAll('.el-bar-fill');
+  const barObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting && !entry.target.dataset.animated) {
+        entry.target.dataset.animated = 'true';
+        const w = parseFloat(entry.target.dataset.w);
+        setTimeout(() => {
+          entry.target.style.width = w + '%';
+        }, 200);
+      }
+    });
+  }, { threshold: 0.3 });
+
+  elBars.forEach(el => barObserver.observe(el));
+}
+
+// ════════════════════════════════════════════
+// SCENARIO SELECTION & DEMO
+// ════════════════════════════════════════════
+
+function selectScenario(el, key) {
+  document.querySelectorAll('.scenario-item').forEach(s => s.classList.remove('active'));
+  el.classList.add('active');
+  currentKey = key;
+  const sc = SCENARIOS[key];
+  document.getElementById('queryText').textContent = sc.question;
+  document.getElementById('hopBadgeDisplay').textContent = sc.hopCount + '-HOP';
+  document.getElementById('graphFooterText').textContent =
+    `REF: HIPAA 45 CFR · NODES: ${sc.nodes.length} · EDGES: ${sc.edges.length} · DECAY λ=0.85`;
+
+  // Reset pipeline
+  resetPipelineUI();
+  // Render graph for new scenario
+  renderMainGraph(sc);
+}
+
+function resetPipelineUI() {
+  ['pt-1','pt-2','pt-3','pt-4'].forEach((id, i) => {
+    const el = document.getElementById(id);
+    el.classList.remove('active','done');
+    const state = document.getElementById('pts-' + (i+1));
+    if (state) state.textContent = 'IDLE';
+  });
+
+  const pStatus = document.getElementById('pipelineStatus');
+  pStatus.textContent = 'READY';
+  pStatus.className = 'pipeline-status';
+
+  // Reset outputs
+  document.getElementById('detLabel').textContent = 'AWAITING PIPELINE';
+  document.getElementById('detState').className = 'det-state';
+  document.getElementById('detState').style.textAlign = 'center';
+  document.getElementById('detState').style.padding = '1rem 0';
+  document.getElementById('detState').innerHTML = '<div style="font-size:2rem;margin-bottom:0.3rem;">◉</div><div id="detLabel" style="font-size:0.85rem;color:#64748b;font-family:Inter,sans-serif;">AWAITING PIPELINE</div>';
+  document.getElementById('detScores').style.display = 'none';
+
+  document.getElementById('conformalSet').textContent = 'Pending…';
+  document.getElementById('conformalAudit').textContent = '—';
+
+  document.getElementById('nlWalkDisplay').innerHTML = '<div class="nlwalk-placeholder">Execute the pipeline to view the natural language reasoning path walk…</div>';
+  document.getElementById('auditJson').textContent = '{ "status": "IDLE", "system": "COMPGRAPHRAG_V1" }';
+  document.getElementById('exportBtn').disabled = true;
+  currentAuditResult = null;
+}
+
+function runAuditPipeline() {
+  const sc = SCENARIOS[currentKey];
+  const btn = document.getElementById('executeBtn');
+  btn.disabled = true;
+  btn.classList.add('running');
+
+  const pStatus = document.getElementById('pipelineStatus');
+  pStatus.textContent = 'RUNNING';
+  pStatus.className = 'pipeline-status running';
+
+  // Reset all stages
+  ['pt-1','pt-2','pt-3','pt-4'].forEach((id, i) => {
+    const el = document.getElementById(id);
+    el.classList.remove('active','done');
+    const state = document.getElementById('pts-' + (i+1));
+    if (state) state.textContent = 'IDLE';
+  });
+
+  const stages = ['pt-1','pt-2','pt-3','pt-4'];
+  const stageLabels = ['RUNNING…','CHECKING…','CALIBRATING…','GENERATING…'];
+  const doneLbls = ['✓ DONE','✓ DONE','✓ DONE','✓ DONE'];
+  let step = 0;
+
+  function runStep() {
+    if (step > 0) {
+      // Mark previous done
+      const prev = document.getElementById(stages[step-1]);
+      prev.classList.remove('active');
+      prev.classList.add('done');
+      const prevState = document.getElementById('pts-' + step);
+      if (prevState) prevState.textContent = '✓ DONE';
+    }
+
+    if (step >= stages.length) {
+      // Done
+      pStatus.textContent = 'COMPLETE';
+      pStatus.className = 'pipeline-status done';
+      btn.disabled = false;
+      btn.classList.remove('running');
+      displayAuditResult(sc);
+      return;
+    }
+
+    const stageEl = document.getElementById(stages[step]);
+    stageEl.classList.add('active');
+    const stateEl = document.getElementById('pts-' + (step+1));
+    if (stateEl) stateEl.textContent = stageLabels[step];
+
+    step++;
+    setTimeout(runStep, 500 + Math.random() * 300);
+  }
+
+  runStep();
+}
+
+function displayAuditResult(sc) {
+  // Determination badge
+  const detState = document.getElementById('detState');
+  const isPass = sc.determination === 'COMPLIANT';
+
+  detState.className = 'det-state ' + (isPass ? 'pass' : 'fail');
+  detState.style.textAlign = 'center';
+  detState.style.padding = '1rem';
+
+  const verdictColor = isPass ? '#34d399' : '#f87171';
+  const verdictIcon = isPass ? '✓' : '✗';
+  detState.innerHTML = `
+    <div style="font-size:2.5rem;margin-bottom:0.5rem;">${verdictIcon}</div>
+    <div class="det-verdict ${isPass?'pass-text':'fail-text'}">${sc.determination}</div>
+    <div style="font-size:0.72rem;color:#64748b;margin-top:0.3rem;font-family:'JetBrains Mono',monospace;">
+      ${sc.triggeredRules[0].rule_id}
+    </div>
   `;
 
+  // Scores
+  const detScores = document.getElementById('detScores');
+  detScores.style.display = 'flex';
+  document.getElementById('sc-dense').textContent = sc.hybridScores.dense.toFixed(3);
+  document.getElementById('sc-graph').textContent = sc.hybridScores.graph.toFixed(3);
+  document.getElementById('sc-auth').textContent  = sc.hybridScores.auth.toFixed(3);
+  document.getElementById('sc-final').textContent = sc.hybridScores.final.toFixed(3);
+
+  // Conformal
+  document.getElementById('conformalSet').textContent = '[' + sc.conformalSet.join(', ') + ']';
+  const auditEl = document.getElementById('conformalAudit');
+  auditEl.textContent = sc.requiresAudit ? '⚠ YES — Route to Human' : '✓ No — Unambiguous';
+  auditEl.style.color = sc.requiresAudit ? '#f59e0b' : '#34d399';
+
+  // NL Walk
+  const nlEl = document.getElementById('nlWalkDisplay');
+  const steps = sc.nlWalk.split('\n');
+  nlEl.innerHTML = steps.map(s => {
+    // amber for edge labels, not indigo
+    const formatted = s.replace(/\[(.*?)\]/g, '<strong>[$1]</strong>').replace(/--(.*?)-->/g, '<span style="color:#d4953a;">--($1)--></span>');
+    return `<div class="nlwalk-step" style="margin-bottom:0.4rem;">${formatted}</div>`;
+  }).join('');
+
+  // Build JSON certificate
   currentAuditResult = {
-    query_id: scenario.id,
+    query_id: sc.id,
     timestamp: new Date().toISOString(),
-    question: scenario.question,
-    hop_complexity: scenario.hopCount,
-    hybrid_score: scenario.hybridScores,
-    triggered_rules: scenario.triggeredRules,
+    question: sc.question,
+    hop_complexity: sc.hopCount,
+    hybrid_score: sc.hybridScores,
+    triggered_rules: sc.triggeredRules,
     subgraph_pi: {
-      nodes: scenario.nodes.map(n => n.id),
-      edges: scenario.edges
+      nodes: sc.nodes.map(n => n.id),
+      edges: sc.edges
     },
     conformal_uncertainty: {
+      alpha: 0.10,
       target_coverage: 0.90,
-      confidence_set: scenario.conformalSet,
-      requires_human_audit: scenario.requiresAudit
+      confidence_set: sc.conformalSet,
+      requires_human_audit: sc.requiresAudit
     },
-    determination: scenario.goldDetermination
+    determination: sc.determination
   };
 
-  document.getElementById('auditJsonPayload').innerText = JSON.stringify(currentAuditResult, null, 2);
-}
+  document.getElementById('auditJson').textContent = JSON.stringify(currentAuditResult, null, 2);
+  document.getElementById('exportBtn').disabled = false;
 
-// Tactical Canvas Subgraph Renderer
-function renderCanvasGraph(scenario) {
-  const canvas = document.getElementById('subgraphCanvas');
-  if (!canvas) return;
-  
-  const ctx = canvas.getContext('2d');
-  const dpr = window.devicePixelRatio || 1;
-  
-  canvas.width = canvas.parentElement.clientWidth * dpr;
-  canvas.height = canvas.parentElement.clientHeight * dpr;
-  ctx.scale(dpr, dpr);
-  
-  const width = canvas.parentElement.clientWidth;
-  const height = canvas.parentElement.clientHeight;
-
-  ctx.clearRect(0, 0, width, height);
-
-  // Draw Grid Crosshair Lines
-  ctx.strokeStyle = '#121A28';
-  ctx.lineWidth = 1;
-  for (let x = 0; x < width; x += 40) {
-    ctx.beginPath();
-    ctx.moveTo(x, 0);
-    ctx.lineTo(x, height);
-    ctx.stroke();
-  }
-  for (let y = 0; y < height; y += 40) {
-    ctx.beginPath();
-    ctx.moveTo(0, y);
-    ctx.lineTo(width, y);
-    ctx.stroke();
-  }
-
-  // Draw Edges
-  scenario.edges.forEach(edge => {
-    const srcNode = scenario.nodes.find(n => n.id === edge.source);
-    const tgtNode = scenario.nodes.find(n => n.id === edge.target);
-
-    if (srcNode && tgtNode) {
-      ctx.beginPath();
-      ctx.moveTo(srcNode.x, srcNode.y);
-      ctx.lineTo(tgtNode.x, tgtNode.y);
-      ctx.strokeStyle = '#00FF66'; // Phosphor Green
-      ctx.lineWidth = 1.8;
-      ctx.shadowColor = 'rgba(0, 255, 102, 0.4)';
-      ctx.shadowBlur = 6;
-      ctx.stroke();
-      ctx.shadowBlur = 0;
-
-      // Draw Tactical Relation Label
-      if (showEdgeLabels) {
-        const midX = (srcNode.x + tgtNode.x) / 2;
-        const midY = (srcNode.y + tgtNode.y) / 2 - 12;
-
-        ctx.fillStyle = '#05070A';
-        ctx.strokeStyle = '#00FF66';
-        ctx.lineWidth = 1;
-        ctx.strokeRect(midX - 50, midY - 9, 100, 18);
-        ctx.fillRect(midX - 50, midY - 9, 100, 18);
-
-        ctx.fillStyle = '#00FF66';
-        ctx.font = '10px "JetBrains Mono"';
-        ctx.textAlign = 'center';
-        ctx.fillText(edge.relation, midX, midY + 3);
-      }
-    }
-  });
-
-  // Draw Nodes (Tactical Rectangles)
-  scenario.nodes.forEach(node => {
-    ctx.beginPath();
-    ctx.rect(node.x - 22, node.y - 14, 44, 28);
-    
-    if (node.type === 'Role') ctx.fillStyle = '#111622';
-    else if (node.type === 'Exception') ctx.fillStyle = '#0F261C';
-    else if (node.type === 'Obligation') ctx.fillStyle = '#261F0F';
-    else ctx.fillStyle = '#260F17';
-
-    ctx.fill();
-    ctx.strokeStyle = node.type === 'Exception' ? '#00FF66' : node.type === 'Obligation' ? '#FFB800' : '#00E5FF';
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
-
-    // Node Label
-    ctx.fillStyle = '#E2E8F0';
-    ctx.font = '10px "JetBrains Mono"';
-    ctx.textAlign = 'center';
-    ctx.fillText(node.id, node.x, node.y + 28);
-  });
-}
-
-function resetCanvasView() {
-  renderCanvasGraph(PRESET_QUERIES[currentScenarioKey]);
-}
-
-function toggleEdgeLabels() {
-  showEdgeLabels = !showEdgeLabels;
-  renderCanvasGraph(PRESET_QUERIES[currentScenarioKey]);
+  // Re-render graph with animation
+  renderMainGraph(sc, true);
 }
 
 function exportAuditJson() {
   if (!currentAuditResult) return;
-  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(currentAuditResult, null, 2));
-  const downloadAnchor = document.createElement('a');
-  downloadAnchor.setAttribute("href", dataStr);
-  downloadAnchor.setAttribute("download", `compgraphrag_audit_${currentScenarioKey}.json`);
-  document.body.appendChild(downloadAnchor);
-  downloadAnchor.click();
-  downloadAnchor.remove();
+  const blob = new Blob([JSON.stringify(currentAuditResult, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `compgraphrag_audit_${currentKey}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
 }
 
-// Render Benchmark Charts
-function renderAnalyticsCharts() {
-  const canvas1 = document.getElementById('hopScalingCanvas');
-  if (!canvas1) return;
-  const ctx1 = canvas1.getContext('2d');
-  ctx1.clearRect(0, 0, canvas1.width, canvas1.height);
+// ════════════════════════════════════════════
+// MAIN GRAPH CANVAS RENDERER
+// ════════════════════════════════════════════
 
-  ctx1.fillStyle = '#8493A8';
-  ctx1.font = '11px "JetBrains Mono"';
-  ctx1.fillText('1-HOP ACCURACY: CompGraphRAG 100% | Vector 90%', 20, 35);
-  ctx1.fillText('2-HOP ACCURACY: CompGraphRAG 100% | Vector 65%', 20, 75);
-  ctx1.fillText('3-HOP ACCURACY: CompGraphRAG 100% | Vector 45%', 20, 115);
+let mainAnimFrame = null;
+let nodePositions = {};
+let graphAnimTime = 0;
 
-  // Bars
-  ctx1.fillStyle = '#00FF66';
-  ctx1.fillRect(20, 135, 260, 16);
-  ctx1.fillStyle = '#253147';
-  ctx1.fillRect(20, 160, 130, 16);
+function renderMainGraph(sc, withAnimation) {
+  const canvas = document.getElementById('mainGraphCanvas');
+  if (!canvas) return;
+  if (mainAnimFrame) cancelAnimationFrame(mainAnimFrame);
+
+  const wrap = canvas.parentElement;
+  const dpr = window.devicePixelRatio || 1;
+  const W = Math.max(wrap.clientWidth, 200);   // guard against zero-width on mobile
+  const H = Math.max(wrap.clientHeight || 380, 200);
+  canvas.width  = W * dpr;
+  canvas.height = H * dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  // Responsive sizes — smaller nodes on narrow screens
+  const isMobile   = W < 500;
+  const nodeRadius  = isMobile ? 22 : 32;
+  const layoutMargin = isMobile ? 40 : 80;
+  const yWobble     = isMobile ? 18 : 30;
+
+  // Layout nodes
+  const n = sc.nodes.length;
+  const cx = W / 2, cy = H / 2;
+  const radius = Math.min(W, H) * 0.3;
+
+  nodePositions = {};
+  sc.nodes.forEach((node, i) => {
+    if (n === 1) {
+      nodePositions[node.id] = { x: cx, y: cy };
+    } else if (n === 2) {
+      nodePositions[node.id] = { x: cx + (i === 0 ? -radius*0.8 : radius*0.8), y: cy };
+    } else if (n === 3) {
+      const angle = (i / n) * Math.PI * 2 - Math.PI / 2;
+      nodePositions[node.id] = { x: cx + Math.cos(angle) * radius, y: cy + Math.sin(angle) * radius * 0.7 };
+    } else {
+      const angle = (i / n) * Math.PI * 2 - Math.PI / 2;
+      nodePositions[node.id] = { x: cx + Math.cos(angle) * radius, y: cy + Math.sin(angle) * radius };
+    }
+  });
+
+  // Linear chain layout for ≤4 nodes (clearer on mobile)
+  if (n <= 4) {
+    sc.nodes.forEach((node, i) => {
+      const spacing = (W - layoutMargin * 2) / Math.max(n - 1, 1);
+      nodePositions[node.id] = {
+        x: n === 1 ? cx : layoutMargin + i * spacing,
+        y: cy + (i % 2 === 0 ? -yWobble : yWobble)
+      };
+    });
+  }
+
+  graphAnimTime = 0;
+  const totalDuration = withAnimation ? 60 : 0; // frames
+
+  function drawFrame() {
+    graphAnimTime++;
+    const progress = withAnimation ? Math.min(graphAnimTime / totalDuration, 1) : 1;
+    const ease = 1 - Math.pow(1 - progress, 3);
+
+    ctx.clearRect(0, 0, W, H);
+
+    // Subtle grid — ink palette, not neon
+    ctx.strokeStyle = 'rgba(255,255,255,0.035)';
+    ctx.lineWidth = 1;
+    for (let x = 0; x < W; x += 40) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+    for (let y = 0; y < H; y += 40) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+
+    // Draw edges
+    sc.edges.forEach(edge => {
+      const src = nodePositions[edge.source];
+      const tgt = nodePositions[edge.target];
+      if (!src || !tgt) return;
+
+      // Interpolate draw length
+      const dx = (tgt.x - src.x) * ease;
+      const dy = (tgt.y - src.y) * ease;
+
+      // Edge gradient
+      const grad = ctx.createLinearGradient(src.x, src.y, src.x + dx, src.y + dy);
+      const srcColor = NODE_COLORS[SCENARIOS[currentKey].nodes.find(n => n.id === edge.source)?.type || 'Role'].stroke;
+      const tgtColor = NODE_COLORS[SCENARIOS[currentKey].nodes.find(n => n.id === edge.target)?.type || 'Role'].stroke;
+      grad.addColorStop(0, srcColor + 'aa');
+      grad.addColorStop(1, tgtColor + 'aa');
+
+      ctx.beginPath();
+      ctx.moveTo(src.x, src.y);
+      ctx.lineTo(src.x + dx, src.y + dy);
+      ctx.strokeStyle = grad;
+      ctx.lineWidth = 2;
+      ctx.shadowColor = srcColor;
+      ctx.shadowBlur = 6;
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+
+      // Arrowhead at destination
+      if (progress > 0.8) {
+        const alpha = (progress - 0.8) / 0.2;
+        const angle = Math.atan2(dy, dx);
+        const ax = src.x + dx, ay = src.y + dy;
+        const arLen = 10;
+        ctx.globalAlpha = alpha;
+        ctx.beginPath();
+        ctx.moveTo(ax, ay);
+        ctx.lineTo(ax - arLen * Math.cos(angle - 0.4), ay - arLen * Math.sin(angle - 0.4));
+        ctx.lineTo(ax - arLen * Math.cos(angle + 0.4), ay - arLen * Math.sin(angle + 0.4));
+        ctx.closePath();
+        ctx.fillStyle = tgtColor;
+        ctx.fill();
+        ctx.globalAlpha = 1;
+      }
+
+      // Edge label
+      if (showLabels && progress > 0.6) {
+        const alpha = Math.min((progress - 0.6) / 0.4, 1);
+        const midX = src.x + dx * 0.5;
+        const midY = src.y + dy * 0.5 - 14;
+        ctx.globalAlpha = alpha;
+
+        const lblText = edge.relation;
+        ctx.font = '600 10px "JetBrains Mono", monospace';
+        const tw = ctx.measureText(lblText).width;
+
+        // Label background
+        ctx.fillStyle = 'rgba(3,7,18,0.85)';
+        ctx.strokeStyle = srcColor + '60';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        const pad = 4;
+        ctx.roundRect(midX - tw/2 - pad, midY - 8, tw + pad*2, 16, 3);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = srcColor;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(lblText, midX, midY);
+        ctx.globalAlpha = 1;
+      }
+    });
+
+    // Draw nodes
+    sc.nodes.forEach((node, i) => {
+      const pos = nodePositions[node.id];
+      if (!pos) return;
+      const colors = NODE_COLORS[node.type] || NODE_COLORS.Role;
+      const nodeProgress = withAnimation ? Math.max(0, Math.min(1, (graphAnimTime - i * 8) / 20)) : 1;
+      if (nodeProgress <= 0) return;
+
+      // Use the responsive nodeRadius set at function scope
+      const nodeR   = nodeRadius * nodeProgress;
+      const pulse   = Math.sin(graphAnimTime * 0.06 + i) * (isMobile ? 1 : 2);
+
+      // Draw enter opacity fade-in (no glowing halo)
+      ctx.globalAlpha = nodeProgress;
+
+      // Node body — dark fill, colored stroke, no glow shadow
+      ctx.beginPath();
+      ctx.arc(pos.x, pos.y, nodeR + pulse, 0, Math.PI * 2);
+      ctx.fillStyle = colors.fill;
+      ctx.fill();
+      ctx.strokeStyle = colors.stroke;
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      // Type label (tiny, above node) — desktop only
+      if (!isMobile) {
+        ctx.font = '700 7px "JetBrains Mono", monospace';
+        ctx.fillStyle = colors.stroke + '88';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'bottom';
+        ctx.fillText('[' + node.type.toUpperCase() + ']', pos.x, pos.y - nodeR - 4);
+      }
+
+      // Main label below node
+      const labelFontSize = isMobile ? 8 : 10;
+      ctx.font = `600 ${labelFontSize}px Inter, sans-serif`;
+      ctx.fillStyle = colors.text;
+      ctx.textBaseline = 'top';
+      const maxChars = isMobile ? 9 : 14;
+      const shortId  = node.id.length > maxChars ? node.id.slice(0, maxChars - 1) + '…' : node.id;
+      ctx.fillText(shortId, pos.x, pos.y + nodeR + 5);
+
+      // Confidence score inside node
+      if (sc.edges.some(e => e.source === node.id || e.target === node.id)) {
+        const edge = sc.edges.find(e => e.source === node.id || e.target === node.id);
+        if (edge) {
+          const confFontSize = isMobile ? 7 : 9;
+          ctx.font = `500 ${confFontSize}px "JetBrains Mono", monospace`;
+          ctx.fillStyle = colors.text + 'cc';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(edge.confidence.toFixed(2), pos.x, pos.y);
+        }
+      }
+    });
+
+    ctx.globalAlpha = 1; // reset after node opacity animations
+
+    mainAnimFrame = requestAnimationFrame(drawFrame);
+  }
+
+  drawFrame();
 }
 
-// Init
+function resetGraph() {
+  renderMainGraph(SCENARIOS[currentKey], true);
+}
+
+function toggleLabels() {
+  showLabels = !showLabels;
+  const btn = document.getElementById('labelToggle');
+  btn.textContent = showLabels ? '⊞ Labels' : '⊟ Labels';
+  renderMainGraph(SCENARIOS[currentKey], false);
+}
+
+function animateGraph() {
+  renderMainGraph(SCENARIOS[currentKey], true);
+}
+
+// ════════════════════════════════════════════
+// CHARTS
+// ════════════════════════════════════════════
+
+function drawHopChart() {
+  const canvas = document.getElementById('hopChart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.parentElement.clientWidth || 400;
+  canvas.width = W;
+  canvas.height = 240;
+  ctx.clearRect(0, 0, W, 240);
+
+  const hops = ['1-HOP', '2-HOP', '3-HOP', '4-HOP'];
+  const comp = [83.3, 50.0, 66.7, 83.3];
+  const vect = [66.7, 66.7, 83.3, 100.0];
+
+  const margin = { top: 20, right: 20, bottom: 40, left: 50 };
+  const cW = W - margin.left - margin.right;
+  const cH = 240 - margin.top - margin.bottom;
+
+  ctx.save();
+  ctx.translate(margin.left, margin.top);
+
+  // Y grid lines & labels
+  [0, 25, 50, 75, 100].forEach(v => {
+    const y = cH - (v / 100) * cH;
+    ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(cW, y); ctx.stroke();
+    ctx.fillStyle = '#484f58';
+    ctx.font = '10px Inter, sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText(v + '%', -6, y + 4);
+  });
+
+  const barW = cW / hops.length;
+  const bw = barW * 0.35;
+  const gap = barW * 0.05;
+
+  hops.forEach((h, i) => {
+    const x = i * barW + barW * 0.1;
+
+    // CompGraphRAG bar — amber, solid
+    const ch = (comp[i] / 100) * cH;
+    ctx.fillStyle = '#d4953a';
+    ctx.beginPath();
+    ctx.roundRect(x, cH - ch, bw, ch, [3, 3, 0, 0]);
+    ctx.fill();
+
+    // Vector RAG bar — muted slate
+    const vh = (vect[i] / 100) * cH;
+    ctx.fillStyle = '#2a2a30';
+    ctx.beginPath();
+    ctx.roundRect(x + bw + gap, cH - vh, bw, vh, [3, 3, 0, 0]);
+    ctx.fill();
+
+    // X label
+    ctx.fillStyle = '#57534e';
+    ctx.font = '10px Inter, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(h, x + bw, cH + 15);
+
+    // Value labels
+    ctx.fillStyle = '#e8b872';
+    ctx.font = '700 9px Inter, sans-serif';
+    ctx.fillText(comp[i].toFixed(0) + '%', x + bw/2, cH - ch - 6);
+
+    ctx.fillStyle = '#57534e';
+    ctx.fillText(vect[i].toFixed(0) + '%', x + bw * 1.5 + gap, cH - vh - 6);
+  });
+
+  // Legend
+  ctx.fillStyle = '#d4953a';
+  ctx.fillRect(0, -15, 10, 8);
+  ctx.fillStyle = '#a8a29e';
+  ctx.font = '10px Inter, sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText('CompGraphRAG', 14, -8);
+
+  ctx.fillStyle = '#2a2a30';
+  ctx.fillRect(130, -15, 10, 8);
+  ctx.fillStyle = '#57534e';
+  ctx.fillText('Vector-RAG', 144, -8);
+
+  ctx.restore();
+}
+
+function drawCalibChart() {
+  const canvas = document.getElementById('calibChart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.parentElement.clientWidth || 400;
+  canvas.width = W;
+  canvas.height = 240;
+  ctx.clearRect(0, 0, W, 240);
+
+  const margin = { top: 20, right: 20, bottom: 40, left: 50 };
+  const cW = W - margin.left - margin.right;
+  const cH = 240 - margin.top - margin.bottom;
+
+  ctx.save();
+  ctx.translate(margin.left, margin.top);
+
+  // Perfect calibration line
+  ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([3, 4]);
+  ctx.beginPath();
+  ctx.moveTo(0, cH);
+  ctx.lineTo(cW, 0);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Grid
+  [0, 25, 50, 75, 100].forEach(v => {
+    const y = cH - (v / 100) * cH;
+    ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(cW, y); ctx.stroke();
+    ctx.fillStyle = '#57534e';
+    ctx.font = '10px Inter, sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText(v + '%', -6, y + 4);
+  });
+
+  const conformalPts = [[0,0],[20,28],[40,54],[60,75],[80,92],[100,100]];
+  const rawPts = [[0,0],[20,12],[40,38],[60,58],[80,78],[100,100]];
+
+  function drawCurve(pts, color, isDashed) {
+    ctx.beginPath();
+    pts.forEach((p, i) => {
+      const x = (p[0] / 100) * cW;
+      const y = cH - (p[1] / 100) * cH;
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+    ctx.strokeStyle = color;
+    ctx.lineWidth = isDashed ? 1.5 : 2;
+    if (isDashed) ctx.setLineDash([4, 4]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    if (!isDashed) {
+      pts.forEach(p => {
+        const x = (p[0] / 100) * cW;
+        const y = cH - (p[1] / 100) * cH;
+        ctx.beginPath();
+        ctx.arc(x, y, 3, 0, Math.PI * 2);
+        ctx.fillStyle = color;
+        ctx.fill();
+      });
+    }
+  }
+
+  drawCurve(conformalPts, '#d4953a', false);
+  drawCurve(rawPts, '#3b3935', true);
+
+  // Labels
+  ctx.fillStyle = '#57534e';
+  ctx.font = '10px Inter, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('Predicted Confidence', cW / 2, cH + 25);
+
+  // Legend
+  ctx.fillStyle = '#d4953a';
+  ctx.fillRect(0, -15, 14, 2);
+  ctx.fillStyle = '#a8a29e';
+  ctx.font = '10px Inter, sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText('Conformal UQ', 18, -8);
+
+  ctx.strokeStyle = '#3b3935';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([4,4]);
+  ctx.beginPath(); ctx.moveTo(cW - 100, -13); ctx.lineTo(cW - 86, -13); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#57534e';
+  ctx.textAlign = 'left';
+  ctx.fillText('Raw Softmax', cW - 82, -8);
+
+  ctx.restore();
+}
+
+// ════════════════════════════════════════════
+// ARCHITECTURE TABS
+// ════════════════════════════════════════════
+
+function switchArchTab(btn, paneId) {
+  document.querySelectorAll('.arch-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.arch-pane').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  const pane = document.getElementById(paneId);
+  if (pane) pane.classList.add('active');
+}
+
+// ════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════
+
 window.addEventListener('DOMContentLoaded', () => {
-  loadPresetQuery();
-  runAuditPipeline();
+  // Clock
+  updateClock();
+  setInterval(updateClock, 1000);
+
+  // Particle background
+  initParticles();
+
+  // Hero graph
+  initHeroGraph();
+
+  // Animated counters (intersection observer)
+  setupIntersectionObserver();
+
+  // Initial scenario load
+  renderMainGraph(SCENARIOS[currentKey], false);
+
+  // Charts (wait a tick for layout)
+  setTimeout(() => {
+    drawHopChart();
+    drawCalibChart();
+  }, 300);
+
+  window.addEventListener('resize', () => {
+    drawHopChart();
+    drawCalibChart();
+    renderMainGraph(SCENARIOS[currentKey], false);
+  });
 });

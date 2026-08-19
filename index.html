@@ -3,328 +3,672 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CompGraphRAG — Tactical Compliance Control Room</title>
-  <meta name="description" content="Palantir Foundry-style tactical control panel, interactive system guide, and audit terminal for CompGraphRAG.">
+  <title>CompGraphRAG — Enterprise Compliance Intelligence Platform</title>
+  <meta name="description" content="CompGraphRAG: A Knowledge Graph-Augmented Retrieval Framework for intelligent enterprise compliance automation. HIPAA multi-hop reasoning with conformal uncertainty quantification.">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="apple-touch-icon" href="favicon.svg">
+  <meta name="theme-color" content="#0a0a0b">
   <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
 </head>
 <body>
 
-  <!-- Tactical Top Status Bar -->
-  <header class="tactical-header">
-    <div class="system-id">
-      <span class="system-tag">SYS:ACTIVE</span>
-      <div class="system-title">CompGraphRAG // AUDIT.CONTROL.SUITE</div>
+  <!-- Particle Background -->
+  <canvas id="particleCanvas" class="particle-bg"></canvas>
+
+  <!-- NAVBAR -->
+  <nav class="navbar" id="navbar">
+    <a class="nav-brand" href="#section-hero" onclick="navClick(document.querySelector('.nav-link'),'section-hero')">
+      <!-- Logo Mark: knowledge graph icon, amber accent -->
+      <svg class="brand-logo-svg" width="34" height="34" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="32" height="32" rx="7" fill="#18181b"/>
+        <line x1="16" y1="10" x2="8"  y2="20" stroke="#d4953a" stroke-width="1.2" opacity="0.8"/>
+        <line x1="16" y1="10" x2="24" y2="20" stroke="#7b80c0" stroke-width="1.2" opacity="0.7"/>
+        <line x1="8"  y1="20" x2="24" y2="20" stroke="#4d9b6b" stroke-width="1.2" opacity="0.65"/>
+        <line x1="16" y1="10" x2="16" y2="24" stroke="#92672b" stroke-width="1.0" opacity="0.5"/>
+        <circle cx="16" cy="10" r="4" fill="#18181b" stroke="#d4953a" stroke-width="1.8"/>
+        <circle cx="16" cy="10" r="1.8" fill="#d4953a"/>
+        <circle cx="8"  cy="20" r="3" fill="#18181b" stroke="#7b80c0" stroke-width="1.5"/>
+        <circle cx="8"  cy="20" r="1.2" fill="#7b80c0"/>
+        <circle cx="24" cy="20" r="3" fill="#18181b" stroke="#4d9b6b" stroke-width="1.5"/>
+        <circle cx="24" cy="20" r="1.2" fill="#4d9b6b"/>
+        <circle cx="16" cy="24" r="2.5" fill="#18181b" stroke="#92672b" stroke-width="1.3"/>
+        <circle cx="16" cy="24" r="1" fill="#92672b"/>
+      </svg>
+      <div class="brand-text">
+        <div class="brand-name">CompGraphRAG</div>
+        <div class="brand-sub">Compliance Intelligence</div>
+      </div>
+    </a>
+    <div class="nav-links">
+      <a href="#section-hero" class="nav-link active" onclick="navClick(this,'section-hero')">Overview</a>
+      <a href="#section-how" class="nav-link" onclick="navClick(this,'section-how')">How It Works</a>
+      <a href="#section-demo" class="nav-link" onclick="navClick(this,'section-demo')">Live Demo</a>
+      <a href="#section-metrics" class="nav-link" onclick="navClick(this,'section-metrics')">Metrics</a>
+      <a href="#section-architecture" class="nav-link" onclick="navClick(this,'section-architecture')">Architecture</a>
+      <a href="#section-research" class="nav-link" onclick="navClick(this,'section-research')">Research</a>
     </div>
-
-    <div class="telemetry-bar">
-      <div class="telemetry-item">ENGINE: <span>HYBRID_PPR</span></div>
-      <div class="telemetry-item">TBOX: <span>HIPAA_45CFR</span></div>
-      <div class="telemetry-item">CONFORMAL: <span>COVERAGE_90%</span></div>
-      <div class="telemetry-item">STATUS: <span style="color: var(--phosphor-green);">ONLINE</span></div>
+    <div class="nav-status">
+      <span class="status-dot"></span>
+      <span class="status-label">SYSTEM ONLINE</span>
+      <div id="navClock" class="nav-clock"></div>
     </div>
-
-    <div style="display: flex; gap: 0.5rem; align-items: center;">
-      <button class="nav-tab-btn" style="border: 1px solid var(--phosphor-green); color: var(--phosphor-green);" onclick="toggleGuideModal(true)">
-        [?] SYSTEM.GUIDE
-      </button>
-
-      <nav class="control-nav">
-        <button class="nav-tab-btn active" onclick="switchTab('tab-sandbox')">[F1] AUDIT.WORKBENCH</button>
-        <button class="nav-tab-btn" onclick="switchTab('tab-analytics')">[F2] BENCHMARK.TELEMETRY</button>
-        <button class="nav-tab-btn" onclick="switchTab('tab-ontology')">[F3] TBOX.MATRIX</button>
-        <button class="nav-tab-btn" onclick="switchTab('tab-threat')">[F4] THREAT.BOUNDS</button>
-      </nav>
+    <!-- Mobile hamburger -->
+    <button class="hamburger" id="hamburgerBtn" onclick="toggleMobileMenu()" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+  <!-- Mobile nav drawer -->
+  <div class="mobile-nav-drawer" id="mobileNavDrawer">
+    <div class="mobile-nav-links">
+      <a href="#section-hero"         class="mobile-nav-link" onclick="mobileNavClick('section-hero')">Overview</a>
+      <a href="#section-how"          class="mobile-nav-link" onclick="mobileNavClick('section-how')">How It Works</a>
+      <a href="#section-demo"         class="mobile-nav-link" onclick="mobileNavClick('section-demo')">Live Demo</a>
+      <a href="#section-metrics"      class="mobile-nav-link" onclick="mobileNavClick('section-metrics')">Metrics</a>
+      <a href="#section-architecture" class="mobile-nav-link" onclick="mobileNavClick('section-architecture')">Architecture</a>
+      <a href="#section-research"     class="mobile-nav-link" onclick="mobileNavClick('section-research')">Research</a>
     </div>
-  </header>
-
-  <!-- Main Viewport -->
-  <main class="tactical-viewport">
-
-    <!-- TAB 1: AUDIT WORKBENCH -->
-    <div id="tab-sandbox" class="tab-pane active">
-      
-      <!-- Operator Quickstart Banner -->
-      <div class="operator-guide-banner">
-        <div style="display: flex; align-items: center; gap: 0.5rem;">
-          <span style="color: var(--phosphor-green); font-weight: 800;">OPERATOR QUICKSTART //</span>
-          <span style="color: var(--text-muted); font-size: 0.78rem;">Follow 4 simple steps to execute a multi-hop compliance determination audit:</span>
-        </div>
-
-        <div class="guide-steps-strip">
-          <div class="guide-step-item">
-            <div class="guide-step-badge">1</div>
-            <span>Select Scenario</span>
-          </div>
-          <div class="guide-step-item">
-            <div class="guide-step-badge">2</div>
-            <span>Execute Pipeline</span>
-          </div>
-          <div class="guide-step-item">
-            <div class="guide-step-badge">3</div>
-            <span>Inspect Path π</span>
-          </div>
-          <div class="guide-step-item">
-            <div class="guide-step-badge">4</div>
-            <span>Export Machine JSON</span>
-          </div>
-        </div>
-
-        <button class="control-chip" onclick="toggleGuideModal(true)">Open Full Guide</button>
-      </div>
-
-      <div class="grid-control-room">
-        
-        <!-- Column 1: Operator Matrix & Pipeline Control -->
-        <div style="display: flex; flex-direction: column; gap: 1rem;">
-          <div class="tactical-card">
-            <div class="corner-mark corner-tl"></div><div class="corner-mark corner-tr"></div>
-            <div class="corner-mark corner-bl"></div><div class="corner-mark corner-br"></div>
-            
-            <div class="tactical-card-header">
-              <div class="tactical-card-title">OPERATOR.SCENARIO_INPUT</div>
-              <span class="system-tag" style="background: var(--border-tactical); color: var(--text-muted);">PRESET</span>
-            </div>
-
-            <div class="control-group">
-              <label class="control-label">> STEP 1: SELECT_HIPAA_QUERY_TARGET</label>
-              <select id="presetSelect" class="tactical-select" onchange="loadPresetQuery()">
-                <option value="Q2-HIPAA-2HOP">Q2: 2-HOP // CLOUD_VENDOR_BAA_DISCLOSURE (§164.502(e))</option>
-                <option value="Q3-HIPAA-3HOP">Q3: 3-HOP // RESEARCH_IRB_WAIVER_MIN_NECESSARY (§164.506)</option>
-                <option value="Q1-HIPAA-1HOP">Q1: 1-HOP // PATIENT_TPO_TREATMENT_EXCEPTION (§164.506)</option>
-                <option value="Q6-HIPAA-3HOP">Q6: 3-HOP // SUBCONTRACTOR_TECHNICAL_SAFEGUARDS (§164.312)</option>
-              </select>
-            </div>
-
-            <div class="control-group">
-              <label class="control-label">> QUERY_TEXT_BUFFER</label>
-              <textarea id="queryText" class="tactical-textarea" rows="3" readonly></textarea>
-            </div>
-
-            <button class="btn-tactical-execute" onclick="runAuditPipeline()">
-              STEP 2: EXECUTE_PIPELINE [RUN_AUDIT]
-            </button>
-          </div>
-
-          <!-- Pipeline Telemetry -->
-          <div class="tactical-card">
-            <div class="tactical-card-title" style="margin-bottom: 0.5rem;">PIPELINE.EXECUTION_STATE</div>
-            
-            <div class="pipeline-telemetry">
-              <div id="step-1" class="telemetry-node active">
-                <div>[01] HYBRID_SCORER</div>
-                <div class="telemetry-status">α·Dense + β·PathScore</div>
-              </div>
-              <div id="step-2" class="telemetry-node">
-                <div>[02] NEURO_SYMBOLIC_RULE_CHECK</div>
-                <div class="telemetry-status">45_CFR_EXCEPTION_GATE</div>
-              </div>
-              <div id="step-3" class="telemetry-node">
-                <div>[03] CONFORMAL_UQ</div>
-                <div class="telemetry-status">CALIBRATED_COVERAGE_C(q)</div>
-              </div>
-              <div id="step-4" class="telemetry-node">
-                <div>[04] AUDIT_CERTIFICATE</div>
-                <div class="telemetry-status">SUBGRAPH_PI_TRAVERSAL</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Column 2: Tactical Subgraph Viewport -->
-        <div style="display: flex; flex-direction: column; gap: 1rem;">
-          <div class="tactical-card">
-            <div class="corner-mark corner-tl"></div><div class="corner-mark corner-tr"></div>
-            <div class="corner-mark corner-bl"></div><div class="corner-mark corner-br"></div>
-
-            <div class="tactical-card-header">
-              <div class="tactical-card-title">STEP 3: TRAVERSED_SUBGRAPH_VIEWPORT [π]</div>
-              <span id="hopCountBadge" class="system-tag" style="background: rgba(0,255,106,0.15); color: var(--phosphor-green);">2-HOP</span>
-            </div>
-
-            <div class="viewport-container">
-              <canvas id="subgraphCanvas"></canvas>
-              <div class="viewport-grid-overlay">GRID.REF: 45.164 / NODE.COUNT: 3 / EDGE.WEIGHT: DECAY_λ_0.85</div>
-              
-              <div style="position: absolute; top: 0.75rem; right: 0.75rem; display: flex; gap: 0.4rem;">
-                <button class="control-chip" onclick="resetCanvasView()">RESET.VIEW</button>
-                <button class="control-chip" onclick="toggleEdgeLabels()">TOGGLE.LABELS</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Column 3: Telemetry Stream & Machine Payload -->
-        <div style="display: flex; flex-direction: column; gap: 1rem;">
-          <div class="tactical-card">
-            <div class="corner-mark corner-tl"></div><div class="corner-mark corner-tr"></div>
-            <div class="corner-mark corner-bl"></div><div class="corner-mark corner-br"></div>
-
-            <div class="tactical-card-header">
-              <div class="tactical-card-title">STEP 4: DETERMINATION.OUTPUT</div>
-              <div id="determinationBadge" class="status-indicator status-warn">
-                STATE: READY
-              </div>
-            </div>
-
-            <div class="control-group">
-              <label class="control-label">> NATURAL_LANGUAGE_PATH_WALK</label>
-              <div id="nlWalkText" style="font-size: 0.78rem; color: var(--text-main); line-height: 1.5; background: var(--bg-input); padding: 0.6rem; border: 1px solid var(--border-subtle);">
-                Awaiting scenario execution stream...
-              </div>
-            </div>
-
-            <div class="control-group">
-              <label class="control-label">> CONFORMAL_UQ_READOUT</label>
-              <div id="conformalSetText" style="font-size: 0.75rem; color: var(--text-muted); background: var(--bg-input); padding: 0.6rem; border: 1px solid var(--border-subtle);">
-                Target Coverage: 90% (α = 0.10)
-              </div>
-            </div>
-
-            <div class="tactical-card-header" style="margin-top: 0.5rem; border: none; padding-bottom: 0;">
-              <label class="control-label" style="margin: 0;">> MACHINE_JSON_CERTIFICATE</label>
-              <button class="control-chip" onclick="exportAuditJson()">EXPORT.JSON</button>
-            </div>
-            <pre id="auditJsonPayload" class="terminal-stream">{ "status": "IDLE", "system": "COMPGRAPHRAG_V1" }</pre>
-          </div>
-        </div>
-
-      </div>
+    <div class="mobile-nav-footer">
+      <span class="status-dot" style="width:6px;height:6px;border-radius:50%;background:#4ade80;display:inline-block;"></span>
+      <span style="font-size:0.72rem;color:#4ade80;font-weight:600;">SYSTEM ONLINE</span>
     </div>
+  </div>
 
-    <!-- TAB 2: BENCHMARK TELEMETRY -->
-    <div id="tab-analytics" class="tab-pane">
-      <div style="display: flex; flex-direction: column; gap: 1rem;">
-        
-        <div class="readout-grid">
-          <div class="readout-box">
-            <div class="readout-val">100.0%</div>
-            <div class="readout-lbl">CompGraphRAG F1 Accuracy</div>
-          </div>
-          <div class="readout-box">
-            <div class="readout-val">+50.0%</div>
-            <div class="readout-lbl">Hop-Scaling Marginal Benefit</div>
-          </div>
-          <div class="readout-box">
-            <div class="readout-val">1.0000</div>
-            <div class="readout-lbl">Faithfulness F1 Score</div>
-          </div>
-          <div class="readout-box">
-            <div class="readout-val">0.0800</div>
-            <div class="readout-lbl">Expected Calibration Error</div>
-          </div>
-        </div>
-
-        <div class="grid-control-room" style="grid-template-columns: 1fr 1fr;">
-          <div class="tactical-card">
-            <div class="tactical-card-title">H4/H8 HOP-SCALING BENCHMARK REGRESSION</div>
-            <div style="font-size: 0.75rem; color: var(--text-muted); margin: 0.5rem 0 1rem 0;">Multi-hop query complexity vs baseline vector RAG degradation.</div>
-            <canvas id="hopScalingCanvas" height="220"></canvas>
-          </div>
-
-          <div class="tactical-card">
-            <div class="tactical-card-title">ECE CALIBRATION RELIABILITY DIAGRAM</div>
-            <div style="font-size: 0.75rem; color: var(--text-muted); margin: 0.5rem 0 1rem 0;">Conformal prediction calibrated coverage vs raw logit softmax.</div>
-            <canvas id="eceCanvas" height="220"></canvas>
-          </div>
-        </div>
-
+  <!-- HERO -->
+  <section id="section-hero" class="hero-section">
+    <div class="hero-bg-orb orb-1"></div>
+    <div class="hero-bg-orb orb-2"></div>
+    <div class="hero-bg-orb orb-3"></div>
+    <div class="hero-content">
+      <div class="hero-badge animate-in" style="--delay:0s">
+        <span class="badge-dot"></span>
+        HIPAA Compliance &bull; Knowledge Graph &bull; Multi-Hop Reasoning
       </div>
-    </div>
-
-    <!-- TAB 3: TBOX MATRIX -->
-    <div id="tab-ontology" class="tab-pane">
-      <div class="tactical-card">
-        <div class="tactical-card-header">
-          <div class="tactical-card-title">HIPAA TBOX ONTOLOGY FORMALIZATION MATRIX</div>
-          <span class="system-tag">OWL / JSON-LD</span>
+      <h1 class="hero-title animate-in" style="--delay:0.1s">
+        Enterprise Compliance<br>
+        <span class="gradient-text">Powered by Graphs</span>
+      </h1>
+      <p class="hero-desc animate-in" style="--delay:0.2s">
+        CompGraphRAG unifies schema-based knowledge graphs, hybrid retrieval scoring, neuro-symbolic rule evaluation, and conformal uncertainty quantification into a single audit-grade compliance determination framework for HIPAA regulatory workflows.
+      </p>
+      <div class="hero-stats animate-in" style="--delay:0.3s">
+        <div class="hero-stat">
+          <div class="hero-stat-val" data-target="70.8">0</div>
+          <div class="hero-stat-unit">%</div>
+          <div class="hero-stat-lbl">Overall Accuracy</div>
         </div>
-
-        <div class="grid-control-room" style="grid-template-columns: 1fr 1fr;">
-          <div>
-            <label class="control-label">> TBOX_CLASS_HIERARCHY</label>
-            <pre class="terminal-stream" style="height: 380px;">
-:Regulation ──► :Rule (45 CFR 164.502, 164.506)
-:Rule       ──► :Obligation (Minimum Necessary)
-:Obligation ──► :Role (CoveredEntity, BusinessAssociate)
-:Role       ──► :DataType (PHI, DeIdentifiedPHI)
-:Obligation ──► :Exception (TPOException, MinimumNecessaryException)
-:Incident   ──► :DataType
-            </pre>
-          </div>
-
-          <div>
-            <label class="control-label">> TEMPORAL_DATATYPE_ATTRIBUTES</label>
-            <pre class="terminal-stream" style="height: 380px;">
-:effectiveDate (xsd:date)
-:regulationVersion (xsd:string)
-:cfrCitation (xsd:string)
-:minimumNecessaryRequired (xsd:boolean)
-:supersededBy (owl:ObjectProperty)
-            </pre>
-          </div>
+        <div class="hero-stat-divider"></div>
+        <div class="hero-stat">
+          <div class="hero-stat-val" data-target="97.98">0</div>
+          <div class="hero-stat-unit">%</div>
+          <div class="hero-stat-lbl">Faithfulness F1</div>
+        </div>
+        <div class="hero-stat-divider"></div>
+        <div class="hero-stat">
+          <div class="hero-stat-val" data-target="90">0</div>
+          <div class="hero-stat-unit">%</div>
+          <div class="hero-stat-lbl">Conformal Coverage</div>
+        </div>
+        <div class="hero-stat-divider"></div>
+        <div class="hero-stat">
+          <div class="hero-stat-val" data-target="24">0</div>
+          <div class="hero-stat-unit"></div>
+          <div class="hero-stat-lbl">Test Queries</div>
         </div>
       </div>
-    </div>
-
-    <!-- TAB 4: THREAT BOUNDS -->
-    <div id="tab-threat" class="tab-pane">
-      <div class="tactical-card">
-        <div class="tactical-card-header">
-          <div class="tactical-card-title">SECURITY BOUNDS & RETRIEVAL-LEAKAGE MODEL</div>
-        </div>
-
-        <div style="font-size: 0.8rem; line-height: 1.8; color: var(--text-main); font-family: var(--font-mono);">
-          <p style="margin-bottom: 0.75rem;">[01] INGESTION_DEIDENTIFICATION: Enterprise policy documents pass through a local PII/PHI de-identification pipeline. Direct identifiers convert to synthetic tokens (`[COVERED_ENTITY_A]`, `[WORKFORCE_MEMBER_1]`).</p>
-          <p style="margin-bottom: 0.75rem;">[02] RETRIEVAL_LEAKAGE_BOUNDS: Graph nodes represent regulatory rules, obligations, and policy clauses—never individual patient identity records—bounding membership inference risk.</p>
-          <p style="margin-bottom: 0.75rem; color: var(--phosphor-amber);">[03] LIABILITY_EXCLUSION: System outputs MUST NOT serve as sole legal basis for regulatory liability determination without human reviewer verification.</p>
-        </div>
-      </div>
-    </div>
-
-  </main>
-
-  <!-- INTERACTIVE SYSTEM GUIDE MODAL OVERLAY -->
-  <div id="guideModal" class="modal-overlay">
-    <div class="modal-card">
-      <button class="modal-close-btn" onclick="toggleGuideModal(false)">[X] CLOSE.GUIDE</button>
-      
-      <div class="tactical-card-title" style="font-size: 1.2rem; color: var(--phosphor-green); margin-bottom: 0.5rem;">
-        COMPGRAPHRAG // OPERATOR & ARCHITECTURE SYSTEM GUIDE
-      </div>
-      <div style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 1rem;">
-        Welcome to the CompGraphRAG Compliance Control Suite. This guide explains how to use the interactive audit workbench and how the underlying research pipeline operates.
-      </div>
-
-      <div class="guide-section-title">1. Quickstart — How to Run an Audit (4 Steps)</div>
-      <div style="font-size: 0.78rem; color: var(--text-main); line-height: 1.6;">
-        <p><strong>Step 1: Select Query Scenario</strong> — Choose from preset 1-hop, 2-hop, or 3-hop HIPAA regulatory queries (e.g. BAA disclosure §164.502(e), IRB research waiver §164.506).</p>
-        <p><strong>Step 2: Click Execute Pipeline</strong> — Triggers the 4-stage retrieval and reasoning sequence.</p>
-        <p><strong>Step 3: Inspect Traversed Subgraph π</strong> — Review the interactive graph canvas displaying retrieved node entities (Role, Obligation, Exception, DataType) and edge relations (`disclosesPHITo`, `lacksAgreement`, `subjectToException`).</p>
-        <p><strong>Step 4: Verify Conformal Set & Export JSON</strong> — Review the final determination (`PASS`, `FLAGGED`, `WARN`), conformal confidence set $C(q)$, and click <strong>EXPORT.JSON</strong> for auditor verification.</p>
-      </div>
-
-      <div class="guide-section-title">2. Architecture & Pipeline Stages Explained</div>
-      <div style="font-size: 0.78rem; color: var(--text-main); line-height: 1.6;">
-        <p><strong>[01] Hybrid Retrieval Scorer:</strong> Calculates $\text{score}(x|q) = \alpha \cdot \cos(q_{\text{emb}}, x_{\text{emb}}) + \beta \cdot \text{GraphPathScore}(q_{\text{ent}}, \text{path}_x) + \gamma \cdot \text{Authority}(x)$ with hop-decay factor $\lambda = 0.85$.</p>
-        <p><strong>[02] Neuro-Symbolic Rule Check:</strong> Evaluates candidate subgraphs against 45 CFR rules prior to generation, surfacing required BAA nodes or TPO exception carve-outs.</p>
-        <p><strong>[03] Split Conformal Uncertainty:</strong> Generates distribution-free confidence sets $C(q)$ guaranteed at target coverage level $1 - \alpha = 90\%$. Low confidence sets route to human audit.</p>
-        <p><strong>[04] Audit Certificate Generation:</strong> Outputs traversable subgraph paths $\pi$ and exportable machine JSON payloads.</p>
-      </div>
-
-      <div class="guide-section-title">3. Benchmark Metrics Key</div>
-      <div style="font-size: 0.78rem; color: var(--text-main); line-height: 1.6;">
-        <p><strong>Hop-Scaling Marginal Benefit (H4/H8):</strong> Measures the percentage improvement of CompGraphRAG over vector RAG as query complexity increases from 1-hop to 3-hops (+50% F1 gain).</p>
-        <p><strong>Explanation Faithfulness F1:</strong> Precision and Recall evaluating whether generated explanations match true retrieved edges in subgraph $\pi$.</p>
-        <p><strong>Expected Calibration Error (ECE):</strong> Quantifies calibration error between model confidence and actual determination accuracy.</p>
-      </div>
-
-      <div style="margin-top: 1.5rem; text-align: right;">
-        <button class="btn-tactical-execute" style="width: auto; padding: 0.5rem 1.5rem; display: inline-flex;" onclick="toggleGuideModal(false)">
-          ACKNOWLEDGE & RETURN TO WORKBENCH
+      <div class="hero-cta animate-in" style="--delay:0.4s">
+        <button class="btn-primary" onclick="document.getElementById('section-demo').scrollIntoView({behavior:'smooth'})">
+          &#9654; Launch Live Demo
+        </button>
+        <button class="btn-ghost" onclick="document.getElementById('section-how').scrollIntoView({behavior:'smooth'})">
+          Explore Architecture &rarr;
         </button>
       </div>
     </div>
-  </div>
+    <div class="hero-graph-preview animate-in" style="--delay:0.3s">
+      <canvas id="heroGraphCanvas"></canvas>
+      <div class="graph-overlay-label">Knowledge Graph &mdash; HIPAA Regulatory Subgraph &pi;</div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section id="section-how" class="section-how">
+    <div class="section-header">
+      <div class="section-eyebrow">Pipeline Architecture</div>
+      <h2 class="section-title">How CompGraphRAG Works</h2>
+      <p class="section-desc">A four-stage retrieval-to-determination pipeline that bridges knowledge graphs, symbolic rules, and statistical uncertainty into auditable compliance outputs.</p>
+    </div>
+    <div class="pipeline-flow">
+      <div class="pipeline-stage">
+        <div class="stage-connector"></div>
+        <div class="stage-num">01</div>
+        <div class="stage-card">
+          <div class="stage-icon stage-icon-blue">&#128269;</div>
+          <h3 class="stage-title">Hybrid Retrieval Scoring</h3>
+          <p class="stage-desc">Scores candidate graph nodes using dense bi-encoder cosine similarity, graph-path decay (&#955;=0.85), and Personalized PageRank authority. Weighted as &#945;=0.40, &#946;=0.50, &#947;=0.10.</p>
+          <div class="stage-formula">score(x|q) = &#945;&#183;cos(q,x) + &#946;&#183;Path(q&#8594;x) + &#947;&#183;PPR(x)</div>
+          <div class="stage-tags">
+            <span class="tag tag-blue">Dense Bi-Encoder</span>
+            <span class="tag tag-blue">Graph Path Decay</span>
+            <span class="tag tag-blue">PageRank Auth</span>
+          </div>
+        </div>
+      </div>
+      <div class="pipeline-stage">
+        <div class="stage-connector"></div>
+        <div class="stage-num">02</div>
+        <div class="stage-card">
+          <div class="stage-icon stage-icon-purple">&#9878;</div>
+          <h3 class="stage-title">Neuro-Symbolic Rule Engine</h3>
+          <p class="stage-desc">Applies declarative HIPAA rules (45 CFR 164.502, 164.506, 164.312) against retrieved subgraph paths before generation. Prevents hallucination on BAA, TPO, and Minimum Necessary obligations.</p>
+          <div class="stage-formula">RuleEval(&#960;) = {r &#8712; &#8476; | Conditions(r) satisfied in &#960;}</div>
+          <div class="stage-tags">
+            <span class="tag tag-purple">45 CFR 164.502(e)</span>
+            <span class="tag tag-purple">BAA Gateway</span>
+            <span class="tag tag-purple">TPO Exception</span>
+          </div>
+        </div>
+      </div>
+      <div class="pipeline-stage">
+        <div class="stage-connector"></div>
+        <div class="stage-num">03</div>
+        <div class="stage-card">
+          <div class="stage-icon stage-icon-cyan">&#128202;</div>
+          <h3 class="stage-title">Conformal Uncertainty Quantification</h3>
+          <p class="stage-desc">Provides distribution-free prediction sets C(q) with guaranteed 90% marginal coverage (&#945;=0.10). Non-conformity scores: 1 &minus; P(y|x). Ambiguous queries route to human audit automatically.</p>
+          <div class="stage-formula">C(q) = {y : s(x,y) &#8804; q&#770;}, Coverage &#8805; 1&minus;&#945; = 90%</div>
+          <div class="stage-tags">
+            <span class="tag tag-cyan">Split Conformal</span>
+            <span class="tag tag-cyan">90% Coverage</span>
+            <span class="tag tag-cyan">Human Routing</span>
+          </div>
+        </div>
+      </div>
+      <div class="pipeline-stage">
+        <div class="stage-num">04</div>
+        <div class="stage-card">
+          <div class="stage-icon stage-icon-green">&#128196;</div>
+          <h3 class="stage-title">Audit Certificate Generation</h3>
+          <p class="stage-desc">Outputs a traversable justification subgraph (&#960;), natural-language path walk, conformal confidence set, triggered rule IDs, and a machine-readable JSON audit certificate for regulatory verification.</p>
+          <div class="stage-formula">Output: (d, c, &#960;) where d &#8712; {COMPLIANT, NON-COMPLIANT, REVIEW}</div>
+          <div class="stage-tags">
+            <span class="tag tag-green">Subgraph &#960;</span>
+            <span class="tag tag-green">NL Explanation</span>
+            <span class="tag tag-green">JSON Certificate</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LIVE DEMO -->
+  <section id="section-demo" class="section-demo">
+    <div class="section-header">
+      <div class="section-eyebrow">Interactive Workbench</div>
+      <h2 class="section-title">Run a Live Compliance Audit</h2>
+      <p class="section-desc">Select a HIPAA compliance scenario, execute the 4-stage pipeline, and inspect the knowledge graph path, conformal uncertainty, and audit certificate in real-time.</p>
+    </div>
+    <div class="demo-layout">
+      <!-- Left Controls -->
+      <div class="demo-controls">
+        <div class="control-card">
+          <div class="control-card-header">
+            <div class="control-card-title"><span class="step-badge">1</span> Select Scenario</div>
+          </div>
+          <div class="scenario-list" id="scenarioList">
+            <div class="scenario-item active" data-key="Q2-HIPAA-2HOP" onclick="selectScenario(this,'Q2-HIPAA-2HOP')">
+              <div class="scenario-hop-badge hop-2">2-HOP</div>
+              <div class="scenario-info">
+                <div class="scenario-id">Q2 &middot; &sect;164.502(e)</div>
+                <div class="scenario-name">Cloud Vendor BAA Disclosure</div>
+              </div>
+              <div class="scenario-verdict verdict-fail">NON-COMPLIANT</div>
+            </div>
+            <div class="scenario-item" data-key="Q3-HIPAA-3HOP" onclick="selectScenario(this,'Q3-HIPAA-3HOP')">
+              <div class="scenario-hop-badge hop-3">3-HOP</div>
+              <div class="scenario-info">
+                <div class="scenario-id">Q3 &middot; &sect;164.506</div>
+                <div class="scenario-name">Research IRB Waiver Min-Necessary</div>
+              </div>
+              <div class="scenario-verdict verdict-pass">COMPLIANT</div>
+            </div>
+            <div class="scenario-item" data-key="Q1-HIPAA-1HOP" onclick="selectScenario(this,'Q1-HIPAA-1HOP')">
+              <div class="scenario-hop-badge hop-1">1-HOP</div>
+              <div class="scenario-info">
+                <div class="scenario-id">Q1 &middot; &sect;164.506</div>
+                <div class="scenario-name">Patient TPO Treatment Exception</div>
+              </div>
+              <div class="scenario-verdict verdict-pass">COMPLIANT</div>
+            </div>
+            <div class="scenario-item" data-key="Q6-HIPAA-3HOP" onclick="selectScenario(this,'Q6-HIPAA-3HOP')">
+              <div class="scenario-hop-badge hop-3">3-HOP</div>
+              <div class="scenario-info">
+                <div class="scenario-id">Q6 &middot; &sect;164.312</div>
+                <div class="scenario-name">Subcontractor Technical Safeguards</div>
+              </div>
+              <div class="scenario-verdict verdict-fail">NON-COMPLIANT</div>
+            </div>
+          </div>
+          <div class="query-preview">
+            <div class="query-label">Compliance Query</div>
+            <div class="query-text" id="queryText">Can a Covered Entity disclose PHI to a cloud vendor without an executed Business Associate Agreement?</div>
+          </div>
+          <button class="btn-execute" id="executeBtn" onclick="runAuditPipeline()">
+            <span>&#9654;</span>
+            <span><span class="step-badge" style="background:rgba(255,255,255,0.15);color:#fff;font-size:0.7rem;padding:0.1rem 0.4rem;border-radius:4px;">2</span> Execute Pipeline</span>
+          </button>
+        </div>
+        <div class="control-card">
+          <div class="control-card-header">
+            <div class="control-card-title">Pipeline Execution</div>
+            <div class="pipeline-status" id="pipelineStatus">READY</div>
+          </div>
+          <div class="pipeline-stages-tracker">
+            <div class="pipeline-stage-row" id="pt-1">
+              <div class="pt-icon">&#128269;</div>
+              <div class="pt-body"><div class="pt-name">Hybrid Retrieval Scorer</div><div class="pt-detail">&#945;&middot;Dense + &#946;&middot;GraphPath + &#947;&middot;Authority</div></div>
+              <div class="pt-state" id="pts-1">IDLE</div>
+            </div>
+            <div class="pipeline-stage-row" id="pt-2">
+              <div class="pt-icon">&#9878;</div>
+              <div class="pt-body"><div class="pt-name">Neuro-Symbolic Rule Check</div><div class="pt-detail">45 CFR Exception Gate</div></div>
+              <div class="pt-state" id="pts-2">IDLE</div>
+            </div>
+            <div class="pipeline-stage-row" id="pt-3">
+              <div class="pt-icon">&#128202;</div>
+              <div class="pt-body"><div class="pt-name">Conformal UQ</div><div class="pt-detail">Calibrated Coverage C(q)</div></div>
+              <div class="pt-state" id="pts-3">IDLE</div>
+            </div>
+            <div class="pipeline-stage-row" id="pt-4">
+              <div class="pt-icon">&#128196;</div>
+              <div class="pt-body"><div class="pt-name">Audit Certificate</div><div class="pt-detail">Subgraph &#960; Traversal</div></div>
+              <div class="pt-state" id="pts-4">IDLE</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Center: Graph -->
+      <div class="demo-graph-panel">
+        <div class="graph-panel-header">
+          <div class="graph-panel-title">
+            <span class="step-badge">3</span>
+            Traversed Subgraph &pi;
+            <span class="hop-badge-display" id="hopBadgeDisplay">2-HOP</span>
+          </div>
+          <div class="graph-controls">
+            <button class="graph-ctrl-btn" onclick="resetGraph()">&#8634; Reset</button>
+            <button class="graph-ctrl-btn" id="labelToggle" onclick="toggleLabels()">&#8862; Labels</button>
+            <button class="graph-ctrl-btn" onclick="animateGraph()">&#9654; Animate</button>
+          </div>
+        </div>
+        <div class="graph-canvas-wrap">
+          <canvas id="mainGraphCanvas"></canvas>
+          <div class="graph-legend">
+            <div class="legend-item"><span class="legend-dot" style="background:#6366f1"></span>Role</div>
+            <div class="legend-item"><span class="legend-dot" style="background:#06b6d4"></span>DataType</div>
+            <div class="legend-item"><span class="legend-dot" style="background:#10b981"></span>Exception</div>
+            <div class="legend-item"><span class="legend-dot" style="background:#f59e0b"></span>Obligation</div>
+            <div class="legend-item"><span class="legend-dot" style="background:#ef4444"></span>Incident/Rule</div>
+          </div>
+        </div>
+        <div class="graph-panel-footer">
+          <span id="graphFooterText">REF: HIPAA 45 CFR &middot; NODES: 3 &middot; EDGES: 2 &middot; DECAY &#955;=0.85</span>
+        </div>
+      </div>
+
+      <!-- Right: Results -->
+      <div class="demo-results">
+        <div class="control-card">
+          <div class="control-card-header">
+            <div class="control-card-title"><span class="step-badge">4</span> Determination</div>
+          </div>
+          <div class="determination-display">
+            <div class="det-state" id="detState" style="text-align:center;padding:1rem 0;">
+              <div style="font-size:2rem;margin-bottom:0.3rem;">&#9711;</div>
+              <div id="detLabel" style="font-size:0.85rem;color:#64748b;font-family:'Inter',sans-serif;">AWAITING PIPELINE</div>
+            </div>
+            <div class="det-scores" id="detScores" style="display:none;">
+              <div class="det-score-row"><span>Dense Score</span><span id="sc-dense">—</span></div>
+              <div class="det-score-row"><span>Graph Score</span><span id="sc-graph">—</span></div>
+              <div class="det-score-row"><span>Authority</span><span id="sc-auth">—</span></div>
+              <div class="det-score-row highlight"><span>Final Hybrid</span><span id="sc-final">—</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="control-card">
+          <div class="control-card-header">
+            <div class="control-card-title">Conformal UQ</div>
+            <span class="tag tag-cyan" style="font-size:0.68rem;">&#945; = 0.10</span>
+          </div>
+          <div class="conformal-display">
+            <div class="conformal-row">
+              <span class="conformal-lbl">Target Coverage</span>
+              <div class="conformal-bar-wrap"><div class="conformal-bar" style="width:90%"></div></div>
+              <span class="conformal-val">90%</span>
+            </div>
+            <div class="conformal-row">
+              <span class="conformal-lbl">Confidence Set C(q)</span>
+              <span class="conformal-set" id="conformalSet">Pending&hellip;</span>
+            </div>
+            <div class="conformal-row">
+              <span class="conformal-lbl">Human Audit Required</span>
+              <span id="conformalAudit" style="font-size:0.78rem;font-weight:600;">—</span>
+            </div>
+          </div>
+        </div>
+        <div class="control-card" style="flex:1;">
+          <div class="control-card-header">
+            <div class="control-card-title">Reasoning Path Walk</div>
+          </div>
+          <div id="nlWalkDisplay" class="nlwalk-display">
+            <div class="nlwalk-placeholder">Execute the pipeline to view the natural language reasoning path walk&hellip;</div>
+          </div>
+        </div>
+        <div class="control-card">
+          <div class="control-card-header">
+            <div class="control-card-title">Audit Certificate (JSON)</div>
+            <button class="btn-ghost-sm" onclick="exportAuditJson()" id="exportBtn" disabled>&#8595; Export</button>
+          </div>
+          <pre class="json-output" id="auditJson">{ "status": "IDLE", "system": "COMPGRAPHRAG_V1" }</pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- METRICS -->
+  <section id="section-metrics" class="section-metrics">
+    <div class="section-header">
+      <div class="section-eyebrow">Benchmark Results</div>
+      <h2 class="section-title">Performance Metrics</h2>
+      <p class="section-desc">Evaluated across 24 HIPAA gold-standard queries spanning 1-hop to 4-hop complexity levels, comparing CompGraphRAG against Vector-RAG and Naive-RAG baselines.</p>
+    </div>
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-icon kpi-icon-blue">&#128202;</div>
+        <div class="kpi-val animate-counter" data-target="70.8" data-suffix="%">0%</div>
+        <div class="kpi-label">CompGraphRAG Accuracy</div>
+        <div class="kpi-sub">12-query test split</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon kpi-icon-purple">&#128279;</div>
+        <div class="kpi-val animate-counter" data-target="97.98" data-suffix="%">0%</div>
+        <div class="kpi-label">Faithfulness F1</div>
+        <div class="kpi-sub">Explanation precision &times; recall</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon kpi-icon-cyan">&#128737;</div>
+        <div class="kpi-val animate-counter" data-target="90" data-suffix="%">0%</div>
+        <div class="kpi-label">Conformal Coverage</div>
+        <div class="kpi-sub">Guaranteed (1&minus;&#945;) bound</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon kpi-icon-green">&#9889;</div>
+        <div class="kpi-val animate-counter" data-target="8.0" data-suffix="%">0%</div>
+        <div class="kpi-label">ECE Calibration Error</div>
+        <div class="kpi-sub">Expected calibration error</div>
+      </div>
+    </div>
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <div class="chart-title">Hop-Scaling Accuracy by Method</div>
+          <div class="chart-subtitle">CompGraphRAG vs Vector-RAG per hop depth</div>
+        </div>
+        <canvas id="hopChart" height="240"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <div class="chart-title">Calibration Reliability</div>
+          <div class="chart-subtitle">Conformal prediction vs raw softmax logit confidence</div>
+        </div>
+        <canvas id="calibChart" height="240"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <div class="chart-title">Entity Linking Performance</div>
+          <div class="chart-subtitle">Linker Precision / Recall / F1</div>
+        </div>
+        <div class="el-chart-wrap">
+          <div class="el-metric">
+            <div class="el-metric-name">Precision</div>
+            <div class="el-bar-row">
+              <div class="el-bar"><div class="el-bar-fill el-bar-red" data-w="21.9"></div></div>
+              <div class="el-pct">21.9%</div>
+            </div>
+          </div>
+          <div class="el-metric">
+            <div class="el-metric-name">Recall</div>
+            <div class="el-bar-row">
+              <div class="el-bar"><div class="el-bar-fill el-bar-green" data-w="84.4"></div></div>
+              <div class="el-pct">84.4%</div>
+            </div>
+          </div>
+          <div class="el-metric">
+            <div class="el-metric-name">F1 Score</div>
+            <div class="el-bar-row">
+              <div class="el-bar"><div class="el-bar-fill el-bar-blue" data-w="34.8"></div></div>
+              <div class="el-pct">34.8%</div>
+            </div>
+          </div>
+          <div class="el-explanation">
+            <strong>Note:</strong> Low precision (21.9%) reflects broad token-overlap matching generating 10&ndash;25 candidate nodes per query vs 2&ndash;4 gold nodes &mdash; a conservative recall-first strategy.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ARCHITECTURE -->
+  <section id="section-architecture" class="section-arch">
+    <div class="section-header">
+      <div class="section-eyebrow">System Design</div>
+      <h2 class="section-title">Architecture Deep-Dive</h2>
+      <p class="section-desc">A layered, audit-grade system combining TBox ontology, hybrid graph retrieval, and conformal statistical guarantees.</p>
+    </div>
+    <div class="arch-tabs">
+      <button class="arch-tab active" onclick="switchArchTab(this,'arch-ontology')">TBox Ontology</button>
+      <button class="arch-tab" onclick="switchArchTab(this,'arch-scoring')">Scoring Function</button>
+      <button class="arch-tab" onclick="switchArchTab(this,'arch-conformal')">Conformal UQ</button>
+      <button class="arch-tab" onclick="switchArchTab(this,'arch-rules')">Rule Engine</button>
+    </div>
+    <div class="arch-content">
+      <div id="arch-ontology" class="arch-pane active">
+        <div class="arch-two-col">
+          <div class="arch-info">
+            <h3>HIPAA TBox Ontology Formalization</h3>
+            <p>The knowledge graph is grounded in a formal TBox (terminological box) ontology encoding HIPAA class hierarchies, object property relations, and temporal data-type attributes. This enables structured, machine-verifiable reasoning over regulatory obligations.</p>
+            <div class="arch-fact-list">
+              <div class="arch-fact"><span class="arch-fact-key">Format</span><span>OWL 2 / JSON-LD</span></div>
+              <div class="arch-fact"><span class="arch-fact-key">Classes</span><span>Regulation, Rule, Obligation, Role, DataType, Exception, Incident</span></div>
+              <div class="arch-fact"><span class="arch-fact-key">Properties</span><span>disclosesPHITo, lacksAgreement, subjectToException, governedBy, satisfiesStandard</span></div>
+              <div class="arch-fact"><span class="arch-fact-key">Temporal</span><span>effectiveDate, regulationVersion, supersededBy (owl:ObjectProperty)</span></div>
+            </div>
+          </div>
+          <div class="arch-code-block">
+            <div class="arch-code-title">TBox Class Hierarchy</div>
+            <pre class="arch-code">:Regulation --&gt; :Rule (45 CFR 164.502, 164.506, 164.312)
+:Rule       --&gt; :Obligation (BAA Required, Min Necessary)
+:Obligation --&gt; :Role (CoveredEntity, BusinessAssociate)
+:Role       --&gt; :DataType (PHI, DeIdentifiedPHI)
+:Obligation --&gt; :Exception (TPOException, IRB_Waiver)
+:Incident   --&gt; :DataType
+
+// Temporal Datatype Attributes:
+:effectiveDate         (xsd:date)
+:regulationVersion     (xsd:string)
+:cfrCitation           (xsd:string)
+:minimumNecessaryReqd  (xsd:boolean)
+:supersededBy          (owl:ObjectProperty)</pre>
+          </div>
+        </div>
+      </div>
+      <div id="arch-scoring" class="arch-pane">
+        <div class="arch-two-col">
+          <div class="arch-info">
+            <h3>Hybrid Retrieval Scoring</h3>
+            <p>The core scoring function is a convex combination of three complementary signals. Dense similarity captures semantic proximity; graph path score rewards regulatory chain coherence with hop-decay; authority ensures primary regulatory sources rank highest.</p>
+            <div class="arch-param-table">
+              <div class="param-row header"><span>Parameter</span><span>Value</span><span>Role</span></div>
+              <div class="param-row"><span>&alpha;</span><span>0.40</span><span>Dense cosine weight</span></div>
+              <div class="param-row"><span>&beta;</span><span>0.50</span><span>Graph path weight</span></div>
+              <div class="param-row"><span>&gamma;</span><span>0.10</span><span>Authority (PPR) weight</span></div>
+              <div class="param-row"><span>&lambda;</span><span>0.85</span><span>Hop decay factor</span></div>
+              <div class="param-row"><span>max_hops</span><span>4</span><span>Graph traversal depth</span></div>
+            </div>
+          </div>
+          <div class="arch-code-block">
+            <div class="arch-code-title">Scoring Formula</div>
+            <pre class="arch-code">score(x | q) =
+  alpha * cos(q_emb, x_emb)        // Dense semantic
+  + beta * GraphPathScore(q, x)    // Graph path decay
+  + gamma * Authority(x)           // Personalized PageRank
+
+GraphPathScore(q_ent, path) =
+  (1/|path|) * sum( w_r * conf(u,r,v) * lambda^(h-1) )
+
+// w_r   = TBox relation weight in [0,1]
+// conf  = triple extraction confidence in [0,1]
+// lambda= 0.85 hop decay (penalizes distant hops)
+// h     = 1-indexed hop distance</pre>
+          </div>
+        </div>
+      </div>
+      <div id="arch-conformal" class="arch-pane">
+        <div class="arch-two-col">
+          <div class="arch-info">
+            <h3>Split Conformal Prediction</h3>
+            <p>Distribution-free prediction sets with guaranteed marginal coverage. Calibration split (12 queries) computes non-conformity scores; quantile q-hat set at the correct level; test-time sets include any class below threshold.</p>
+            <div class="arch-fact-list">
+              <div class="arch-fact"><span class="arch-fact-key">alpha (risk)</span><span>0.10</span></div>
+              <div class="arch-fact"><span class="arch-fact-key">Coverage</span><span>1&minus;alpha = 90%</span></div>
+              <div class="arch-fact"><span class="arch-fact-key">Non-conformity</span><span>s(x,y) = 1 &minus; P(y|x)</span></div>
+              <div class="arch-fact"><span class="arch-fact-key">Cal split</span><span>12 queries</span></div>
+              <div class="arch-fact"><span class="arch-fact-key">Human routing</span><span>|C(q)|&ge;2 or REQUIRES-REVIEW&isin;C(q)</span></div>
+            </div>
+          </div>
+          <div class="arch-code-block">
+            <div class="arch-code-title">Conformal Algorithm</div>
+            <pre class="arch-code">// 1. Compute calibration non-conformity scores:
+s_i = 1.0 - P(y_i | x_i)  for i in cal_set
+
+// 2. Set quantile threshold:
+q_hat = quantile(s_1..s_n, ceil((n+1)*(1-alpha)/n))
+
+// 3. Build prediction set:
+C(q) = { y : s(x,y) &lt;= q_hat }
+
+// 4. Human routing logic:
+if |C(q)| == 1 and 'REQUIRES-REVIEW' not in C(q):
+  is_unambiguous = True
+  requires_human_review = False
+else:
+  requires_human_review = True  // -&gt; Human Auditor</pre>
+          </div>
+        </div>
+      </div>
+      <div id="arch-rules" class="arch-pane">
+        <div class="arch-two-col">
+          <div class="arch-info">
+            <h3>HIPAA Neuro-Symbolic Rule Engine</h3>
+            <p>Declarative first-order logic rules evaluate retrieved subgraph paths before LLM generation. Symbolic gating prevents hallucination on mandatory obligations and correctly handles carve-out exceptions.</p>
+            <div class="arch-fact-list">
+              <div class="arch-fact"><span class="arch-fact-key">RULE-BAA-REQUIRED</span><span>&sect;164.502(e)</span></div>
+              <div class="arch-fact"><span class="arch-fact-key">RULE-TPO-EXCEPTION</span><span>&sect;164.506</span></div>
+              <div class="arch-fact"><span class="arch-fact-key">RULE-MIN-NECESSARY</span><span>&sect;164.514</span></div>
+              <div class="arch-fact"><span class="arch-fact-key">RULE-TECH-SAFEGUARD</span><span>&sect;164.312</span></div>
+            </div>
+          </div>
+          <div class="arch-code-block">
+            <div class="arch-code-title">Rule Definitions</div>
+            <pre class="arch-code">// BAA Requirement (45 CFR 164.502(e)):
+IF (Recipient in BusinessAssociate)
+   AND (BAA_Document not in pi)
+   THEN FLAG_NON_COMPLIANT
+
+// TPO Exception (45 CFR 164.506):
+IF (Purpose in {Treatment, Payment, Operations})
+   AND (TPO_Exception in pi)
+   THEN FLAG_COMPLIANT_EXCEPTION
+
+// Min-Necessary (45 CFR 164.514(d)):
+IF (MinNecessary_Obligation in pi)
+   AND (AccessScope == 'full_record')
+   THEN FLAG_REVIEW
+
+// Technical Safeguards (45 CFR 164.312):
+IF (DataType == UnencryptedPHI)
+   AND (Network in {PublicWiFi, Unprotected})
+   THEN FLAG_NON_COMPLIANT</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESEARCH -->
+  <section id="section-research" class="section-research">
+    <div class="section-header">
+      <div class="section-eyebrow">Publication</div>
+      <h2 class="section-title">Research &amp; Contributions</h2>
+      <p class="section-desc">Targeting top-tier applied AI venues including KDD, CIKM, ACL Applied Track, JAMIA, and IEEE TKDE.</p>
+    </div>
+    <div class="research-grid">
+      <div class="research-card research-card-primary">
+        <div class="rc-header">
+          <div class="rc-label">Primary Hypothesis</div>
+          <div class="rc-tag">H4/H8 Scaling</div>
+        </div>
+        <h3>Knowledge Graph Hop-Scaling Relationship</h3>
+        <p>The marginal accuracy gain of KG-augmented retrieval over dense vector RAG scales directly with query hop distance &mdash; a measurable, testable H4/H8 hypothesis about graph-based reasoning advantage on multi-hop compliance queries.</p>
+        <div class="rc-formula">H4/H8 Benefit = Acc(CompGraphRAG, k-hop) &minus; Acc(VectorRAG, k-hop)</div>
+      </div>
+      <div class="research-card">
+        <div class="rc-header"><div class="rc-label">Novel Contribution</div></div>
+        <h3>Audit-Grade Explainability</h3>
+        <p>Quantitative faithfulness evaluation (Precision, Recall, F1) measuring whether generated explanations match true retrieved subgraph edges in path &pi; &mdash; a first for HIPAA compliance determination systems.</p>
+        <div class="rc-stat">F1 = 97.98% on 24-query test set</div>
+      </div>
+      <div class="research-card">
+        <div class="rc-header"><div class="rc-label">Statistical Guarantee</div></div>
+        <h3>Distribution-Free Uncertainty</h3>
+        <p>Split conformal prediction applied to compliance determination, providing rigorous finite-sample coverage guarantees independent of model assumptions, validated via paired t-test and Wilcoxon signed-rank tests.</p>
+        <div class="rc-stat">p-value validated &middot; Holm-Bonferroni corrected</div>
+      </div>
+      <div class="research-card">
+        <div class="rc-header"><div class="rc-label">Systems Contribution</div></div>
+        <h3>TBox Temporal Versioning</h3>
+        <p>First knowledge graph for regulatory compliance to formalize temporal OWL properties (effectiveDate, supersededBy, regulationVersion), enabling regulation-version-aware retrieval as HIPAA rules evolve.</p>
+        <div class="rc-stat">OWL 2 / JSON-LD formalization</div>
+      </div>
+    </div>
+    <div class="disclosure-box">
+      <div class="disclosure-icon">&#9888;&#65039;</div>
+      <div class="disclosure-content">
+        <div class="disclosure-title">Important Disclosure &amp; Limitations</div>
+        <p>System outputs are produced by a research prototype operating on a synthetic HIPAA-based dataset. They <strong>must not</strong> serve as the sole legal basis for regulatory liability determination without human reviewer verification. Entity linker precision is 21.9% (broad-recall-first strategy). External baselines (GraphRAG, LightRAG, HippoRAG) are flagged as NOT MEASURED as those repositories are not locally installed. Accuracy on the 12-query test split: CompGraphRAG 70.8%, Vector-RAG 79.2%, Naive-RAG 83.3%.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <div class="brand-name" style="font-size:1.1rem;">CompGraphRAG</div>
+        <div class="brand-sub">Enterprise Compliance Intelligence Platform</div>
+      </div>
+      <div class="footer-links">
+        <a href="https://github.com/12349/CompGraphRAG" target="_blank" class="footer-link">GitHub Repository</a>
+        <a href="CompGraphRAG_Paper.pdf" target="_blank" class="footer-link">Research Paper (PDF)</a>
+        <a href="CITATION.cff" target="_blank" class="footer-link">Citation (CFF)</a>
+      </div>
+      <div class="footer-copy">
+        &copy; 2025 CompGraphRAG Research &middot; HIPAA 45 CFR Case Study &middot; All outputs are for research purposes only.
+      </div>
+    </div>
+  </footer>
 
   <script src="app.js"></script>
 </body>

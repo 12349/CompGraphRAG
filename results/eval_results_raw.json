@@ -13,12 +13,12 @@
     "f1": 0.34787889353588125
   },
   "total_queries_evaluated": 24,
-  "overall_compgraphrag_accuracy": 0.9583333333333334,
+  "overall_compgraphrag_accuracy": 1.0,
   "overall_vector_rag_accuracy": 0.875,
   "compgraphrag_accuracy_by_hop": {
     "1": 1.0,
     "2": 1.0,
-    "3": 0.8333333333333334,
+    "3": 1.0,
     "4": 1.0
   },
   "vector_rag_accuracy_by_hop": {
@@ -27,10 +27,16 @@
     "3": 1.0,
     "4": 1.0
   },
+  "naive_rag_accuracy_by_hop": {
+    "1": 0.6666666666666666,
+    "2": 0.8333333333333334,
+    "3": 1.0,
+    "4": 1.0
+  },
   "hop_marginal_benefit_h4_h8": {
     "1": 0.16666666666666663,
     "2": 0.33333333333333337,
-    "3": -0.16666666666666663,
+    "3": 0.0,
     "4": 0.0
   },
   "mean_explanation_faithfulness_f1": 0.967857142857143,
@@ -53,7 +59,7 @@
           "source": "PHI_Disclosure",
           "relation": "subjectToException",
           "target": "TPO_Exception",
-          "confidence": 0.95
+          "confidence": 0.9
         }
       ],
       "faithfulness_metrics": {
@@ -80,7 +86,7 @@
           "source": "PsychotherapyNotes",
           "relation": "excludedFrom",
           "target": "TPO_Exception",
-          "confidence": 0.95
+          "confidence": 0.9
         }
       ],
       "faithfulness_metrics": {
@@ -107,7 +113,7 @@
           "source": "PHI_Disclosure",
           "relation": "subjectToException",
           "target": "JudicialSubpoena_Exception",
-          "confidence": 0.95
+          "confidence": 0.9
         }
       ],
       "faithfulness_metrics": {
@@ -134,7 +140,7 @@
           "source": "PatientAccessFee",
           "relation": "satisfiesStandard",
           "target": "CostBasedFeeRule",
-          "confidence": 0.95
+          "confidence": 0.9
         }
       ],
       "faithfulness_metrics": {
@@ -161,7 +167,7 @@
           "source": "LawEnforcementDisclosure",
           "relation": "violatessafeguard",
           "target": "PrivacyRule_LawEnforcement",
-          "confidence": 0.95
+          "confidence": 0.9
         }
       ],
       "faithfulness_metrics": {
@@ -188,7 +194,7 @@
           "source": "EmergencyFamilyDisclosure",
           "relation": "subjectToException",
           "target": "EmergencyCarveout",
-          "confidence": 0.95
+          "confidence": 0.9
         }
       ],
       "faithfulness_metrics": {
@@ -227,7 +233,7 @@
           "source": "CloudVendor_B",
           "relation": "lacksAgreement",
           "target": "BAA_Document",
-          "confidence": 0.95
+          "confidence": 0.9
         }
       ],
       "faithfulness_metrics": {
@@ -254,7 +260,7 @@
           "source": "EmergencyFamilyDisclosure",
           "relation": "subjectToException",
           "target": "EmergencyCarveout",
-          "confidence": 0.95
+          "confidence": 0.9
         }
       ],
       "faithfulness_metrics": {
@@ -293,7 +299,7 @@
           "source": "SubcontractorHost_2",
           "relation": "lacksAgreement",
           "target": "SubcontractorBAA",
-          "confidence": 0.95
+          "confidence": 0.9
         }
       ],
       "faithfulness_metrics": {
@@ -326,13 +332,13 @@
           "source": "Hospital_A",
           "relation": "disclosesPHITo",
           "target": "CollectionAgency_B",
-          "confidence": 0.95
+          "confidence": 0.9
         },
         {
           "source": "CollectionAgency_B",
           "relation": "satisfiesStandard",
           "target": "BAA_Agreement",
-          "confidence": 0.95
+          "confidence": 0.9
         }
       ],
       "faithfulness_metrics": {
@@ -365,13 +371,13 @@
           "source": "BillingDepartment",
           "relation": "transmitsData",
           "target": "UnencryptedEmail",
-          "confidence": 0.95
+          "confidence": 0.9
         },
         {
           "source": "UnencryptedEmail",
           "relation": "violatessafeguard",
           "target": "SecurityRule_Encryption",
-          "confidence": 0.95
+          "confidence": 0.9
         }
       ],
       "faithfulness_metrics": {
@@ -401,16 +407,16 @@
       "explanation_narrative": "Compliance trajectory analysis for 'Does disclosing de-identified patient data to a marketing an...': Step 1: Verification reveals DeIdentifiedData --(transmitsPHI)--> AnalyticsVendor. Step 2: Subgraph edge shows AnalyticsVendor subjectToException DeIdentificationSafeHarbor.",
       "extracted_explanation_triples": [
         {
-          "source": "DeIdentifiedData",
-          "relation": "transmitsPHI",
-          "target": "AnalyticsVendor",
-          "confidence": 0.95
-        },
-        {
           "source": "AnalyticsVendor",
           "relation": "subjectToException",
           "target": "DeIdentificationSafeHarbor",
-          "confidence": 0.95
+          "confidence": 0.9
+        },
+        {
+          "source": "DeIdentifiedData",
+          "relation": "transmitsPHI",
+          "target": "AnalyticsVendor",
+          "confidence": 0.9
         }
       ],
       "faithfulness_metrics": {
@@ -455,13 +461,13 @@
           "source": "DeIdentifiedPHI",
           "relation": "governedBy",
           "target": "IRB_Waiver",
-          "confidence": 0.95
+          "confidence": 0.9
         },
         {
           "source": "IRB_Waiver",
           "relation": "satisfiesStandard",
           "target": "MinimumNecessaryStandard",
-          "confidence": 0.95
+          "confidence": 0.9
         }
       ],
       "faithfulness_metrics": {
@@ -506,13 +512,13 @@
           "source": "UnencryptedPHI",
           "relation": "traversesNetwork",
           "target": "PublicWiFi",
-          "confidence": 0.95
+          "confidence": 0.9
         },
         {
           "source": "PublicWiFi",
           "relation": "violatessafeguard",
           "target": "TechnicalSafeguardsRule",
-          "confidence": 0.95
+          "confidence": 0.9
         }
       ],
       "faithfulness_metrics": {
@@ -527,19 +533,43 @@
       "hop_count": 3,
       "retrieved_subgraph_edges": [
         {
-          "source": "PatientAccessFee",
-          "relation": "satisfiesStandard",
-          "target": "CostBasedFeeRule",
+          "source": "ITContractor_M",
+          "relation": "accessesData",
+          "target": "FullEHR_Record",
+          "confidence": 0.9
+        },
+        {
+          "source": "FullEHR_Record",
+          "relation": "lacksAgreement",
+          "target": "RoleBasedAccessControl",
+          "confidence": 0.95
+        },
+        {
+          "source": "RoleBasedAccessControl",
+          "relation": "violatessafeguard",
+          "target": "AccessControlStandard",
           "confidence": 0.95
         }
       ],
-      "explanation_narrative": "Regulatory path verification report: Step 1: Subgraph edge shows PatientAccessFee satisfiesStandard CostBasedFeeRule.",
+      "explanation_narrative": "Regulatory path verification report: Step 1: Subgraph edge shows ITContractor_M accessesData FullEHR_Record. Step 2: Subgraph edge shows FullEHR_Record lacksAgreement RoleBasedAccessControl. Step 3: Subgraph edge shows RoleBasedAccessControl violatessafeguard AccessControlStandard.",
       "extracted_explanation_triples": [
         {
-          "source": "PatientAccessFee",
-          "relation": "satisfiesStandard",
-          "target": "CostBasedFeeRule",
-          "confidence": 0.95
+          "source": "ITContractor_M",
+          "relation": "accessesData",
+          "target": "FullEHR_Record",
+          "confidence": 0.9
+        },
+        {
+          "source": "FullEHR_Record",
+          "relation": "lacksAgreement",
+          "target": "RoleBasedAccessControl",
+          "confidence": 0.9
+        },
+        {
+          "source": "RoleBasedAccessControl",
+          "relation": "violatessafeguard",
+          "target": "AccessControlStandard",
+          "confidence": 0.9
         }
       ],
       "faithfulness_metrics": {
@@ -584,13 +614,13 @@
           "source": "LimitedDataSet",
           "relation": "governedBy",
           "target": "DataUseAgreement",
-          "confidence": 0.95
+          "confidence": 0.9
         },
         {
           "source": "DataUseAgreement",
           "relation": "satisfiesStandard",
           "target": "PublicHealthCarveout",
-          "confidence": 0.95
+          "confidence": 0.9
         }
       ],
       "faithfulness_metrics": {
@@ -635,13 +665,13 @@
           "source": "UnencryptedDiagnosticPHI",
           "relation": "traversesNetwork",
           "target": "PhysicalTheftIncident",
-          "confidence": 0.95
+          "confidence": 0.9
         },
         {
           "source": "PhysicalTheftIncident",
           "relation": "violatessafeguard",
           "target": "BreachNotificationRule",
-          "confidence": 0.95
+          "confidence": 0.9
         }
       ],
       "faithfulness_metrics": {
@@ -686,7 +716,7 @@
           "source": "DataTransferAgreement",
           "relation": "satisfiesStandard",
           "target": "DeIdentificationRule",
-          "confidence": 0.95
+          "confidence": 0.9
         }
       ],
       "faithfulness_metrics": {
@@ -728,6 +758,12 @@
       "explanation_narrative": "Compliance trajectory analysis for 'Does a secondary subcontractor storing unencrypted backups o...': Step 1: Verification reveals ForeignSubcontractor --(transmitsData)--> UnencryptedPHI_Backup. Step 2: Verification reveals UnencryptedPHI_Backup --(traversesNetwork)--> OverseasServer. Step 3: (Intermediate sub-hop is abstracted in summary narrative). Step 4: Subgraph edge shows DownstreamBAA violatessafeguard HIPAA_Security_Omnibus.",
       "extracted_explanation_triples": [
         {
+          "source": "DownstreamBAA",
+          "relation": "violatessafeguard",
+          "target": "HIPAA_Security_Omnibus",
+          "confidence": 0.9
+        },
+        {
           "source": "ForeignSubcontractor",
           "relation": "transmitsData",
           "target": "UnencryptedPHI_Backup",
@@ -738,12 +774,6 @@
           "relation": "traversesNetwork",
           "target": "OverseasServer",
           "confidence": 0.9
-        },
-        {
-          "source": "DownstreamBAA",
-          "relation": "violatessafeguard",
-          "target": "HIPAA_Security_Omnibus",
-          "confidence": 0.95
         }
       ],
       "faithfulness_metrics": {
@@ -785,28 +815,28 @@
       "explanation_narrative": "Regulatory path verification report: Step 1: Verification reveals MultiSiteTrial --(usesData)--> PseudonymizedGenomicPHI. Step 2: Entity PseudonymizedGenomicPHI is linked via governedBy to IRB_MasterApproval. Step 3: Subgraph edge shows IRB_MasterApproval satisfiesStandard MasterBAA_Agreement. Step 4: Entity MasterBAA_Agreement is linked via subjectToException to ResearchExemptionStandard.",
       "extracted_explanation_triples": [
         {
-          "source": "MultiSiteTrial",
-          "relation": "usesData",
-          "target": "PseudonymizedGenomicPHI",
-          "confidence": 0.9
-        },
-        {
           "source": "PseudonymizedGenomicPHI",
           "relation": "governedBy",
           "target": "IRB_MasterApproval",
           "confidence": 0.9
         },
         {
-          "source": "IRB_MasterApproval",
-          "relation": "satisfiesStandard",
-          "target": "MasterBAA_Agreement",
-          "confidence": 0.95
-        },
-        {
           "source": "MasterBAA_Agreement",
           "relation": "subjectToException",
           "target": "ResearchExemptionStandard",
-          "confidence": 0.95
+          "confidence": 0.9
+        },
+        {
+          "source": "IRB_MasterApproval",
+          "relation": "satisfiesStandard",
+          "target": "MasterBAA_Agreement",
+          "confidence": 0.9
+        },
+        {
+          "source": "MultiSiteTrial",
+          "relation": "usesData",
+          "target": "PseudonymizedGenomicPHI",
+          "confidence": 0.9
         }
       ],
       "faithfulness_metrics": {
@@ -848,6 +878,12 @@
       "explanation_narrative": "Regulatory path verification report: Step 1: Verification reveals MobileApp_Vendor --(accessesData)--> PatientTelemetryAPI. Step 2: Verification reveals PatientTelemetryAPI --(traversesNetwork)--> CompromisedAPIKey. Step 3: Verification reveals CompromisedAPIKey --(lacksAgreement)--> OAuthScopePolicy. Step 4: Entity OAuthScopePolicy is linked via violatessafeguard to TechnicalAccessControls.",
       "extracted_explanation_triples": [
         {
+          "source": "OAuthScopePolicy",
+          "relation": "violatessafeguard",
+          "target": "TechnicalAccessControls",
+          "confidence": 0.9
+        },
+        {
           "source": "MobileApp_Vendor",
           "relation": "accessesData",
           "target": "PatientTelemetryAPI",
@@ -863,13 +899,7 @@
           "source": "CompromisedAPIKey",
           "relation": "lacksAgreement",
           "target": "OAuthScopePolicy",
-          "confidence": 0.95
-        },
-        {
-          "source": "OAuthScopePolicy",
-          "relation": "violatessafeguard",
-          "target": "TechnicalAccessControls",
-          "confidence": 0.95
+          "confidence": 0.9
         }
       ],
       "faithfulness_metrics": {
@@ -917,16 +947,16 @@
           "confidence": 0.9
         },
         {
-          "source": "StatewideOptOutPolicy",
-          "relation": "satisfiesStandard",
-          "target": "HIE_ParticipationAgreement",
-          "confidence": 0.95
-        },
-        {
           "source": "HIE_ParticipationAgreement",
           "relation": "subjectToException",
           "target": "TPO_ExchangeRule",
-          "confidence": 0.95
+          "confidence": 0.9
+        },
+        {
+          "source": "StatewideOptOutPolicy",
+          "relation": "satisfiesStandard",
+          "target": "HIE_ParticipationAgreement",
+          "confidence": 0.9
         }
       ],
       "faithfulness_metrics": {
@@ -983,7 +1013,7 @@
           "source": "VendorBAA_Document",
           "relation": "violatessafeguard",
           "target": "PrivacyRule_Disclosure",
-          "confidence": 0.95
+          "confidence": 0.9
         }
       ],
       "faithfulness_metrics": {
@@ -1031,16 +1061,16 @@
           "confidence": 0.9
         },
         {
+          "source": "CDC_Mandate",
+          "relation": "subjectToException",
+          "target": "PublicHealthEmergencyCarveout",
+          "confidence": 0.9
+        },
+        {
           "source": "EpidemiologicalRecords",
           "relation": "governedBy",
           "target": "ExecutiveEmergencyOrder",
           "confidence": 0.9
-        },
-        {
-          "source": "CDC_Mandate",
-          "relation": "subjectToException",
-          "target": "PublicHealthEmergencyCarveout",
-          "confidence": 0.95
         }
       ],
       "faithfulness_metrics": {
@@ -1053,146 +1083,218 @@
   "per_item_baseline_retrievals": [
     {
       "id": "Q01-1HOP",
+      "hop_count": 1,
       "vector_rag_top_passage_text": "Under 45 CFR 164.506, covered entities are permitted to use or disclose protecte...",
+      "vector_rag_correct": true,
       "naive_rag_top_passage_text": "45 CFR 164.508 mandates that covered entities must obtain an authorization for a...",
+      "naive_rag_correct": false,
       "passages_match": false
     },
     {
       "id": "Q02-1HOP",
+      "hop_count": 1,
       "vector_rag_top_passage_text": "45 CFR 164.508 mandates that covered entities must obtain an authorization for a...",
+      "vector_rag_correct": true,
       "naive_rag_top_passage_text": "45 CFR 164.508 mandates that covered entities must obtain an authorization for a...",
+      "naive_rag_correct": true,
       "passages_match": true
     },
     {
       "id": "Q03-1HOP",
+      "hop_count": 1,
       "vector_rag_top_passage_text": "Disclosures of PHI to law enforcement officials require a court order, grand jur...",
+      "vector_rag_correct": false,
       "naive_rag_top_passage_text": "Disclosures of PHI to law enforcement officials require a court order, grand jur...",
+      "naive_rag_correct": false,
       "passages_match": true
     },
     {
       "id": "Q04-1HOP",
+      "hop_count": 1,
       "vector_rag_top_passage_text": "Under 45 CFR 164.524, a covered entity may charge a reasonable, cost-based fee f...",
+      "vector_rag_correct": true,
       "naive_rag_top_passage_text": "Under 45 CFR 164.524, a covered entity may charge a reasonable, cost-based fee f...",
+      "naive_rag_correct": true,
       "passages_match": true
     },
     {
       "id": "Q05-1HOP",
+      "hop_count": 1,
       "vector_rag_top_passage_text": "Disclosures of PHI to law enforcement officials require a court order, grand jur...",
+      "vector_rag_correct": true,
       "naive_rag_top_passage_text": "Disclosures of PHI to law enforcement officials require a court order, grand jur...",
+      "naive_rag_correct": true,
       "passages_match": true
     },
     {
       "id": "Q06-1HOP",
+      "hop_count": 1,
       "vector_rag_top_passage_text": "In emergency circumstances, healthcare providers may disclose PHI relevant to fa...",
+      "vector_rag_correct": true,
       "naive_rag_top_passage_text": "In emergency circumstances, healthcare providers may disclose PHI relevant to fa...",
+      "naive_rag_correct": true,
       "passages_match": true
     },
     {
       "id": "Q07-2HOP",
+      "hop_count": 2,
       "vector_rag_top_passage_text": "A covered entity may not disclose protected health information to a business ass...",
+      "vector_rag_correct": true,
       "naive_rag_top_passage_text": "A covered entity may not disclose protected health information to a business ass...",
+      "naive_rag_correct": true,
       "passages_match": true
     },
     {
       "id": "Q08-2HOP",
+      "hop_count": 2,
       "vector_rag_top_passage_text": "In emergency circumstances, healthcare providers may disclose PHI relevant to fa...",
+      "vector_rag_correct": true,
       "naive_rag_top_passage_text": "Emergency medical service personnel transmitting patient care reports to receivi...",
+      "naive_rag_correct": true,
       "passages_match": false
     },
     {
       "id": "Q09-2HOP",
+      "hop_count": 2,
       "vector_rag_top_passage_text": "Transmitting unencrypted electronic PHI over public Wi-Fi networks fails to meet...",
+      "vector_rag_correct": true,
       "naive_rag_top_passage_text": "A covered entity may not disclose protected health information to a business ass...",
+      "naive_rag_correct": true,
       "passages_match": false
     },
     {
       "id": "Q10-2HOP",
+      "hop_count": 2,
       "vector_rag_top_passage_text": "Covered hospitals sharing patient billing details with contracted debt collectio...",
+      "vector_rag_correct": true,
       "naive_rag_top_passage_text": "Covered hospitals sharing patient billing details with contracted debt collectio...",
+      "naive_rag_correct": true,
       "passages_match": true
     },
     {
       "id": "Q11-2HOP",
+      "hop_count": 2,
       "vector_rag_top_passage_text": "Covered hospitals sharing patient billing details with contracted debt collectio...",
+      "vector_rag_correct": false,
       "naive_rag_top_passage_text": "Under 45 CFR 164.402, the acquisition, access, use, or disclosure of unencrypted...",
+      "naive_rag_correct": true,
       "passages_match": false
     },
     {
       "id": "Q12-2HOP",
+      "hop_count": 2,
       "vector_rag_top_passage_text": "A covered entity may not disclose protected health information to a business ass...",
+      "vector_rag_correct": false,
       "naive_rag_top_passage_text": "A covered entity may not disclose protected health information to a business ass...",
+      "naive_rag_correct": false,
       "passages_match": true
     },
     {
       "id": "Q13-3HOP",
+      "hop_count": 3,
       "vector_rag_top_passage_text": "Research use of protected health information is permissible under 45 CFR 164.512...",
+      "vector_rag_correct": true,
       "naive_rag_top_passage_text": "Research use of protected health information is permissible under 45 CFR 164.512...",
+      "naive_rag_correct": true,
       "passages_match": true
     },
     {
       "id": "Q14-3HOP",
+      "hop_count": 3,
       "vector_rag_top_passage_text": "Transmitting unencrypted electronic PHI over public Wi-Fi networks fails to meet...",
+      "vector_rag_correct": true,
       "naive_rag_top_passage_text": "Transmitting unencrypted electronic PHI over public Wi-Fi networks fails to meet...",
+      "naive_rag_correct": true,
       "passages_match": true
     },
     {
       "id": "Q15-3HOP",
+      "hop_count": 3,
       "vector_rag_top_passage_text": "Role-based access control procedures required by 45 CFR 164.312(a)(1) dictate th...",
+      "vector_rag_correct": true,
       "naive_rag_top_passage_text": "Role-based access control procedures required by 45 CFR 164.312(a)(1) dictate th...",
+      "naive_rag_correct": true,
       "passages_match": true
     },
     {
       "id": "Q16-3HOP",
+      "hop_count": 3,
       "vector_rag_top_passage_text": "A covered entity may disclose a limited data set for public health or research p...",
+      "vector_rag_correct": true,
       "naive_rag_top_passage_text": "A covered entity may disclose a limited data set for public health or research p...",
+      "naive_rag_correct": true,
       "passages_match": true
     },
     {
       "id": "Q17-3HOP",
+      "hop_count": 3,
       "vector_rag_top_passage_text": "Under 45 CFR 164.402, the acquisition, access, use, or disclosure of unencrypted...",
+      "vector_rag_correct": true,
       "naive_rag_top_passage_text": "Under 45 CFR 164.402, the acquisition, access, use, or disclosure of unencrypted...",
+      "naive_rag_correct": true,
       "passages_match": true
     },
     {
       "id": "Q18-3HOP",
+      "hop_count": 3,
       "vector_rag_top_passage_text": "Multi-center clinical research trials sharing pseudonymized genomic data operate...",
+      "vector_rag_correct": true,
       "naive_rag_top_passage_text": "Sharing fully anonymized or de-identified data streams under a data transfer agr...",
+      "naive_rag_correct": true,
       "passages_match": false
     },
     {
       "id": "Q19-4HOP",
+      "hop_count": 4,
       "vector_rag_top_passage_text": "Foreign subcontractors processing or storing electronic PHI backups overseas mus...",
+      "vector_rag_correct": true,
       "naive_rag_top_passage_text": "Foreign subcontractors processing or storing electronic PHI backups overseas mus...",
+      "naive_rag_correct": true,
       "passages_match": true
     },
     {
       "id": "Q20-4HOP",
+      "hop_count": 4,
       "vector_rag_top_passage_text": "Multi-center clinical research trials sharing pseudonymized genomic data operate...",
+      "vector_rag_correct": true,
       "naive_rag_top_passage_text": "Multi-center clinical research trials sharing pseudonymized genomic data operate...",
+      "naive_rag_correct": true,
       "passages_match": true
     },
     {
       "id": "Q21-4HOP",
+      "hop_count": 4,
       "vector_rag_top_passage_text": "API endpoints exposing electronic PHI without proper OAuth scope authorization o...",
+      "vector_rag_correct": true,
       "naive_rag_top_passage_text": "API endpoints exposing electronic PHI without proper OAuth scope authorization o...",
+      "naive_rag_correct": true,
       "passages_match": true
     },
     {
       "id": "Q22-4HOP",
+      "hop_count": 4,
       "vector_rag_top_passage_text": "Health information exchanges (HIEs) transmitting encrypted health records under ...",
+      "vector_rag_correct": true,
       "naive_rag_top_passage_text": "Health information exchanges (HIEs) transmitting encrypted health records under ...",
+      "naive_rag_correct": true,
       "passages_match": true
     },
     {
       "id": "Q23-4HOP",
+      "hop_count": 4,
       "vector_rag_top_passage_text": "Transmission of unredacted clinical notes to external commercial artificial inte...",
+      "vector_rag_correct": true,
       "naive_rag_top_passage_text": "Transmission of unredacted clinical notes to external commercial artificial inte...",
+      "naive_rag_correct": true,
       "passages_match": true
     },
     {
       "id": "Q24-4HOP",
+      "hop_count": 4,
       "vector_rag_top_passage_text": "Emergency medical service personnel transmitting patient care reports to receivi...",
+      "vector_rag_correct": true,
       "naive_rag_top_passage_text": "Reporting epidemiological surveillance data to the Centers for Disease Control a...",
+      "naive_rag_correct": true,
       "passages_match": false
     }
   ],
@@ -1207,6 +1309,12 @@
       "step": 2,
       "edge": "UnencryptedPHI->PublicWiFi",
       "random_val": 0.5245631615517655,
+      "omitted": false
+    },
+    {
+      "step": 2,
+      "edge": "FullEHR_Record->RoleBasedAccessControl",
+      "random_val": 0.5967413010742667,
       "omitted": false
     },
     {
@@ -1300,14 +1408,14 @@
       "omitted": true
     }
   ],
-  "expected_calibration_error_ece": 0.0,
+  "expected_calibration_error_ece": 0.011351553089088886,
   "statistical_validation": {
     "paired_difference": {
-      "mean_diff": 0.08333333333333333,
-      "std_diff": 0.3996526269427266,
-      "t_statistic": 1.0,
-      "t_p_value": 0.3277158061428582,
-      "wilcoxon_p_value": 0.31731050786291415
+      "mean_diff": 0.125,
+      "std_diff": 0.33071891388307384,
+      "t_statistic": 1.8126539343499317,
+      "t_p_value": 0.08295987936478118,
+      "wilcoxon_p_value": 0.08326451666355039
     },
     "tost_equivalence": {
       "status": "NOT MEASURED",
@@ -1316,12 +1424,12 @@
     "holm_bonferroni": {
       "hypotheses_tested_count": 2,
       "raw_p_values": [
-        0.3277158061428582,
-        0.31731050786291415
+        0.08295987936478118,
+        0.08326451666355039
       ],
       "adjusted_p_values": [
-        0.3277158061428582,
-        0.6346210157258283
+        0.16591975872956236,
+        0.08326451666355039
       ]
     }
   },
