@@ -18,13 +18,27 @@ class HybridScorer:
         self.force_hash_fallback = force_hash_fallback
         self._st_model = None
 
+    # Pinned HuggingFace model revision for reproducibility.
+    # all-MiniLM-L6-v2 is loaded with an explicit commit hash so that different
+    # sentence-transformers library versions produce identical embeddings.
+    # Without this pin, library updates silently change path rankings and
+    # therefore accuracy. This, combined with the datasets/ → benchmark_datasets/
+    # package rename (which eliminated the HF `datasets` library name collision
+    # that silently activated the hash-encoder fallback), are the two components
+    # of the Stage 6 reproducibility fix (2026-08-20).
+    MODEL_NAME = 'sentence-transformers/all-MiniLM-L6-v2'
+    MODEL_REVISION = '1110a243fdf4706b3f48f1d95db1a4f5529b4d41'
+
     def _get_encoder(self):
         if self.force_hash_fallback:
             return False
         if self._st_model is None:
             try:
                 from sentence_transformers import SentenceTransformer
-                self._st_model = SentenceTransformer('all-MiniLM-L6-v2')
+                self._st_model = SentenceTransformer(
+                    self.MODEL_NAME,
+                    revision=self.MODEL_REVISION
+                )
             except Exception:
                 self._st_model = False
         return self._st_model

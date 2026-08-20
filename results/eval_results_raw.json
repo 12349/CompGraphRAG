@@ -1409,30 +1409,7 @@
     }
   ],
   "expected_calibration_error_ece": 0.011351553089088886,
-  "statistical_validation": {
-    "paired_difference": {
-      "mean_diff": 0.125,
-      "std_diff": 0.33071891388307384,
-      "t_statistic": 1.8126539343499317,
-      "t_p_value": 0.08295987936478118,
-      "wilcoxon_p_value": 0.08326451666355039
-    },
-    "tost_equivalence": {
-      "status": "NOT MEASURED",
-      "reason": "Two distinct deployment conditions (on-premise vs. cloud API) were not executed in this session"
-    },
-    "holm_bonferroni": {
-      "hypotheses_tested_count": 2,
-      "raw_p_values": [
-        0.08295987936478118,
-        0.08326451666355039
-      ],
-      "adjusted_p_values": [
-        0.16591975872956236,
-        0.08326451666355039
-      ]
-    }
-  },
+  "statistical_validation": {},
   "all_baselines_summary": {
     "Vector-RAG": {
       "status": "EXECUTED",

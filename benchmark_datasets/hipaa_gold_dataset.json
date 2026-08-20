@@ -1,0 +1,259 @@
+{
+  "dataset_name": "CompGraphRAG HIPAA Gold Benchmark Suite",
+  "version": "1.0.0-scaled",
+  "total_queries": 24,
+  "queries": [
+    {
+      "id": "Q01-1HOP",
+      "question": "Does disclosure of PHI for patient treatment require patient authorization under 45 CFR 164.506?",
+      "hop_count": 1,
+      "gold_determination": "COMPLIANT",
+      "gold_evidence_subgraph": [
+        {"source": "PHI_Disclosure", "relation": "subjectToException", "target": "TPO_Exception", "confidence": 1.0}
+      ]
+    },
+    {
+      "id": "Q02-1HOP",
+      "question": "Are psychotherapy notes subject to the general TPO disclosure exception?",
+      "hop_count": 1,
+      "gold_determination": "NON-COMPLIANT",
+      "gold_evidence_subgraph": [
+        {"source": "PsychotherapyNotes", "relation": "excludedFrom", "target": "TPO_Exception", "confidence": 1.0}
+      ]
+    },
+    {
+      "id": "Q03-1HOP",
+      "question": "Is disclosure of PHI pursuant to a valid judicial subpoena compliant without individual authorization?",
+      "hop_count": 1,
+      "gold_determination": "COMPLIANT",
+      "gold_evidence_subgraph": [
+        {"source": "PHI_Disclosure", "relation": "subjectToException", "target": "JudicialSubpoena_Exception", "confidence": 1.0}
+      ]
+    },
+    {
+      "id": "Q04-1HOP",
+      "question": "Can a covered entity charge reasonable cost-based fees for providing copies of medical records?",
+      "hop_count": 1,
+      "gold_determination": "COMPLIANT",
+      "gold_evidence_subgraph": [
+        {"source": "PatientAccessFee", "relation": "satisfiesStandard", "target": "CostBasedFeeRule", "confidence": 1.0}
+      ]
+    },
+    {
+      "id": "Q05-1HOP",
+      "question": "Does sharing PHI with law enforcement without a court order or warrant comply with Privacy Rule exceptions?",
+      "hop_count": 1,
+      "gold_determination": "NON-COMPLIANT",
+      "gold_evidence_subgraph": [
+        {"source": "LawEnforcementDisclosure", "relation": "violatessafeguard", "target": "PrivacyRule_LawEnforcement", "confidence": 1.0}
+      ]
+    },
+    {
+      "id": "Q06-1HOP",
+      "question": "Does verbal disclosure of patient status to family members during an emergency require prior written consent?",
+      "hop_count": 1,
+      "gold_determination": "COMPLIANT",
+      "gold_evidence_subgraph": [
+        {"source": "EmergencyFamilyDisclosure", "relation": "subjectToException", "target": "EmergencyCarveout", "confidence": 1.0}
+      ]
+    },
+    {
+      "id": "Q07-2HOP",
+      "question": "Can a Covered Entity disclose PHI to a cloud vendor without an executed Business Associate Agreement?",
+      "hop_count": 2,
+      "gold_determination": "NON-COMPLIANT",
+      "gold_evidence_subgraph": [
+        {"source": "CoveredEntity_A", "relation": "disclosesPHITo", "target": "CloudVendor_B", "confidence": 1.0},
+        {"source": "CloudVendor_B", "relation": "lacksAgreement", "target": "BAA_Document", "confidence": 1.0}
+      ]
+    },
+    {
+      "id": "Q08-2HOP",
+      "question": "Is an emergency medical technician allowed to share PHI with a receiving hospital emergency department?",
+      "hop_count": 2,
+      "gold_determination": "COMPLIANT",
+      "gold_evidence_subgraph": [
+        {"source": "EMT_Provider", "relation": "transmitsPHI", "target": "Hospital_ED", "confidence": 1.0},
+        {"source": "Hospital_ED", "relation": "qualifiesAs", "target": "TreatmentActivity", "confidence": 1.0}
+      ]
+    },
+    {
+      "id": "Q09-2HOP",
+      "question": "Does a business associate transmitting PHI to a secondary cloud host without a downstream BAA violate §164.502(e)?",
+      "hop_count": 2,
+      "gold_determination": "NON-COMPLIANT",
+      "gold_evidence_subgraph": [
+        {"source": "BusinessAssociate_1", "relation": "disclosesPHITo", "target": "SubcontractorHost_2", "confidence": 1.0},
+        {"source": "SubcontractorHost_2", "relation": "lacksAgreement", "target": "SubcontractorBAA", "confidence": 1.0}
+      ]
+    },
+    {
+      "id": "Q10-2HOP",
+      "question": "Can a hospital share billing information with an external collection agency under a valid business associate agreement?",
+      "hop_count": 2,
+      "gold_determination": "COMPLIANT",
+      "gold_evidence_subgraph": [
+        {"source": "Hospital_A", "relation": "disclosesPHITo", "target": "CollectionAgency_B", "confidence": 1.0},
+        {"source": "CollectionAgency_B", "relation": "satisfiesStandard", "target": "BAA_Agreement", "confidence": 1.0}
+      ]
+    },
+    {
+      "id": "Q11-2HOP",
+      "question": "Is sending unencrypted patient billing spreadsheets over open email to a third-party auditor non-compliant?",
+      "hop_count": 2,
+      "gold_determination": "NON-COMPLIANT",
+      "gold_evidence_subgraph": [
+        {"source": "BillingDepartment", "relation": "transmitsData", "target": "UnencryptedEmail", "confidence": 1.0},
+        {"source": "UnencryptedEmail", "relation": "violatessafeguard", "target": "SecurityRule_Encryption", "confidence": 1.0}
+      ]
+    },
+    {
+      "id": "Q12-2HOP",
+      "question": "Does disclosing de-identified patient data to a marketing analytics vendor require individual patient authorization?",
+      "hop_count": 2,
+      "gold_determination": "COMPLIANT",
+      "gold_evidence_subgraph": [
+        {"source": "DeIdentifiedData", "relation": "transmitsPHI", "target": "AnalyticsVendor", "confidence": 1.0},
+        {"source": "AnalyticsVendor", "relation": "subjectToException", "target": "DeIdentificationSafeHarbor", "confidence": 1.0}
+      ]
+    },
+    {
+      "id": "Q13-3HOP",
+      "question": "If a research project accesses de-identified data via a workforce member under an IRB waiver, does it violate the minimum necessary standard?",
+      "hop_count": 3,
+      "gold_determination": "COMPLIANT",
+      "gold_evidence_subgraph": [
+        {"source": "ResearchProject_X", "relation": "usesData", "target": "DeIdentifiedPHI", "confidence": 0.95},
+        {"source": "DeIdentifiedPHI", "relation": "governedBy", "target": "IRB_Waiver", "confidence": 1.0},
+        {"source": "IRB_Waiver", "relation": "satisfiesStandard", "target": "MinimumNecessaryStandard", "confidence": 1.0}
+      ]
+    },
+    {
+      "id": "Q14-3HOP",
+      "question": "Does transmitting unencrypted PHI over public Wi-Fi by a subcontractor without technical safeguards breach the Security Rule?",
+      "hop_count": 3,
+      "gold_determination": "NON-COMPLIANT",
+      "gold_evidence_subgraph": [
+        {"source": "Subcontractor_C", "relation": "transmitsData", "target": "UnencryptedPHI", "confidence": 1.0},
+        {"source": "UnencryptedPHI", "relation": "traversesNetwork", "target": "PublicWiFi", "confidence": 1.0},
+        {"source": "PublicWiFi", "relation": "violatessafeguard", "target": "TechnicalSafeguardsRule", "confidence": 1.0}
+      ]
+    },
+    {
+      "id": "Q15-3HOP",
+      "question": "Does an off-site IT contractor accessing full EHR records without role-based access control during system maintenance breach security standards?",
+      "hop_count": 3,
+      "gold_determination": "NON-COMPLIANT",
+      "gold_evidence_subgraph": [
+        {"source": "ITContractor_M", "relation": "accessesData", "target": "FullEHR_Record", "confidence": 1.0},
+        {"source": "FullEHR_Record", "relation": "lacksAgreement", "target": "RoleBasedAccessControl", "confidence": 1.0},
+        {"source": "RoleBasedAccessControl", "relation": "violatessafeguard", "target": "AccessControlStandard", "confidence": 1.0}
+      ]
+    },
+    {
+      "id": "Q16-3HOP",
+      "question": "Can a covered entity share limited dataset records for public health surveillance under a data use agreement?",
+      "hop_count": 3,
+      "gold_determination": "COMPLIANT",
+      "gold_evidence_subgraph": [
+        {"source": "PublicHealthAgency", "relation": "requestsData", "target": "LimitedDataSet", "confidence": 1.0},
+        {"source": "LimitedDataSet", "relation": "governedBy", "target": "DataUseAgreement", "confidence": 1.0},
+        {"source": "DataUseAgreement", "relation": "satisfiesStandard", "target": "PublicHealthCarveout", "confidence": 1.0}
+      ]
+    },
+    {
+      "id": "Q17-3HOP",
+      "question": "Is a stolen unencrypted backup drive containing patient diagnostic logs considered a reportable breach under the Breach Notification Rule?",
+      "hop_count": 3,
+      "gold_determination": "NON-COMPLIANT",
+      "gold_evidence_subgraph": [
+        {"source": "StolenBackupDrive", "relation": "containsData", "target": "UnencryptedDiagnosticPHI", "confidence": 1.0},
+        {"source": "UnencryptedDiagnosticPHI", "relation": "traversesNetwork", "target": "PhysicalTheftIncident", "confidence": 1.0},
+        {"source": "PhysicalTheftIncident", "relation": "violatessafeguard", "target": "BreachNotificationRule", "confidence": 1.0}
+      ]
+    },
+    {
+      "id": "Q18-3HOP",
+      "question": "Does sharing anonymized clinical trial telemetry with an academic partner under a data transfer agreement satisfy HIPAA requirements?",
+      "hop_count": 3,
+      "gold_determination": "COMPLIANT",
+      "gold_evidence_subgraph": [
+        {"source": "AcademicPartner", "relation": "usesData", "target": "AnonymizedTelemetry", "confidence": 1.0},
+        {"source": "AnonymizedTelemetry", "relation": "governedBy", "target": "DataTransferAgreement", "confidence": 1.0},
+        {"source": "DataTransferAgreement", "relation": "satisfiesStandard", "target": "DeIdentificationRule", "confidence": 1.0}
+      ]
+    },
+    {
+      "id": "Q19-4HOP",
+      "question": "Does a secondary subcontractor storing unencrypted backups on foreign servers without BAA or technical safeguards violate international HIPAA compliance standards?",
+      "hop_count": 4,
+      "gold_determination": "NON-COMPLIANT",
+      "gold_evidence_subgraph": [
+        {"source": "ForeignSubcontractor", "relation": "transmitsData", "target": "UnencryptedPHI_Backup", "confidence": 1.0},
+        {"source": "UnencryptedPHI_Backup", "relation": "traversesNetwork", "target": "OverseasServer", "confidence": 1.0},
+        {"source": "OverseasServer", "relation": "lacksAgreement", "target": "DownstreamBAA", "confidence": 1.0},
+        {"source": "DownstreamBAA", "relation": "violatessafeguard", "target": "HIPAA_Security_Omnibus", "confidence": 1.0}
+      ]
+    },
+    {
+      "id": "Q20-4HOP",
+      "question": "Is a multi-site clinical trial sharing pseudonymized genomic data across IRB-approved institutions under a master BAA compliant with minimum necessary rules?",
+      "hop_count": 4,
+      "gold_determination": "COMPLIANT",
+      "gold_evidence_subgraph": [
+        {"source": "MultiSiteTrial", "relation": "usesData", "target": "PseudonymizedGenomicPHI", "confidence": 1.0},
+        {"source": "PseudonymizedGenomicPHI", "relation": "governedBy", "target": "IRB_MasterApproval", "confidence": 1.0},
+        {"source": "IRB_MasterApproval", "relation": "satisfiesStandard", "target": "MasterBAA_Agreement", "confidence": 1.0},
+        {"source": "MasterBAA_Agreement", "relation": "subjectToException", "target": "ResearchExemptionStandard", "confidence": 1.0}
+      ]
+    },
+    {
+      "id": "Q21-4HOP",
+      "question": "Does an unauthorized third-party mobile app capturing patient telemetry via compromised API keys without OAuth scopes breach HIPAA §164.312?",
+      "hop_count": 4,
+      "gold_determination": "NON-COMPLIANT",
+      "gold_evidence_subgraph": [
+        {"source": "MobileApp_Vendor", "relation": "accessesData", "target": "PatientTelemetryAPI", "confidence": 1.0},
+        {"source": "PatientTelemetryAPI", "relation": "traversesNetwork", "target": "CompromisedAPIKey", "confidence": 1.0},
+        {"source": "CompromisedAPIKey", "relation": "lacksAgreement", "target": "OAuthScopePolicy", "confidence": 1.0},
+        {"source": "OAuthScopePolicy", "relation": "violatessafeguard", "target": "TechnicalAccessControls", "confidence": 1.0}
+      ]
+    },
+    {
+      "id": "Q22-4HOP",
+      "question": "Can a regional health information exchange (HIE) route encrypted records between covered entities under a state-wide opt-out policy?",
+      "hop_count": 4,
+      "gold_determination": "COMPLIANT",
+      "gold_evidence_subgraph": [
+        {"source": "Regional_HIE", "relation": "transmitsPHI", "target": "EncryptedHealthRecord", "confidence": 1.0},
+        {"source": "EncryptedHealthRecord", "relation": "governedBy", "target": "StatewideOptOutPolicy", "confidence": 1.0},
+        {"source": "StatewideOptOutPolicy", "relation": "satisfiesStandard", "target": "HIE_ParticipationAgreement", "confidence": 1.0},
+        {"source": "HIE_ParticipationAgreement", "relation": "subjectToException", "target": "TPO_ExchangeRule", "confidence": 1.0}
+      ]
+    },
+    {
+      "id": "Q23-4HOP",
+      "question": "Is exporting raw unredacted clinical notes to an external LLM API without BAA or patient authorization a reportable violation?",
+      "hop_count": 4,
+      "gold_determination": "NON-COMPLIANT",
+      "gold_evidence_subgraph": [
+        {"source": "HospitalSystem", "relation": "transmitsPHI", "target": "RawClinicalNotes", "confidence": 1.0},
+        {"source": "RawClinicalNotes", "relation": "traversesNetwork", "target": "ExternalLLM_API", "confidence": 1.0},
+        {"source": "ExternalLLM_API", "relation": "lacksAgreement", "target": "VendorBAA_Document", "confidence": 1.0},
+        {"source": "VendorBAA_Document", "relation": "violatessafeguard", "target": "PrivacyRule_Disclosure", "confidence": 1.0}
+      ]
+    },
+    {
+      "id": "Q24-4HOP",
+      "question": "Does transmitting de-identified epidemiological records to the CDC during a national health emergency under executive order satisfy HIPAA Privacy Standards?",
+      "hop_count": 4,
+      "gold_determination": "COMPLIANT",
+      "gold_evidence_subgraph": [
+        {"source": "StateHealthDept", "relation": "transmitsData", "target": "EpidemiologicalRecords", "confidence": 1.0},
+        {"source": "EpidemiologicalRecords", "relation": "governedBy", "target": "ExecutiveEmergencyOrder", "confidence": 1.0},
+        {"source": "ExecutiveEmergencyOrder", "relation": "satisfiesStandard", "target": "CDC_Mandate", "confidence": 1.0},
+        {"source": "CDC_Mandate", "relation": "subjectToException", "target": "PublicHealthEmergencyCarveout", "confidence": 1.0}
+      ]
+    }
+  ]
+}

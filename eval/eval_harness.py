@@ -20,7 +20,7 @@ from explainability.faithfulness_evaluator import ExplanationFaithfulnessEvaluat
 from uncertainty.conformal_predictor import ConformalPredictor
 from eval.stats_validation import StatisticalValidator
 from baselines.runner import BaselineRunner
-from datasets.candidate_corpus import CandidateCorpus
+from benchmark_datasets.candidate_corpus import CandidateCorpus
 
 class CompGraphRAGEvaluator:
     def __init__(self, dataset_path: str, force_hash_fallback: bool = False):
