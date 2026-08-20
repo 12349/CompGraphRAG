@@ -35,7 +35,7 @@ For **the canonical paper** (with its honest N=6 pilot framing), see:
 | Wilcoxon | p=0.0833 (not significant at α=0.05) |
 | Cohen's d | 0.37 (medium effect) |
 | Study power (n=24) | 40% — underpowered |
-| n for 80% power | 60 (at d=0.37) |
+| n for 80% power | 68 (at pre-registered 15pp target, McNemar; supersedes old n=60 circular estimate) |
 | H4/H8 monotonic scaling | **NOT TESTABLE** on current benchmark |
 | GraphRAG / LightRAG / HippoRAG | **NOT MEASURED** |
 

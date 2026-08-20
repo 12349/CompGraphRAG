@@ -75,13 +75,13 @@ compgraphrag/
 | 2-Hop    | 6 | 66.7%      | 83.3%     | **100.0%**   | +33.3%   |
 | 3-Hop    | 6 | 100.0%     | 100.0%    | **100.0%**   | +0.0%    |
 | 4-Hop    | 6 | 100.0%     | 100.0%    | **100.0%**   | +0.0%    |
-| **Overall** | **24** | **87.5%** | **87.5%** | **100.0%** | **+12.5%** |
+| **Overall** | **24** | **87.5%** | **87.5%** | **100.0%** | **+12.5% (n.s., p=0.083)** |
 
 - **Explanation Faithfulness F1**: 0.9679 (mean across 24 items; 19/24 = 1.0, 5 items < 1.0 due to stochastic edge abstraction)
 - **ECE**: 0.0114 (well-calibrated)
 - **Paired t-test**: mean diff = +0.1250, t = 1.8127, p = 0.0830 — not significant at α=0.05
 - **Wilcoxon**: p = 0.0833 — not significant at α=0.05
-- **Cohen's d**: 0.37 | **Study power at n=24**: 40% | **n needed for 80% power**: 60 (at observed d=0.37)
+- **Cohen's d**: 0.37 | **Study power at n=24**: 40% | **n needed for 80% power**: 68 (at pre-registered 15pp target; McNemar) — supersedes old n=60 circular estimate
 - **GraphRAG / LightRAG / HippoRAG**: NOT MEASURED (not installed)
 
 **What the advantage is**: All 3 discordant items (CG correct, VR/NR wrong) are explained by **graph-grounded entity disambiguation** — the entity linker surfaces a legally critical node (e.g. `JudicialSubpoena_Exception`, `UnencryptedEmail`, `DeIdentifiedData`) that distinguishes two passages sharing surface vocabulary but encoding opposite compliance determinations. Flat retrieval is fooled by topic similarity; graph-path retrieval is not.
