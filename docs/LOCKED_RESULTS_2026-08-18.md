@@ -1,4 +1,6 @@
-# CompGraphRAG — Locked Results
+> **SUPERSEDED** — This file is retired as of 2026-08-20. The numbers here were not reproducible (hash-encoder fallback was active; the real ST encoder was silently disabled). The current source of truth is [`LOCKED_RESULTS_2026-08-20.md`](LOCKED_RESULTS_2026-08-20.md). See [`STAGE6_GROUND_TRUTH_RESTORED_2026-08-20.md`](STAGE6_GROUND_TRUTH_RESTORED_2026-08-20.md) for the full explanation.
+
+# CompGraphRAG — Locked Results (SUPERSEDED)
 
 **Date locked**: 2026-08-18  
 **Commit at lock**: `9c35c4e` (after faithfulness IE fix)  
