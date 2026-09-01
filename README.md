@@ -1,113 +1,124 @@
-# CompGraphRAG: A Knowledge Graph-Augmented Retrieval Framework for Intelligent Enterprise Compliance Workflows — A HIPAA Case Study
+# CompGraphRAG: Enterprise GraphRAG for Compliance Automation
 
-**Author**: Mahaboob Johny Shaik (Independent Researcher, Denton, TX, USA. Email: `Mahaboobshaikusa@gmail.com`)
+[![Python Version](https://img.shields.io/badge/Python-3.9%2B-blue.svg)](https://www.python.org/) [![Domain](https://img.shields.io/badge/Domain-HIPAA%20%26%20Healthcare%20Compliance-green.svg)](https://github.com/12349/CompGraphRAG/blob/main) [![Architecture](https://img.shields.io/badge/Architecture-Neuro--Symbol%20GraphRAG-orange.svg)](https://github.com/12349/CompGraphRAG/blob/main) [![License](https://img.shields.io/badge/License-MIT-brightgreen.svg)](https://github.com/12349/CompGraphRAG/blob/main/LICENSE)
 
----
-
-## 🏛️ Overview
-CompGraphRAG is an open-source, knowledge-graph-augmented hybrid retrieval and reasoning framework designed for high-stakes enterprise compliance workflows (with HIPAA as a case study). It unifies:
-
-1. **Formal Hybrid Retrieval Scoring Engine**: $\text{score}(x|q) = \alpha \cdot \cos(q,x) + \beta \cdot \text{GraphPathScore} + \gamma \cdot \text{Authority}$.
-2. **Neuro-Symbolic Pre-Generation Rule Engine**: Evaluates 45 CFR regulatory exception carve-outs prior to generator invocation.
-3. **Audit-Grade Explainability**: Returns machine-readable justification subgraphs ($\pi$) and natural language walks evaluated via quantitative faithfulness metrics.
-4. **Split Conformal Uncertainty Quantification**: Produces calibrated confidence sets $C(q)$ with automatic safety routing for low-confidence decisions.
-5. **Interactive Web Suite & Palantir Control Room**: A live, serverless web audit interface.
+> **CompGraphRAG** is a Knowledge Graph-Augmented Retrieval-Augmented Generation (GraphRAG) framework specifically engineered for high-stakes enterprise regulatory and compliance determination workflows, validated through a comprehensive HIPAA compliance case study.
 
 ---
 
-## 📊 Quickstart & Execution
+## 🌟 Key Features
 
-### 1. Installation
-```bash
-git clone https://github.com/12349/CompGraphRAG.git
+- **🕸️ Multi-Hop Relational Retrieval**: Overcomes flat vector RAG limitations by indexing document entities, roles, policies, and regulatory constraints into a structured entity-relationship knowledge graph.
+- **🧠 Neuro-Symbolic Rule Engine**: Combines deterministic compliance rule matching with LLM-based multi-hop graph traversal to guarantee auditable regulatory determinations.
+- **📜 Subgraph Traversal Justification (π-Path)**: Generates human-auditable, step-by-step natural language path walks through knowledge subgraphs for every compliance determination.
+- **📊 Conformal Uncertainty Quantification**: Provides calibrated uncertainty intervals C(q) with Expected Calibration Error (ECE) monitoring to trigger human-in-the-loop audit flags when confidence falls below regulatory bounds.
+- **⚡ Benchmark Harness**: Pre-configured evaluation suite comparing CompGraphRAG directly against two fairness-matched dense-retrieval baselines (Vector-RAG, Naive-RAG), both using the identical rule-based answer-readout step as CompGraphRAG.
+
+---
+
+## 📊 Benchmark Performance & Results
+
+Running `run_demo.py` (via `eval/eval_harness.py`) on the 24-item `datasets/hipaa_gold_dataset.json` benchmark, with the real `sentence-transformers/all-MiniLM-L6-v2` encoder, yields:
+
+| Metric | CompGraphRAG | Vector-RAG Baseline | Naive-RAG Baseline | Delta vs. best baseline |
+| --- | --- | --- | --- | --- |
+| **Overall Accuracy (N=24)** | **100.0%** | 87.5% | 87.5% | **+12.5%** |
+| **1-Hop Query Accuracy (n=6)** | **100.0%** | 83.3% | 66.7% | **+16.7%** |
+| **2-Hop Query Accuracy (n=6)** | **100.0%** | 66.7% | 83.3% | **+16.7%** |
+| **3-Hop Query Accuracy (n=6)** | 100.0% | 100.0% | 100.0% | tie |
+| **4-Hop Query Accuracy (n=6)** | 100.0% | 100.0% | 100.0% | tie |
+| **Explanation Faithfulness F1** | **0.9679** | N/A | N/A | — |
+| **Entity-Linking Precision / Recall** | **0.2191 / 0.8438** | N/A | N/A | — |
+| **Expected Calibration Error (ECE)** | **0.0114** | N/A | N/A | — |
+| **Paired t-test / Wilcoxon (p-value)** | 0.0830 / 0.0833 | — | — | not yet significant at N=24 |
+
+Statistical note: the accuracy advantage is concentrated at 1- and 2-hop and ties at 3- and 4-hop; it does not clear the conventional p < 0.05 threshold at this sample size (Cohen's d ≈ 0.37, post-hoc power ≈ 40%). See the paper's Section VI-D and VII for the full statistical validation plan and the sample size needed to confirm this result. Entity-linking precision (21.9%) is notably low despite not degrading end-to-end accuracy — flagged in the paper (Section VII-E) as requiring the rule-check on/off ablation before that robustness can be trusted as a general property of the architecture rather than a benchmark-specific artifact.
+
+---
+
+## 🏗️ System Architecture
+
+```
+                                  ┌───────────────────────────┐
+                                  │   Enterprise Corpos       │
+                                  │ (Policies, BAA, IRB, etc) │
+                                  └─────────────┬─────────────┘
+                                                │
+                                  ┌─────────────▼─────────────┐
+                                  │   Schema-Guided Graph     │
+                                  │   Indexing Engine         │
+                                  └─────────────┬─────────────┘
+                                                │
+                                  ┌─────────────▼─────────────┐
+                                  │ HIPAA Entity-Rel Graph    │
+                                  └─────────────┬─────────────┘
+                                                │
+     ┌──────────────────────────────────────────┴──────────────────────────────────────────┐
+     │                                                                                     │
+┌────▼────────────────────────┐    ┌─────────────────────────────┐    ┌────────────────────▼──────────────────┐
+│ Neuro-Symbolic Rule Check   │    │  Multi-Hop Subgraph Walk    │    │ Conformal Uncertainty Calibration    │
+│ (Rule Matching & Violations)│    │  (Path Traversal & Context) │    │ (Quantile Risk & Audit Flagging)      │
+└────┬────────────────────────┘    └─────────────┬───────────────┘    └────────────────────┬──────────────────┘
+     │                                           │                                         │
+     └───────────────────────────────────────────┼─────────────────────────────────────────┘
+                                                 │
+                                  ┌──────────────▼──────────────┐
+                                  │ Auditable Compliance        │
+                                  │ Determination & Path Walk   │
+                                  └─────────────────────────────┘
+```
+
+---
+
+## 🚀 Quick Start
+
+### 1. Prerequisites & Installation
+
+Clone the repository and install requirements:
+
+```
+git clone https://github.com/<your-username>/CompGraphRAG.git
 cd CompGraphRAG
+
 pip install -r requirements.txt
 ```
 
-### 2. Run Unit Tests
-```bash
-python3 -m unittest discover tests
-```
+### 2. Run Evaluation Benchmark & Interactive Demos
 
-### 3. Run Benchmark Harness & Pre-Registered Statistics
-```bash
-python3 run_demo.py --stats --baselines
-```
-
-Raw evaluation metrics will be written automatically to `results/eval_results_raw.json`.
-
----
-
-## 📂 Repository Structure
+Execute the main system launcher:
 
 ```
-compgraphrag/
-├── README.md                 (quickstart, architecture spec, code availability)
-├── CITATION.cff              (citation metadata)
-├── CHANGELOG.md              (version history)
-├── requirements.txt          (python dependencies)
-├── run_demo.py               (main CLI launcher & evaluation runner)
-├── schema/                   (OWL/Turtle & JSON-LD HIPAA TBox ontologies)
-├── prompts/                  (extraction, generation, and faithfulness prompts)
-├── retrieval/                (hybrid scorer, entity linker, PPR graph retriever)
-├── reasoning/                (neuro-symbolic rule engine & HIPAA exception rules)
-├── explainability/            (subgraph extractor & faithfulness evaluator)
-├── uncertainty/               (conformal predictor & safety router)
-├── eval/                      (evaluation harness & statistical validator)
-├── baselines/                 (comparative baseline runners for Vector-RAG, LightRAG, HippoRAG)
-├── datasets/                  (24-query HIPAA gold benchmark set)
-├── results/                   (raw JSON output metrics logging)
-├── tests/                     (unittest test suite)
-├── docs/                      (architecture spec, threat model, reproducibility, annotation protocol)
-├── demo/                      (CLI audit demo application)
-└── index.html / styles.css    (interactive Palantir-style web audit control panel)
+python run_demo.py
 ```
 
 ---
 
-## 📊 Verified Benchmark Results (N=24, real `all-MiniLM-L6-v2` encoder)
+## 📂 Project Structure
 
-> Results from `python3 run_demo.py --stats --baselines` — three deterministic runs, identical output. Locked to `docs/LOCKED_RESULTS_2026-08-18.md` (commit `9c35c4e`). See `docs/AUDIT_LOG_2026-08-18.md` for full audit history.
-
-| Hop Tier | n | Vector-RAG | Naive-RAG | CompGraphRAG | CG vs VR |
-|:---------|:-:|:----------:|:---------:|:------------:|:--------:|
-| 1-Hop    | 6 | 83.3%      | 66.7%     | **100.0%**   | +16.7%   |
-| 2-Hop    | 6 | 66.7%      | 83.3%     | **100.0%**   | +33.3%   |
-| 3-Hop    | 6 | 100.0%     | 100.0%    | **100.0%**   | +0.0%    |
-| 4-Hop    | 6 | 100.0%     | 100.0%    | **100.0%**   | +0.0%    |
-| **Overall** | **24** | **87.5%** | **87.5%** | **100.0%** | **+12.5% (n.s., p=0.083)** |
-
-- **Explanation Faithfulness F1**: 0.9679 (mean across 24 items; 19/24 = 1.0, 5 items < 1.0 due to stochastic edge abstraction)
-- **ECE**: 0.0114 (well-calibrated)
-- **Paired t-test**: mean diff = +0.1250, t = 1.8127, p = 0.0830 — not significant at α=0.05
-- **Wilcoxon**: p = 0.0833 — not significant at α=0.05
-- **Cohen's d**: 0.37 | **Study power at n=24**: 40% | **n needed for 80% power**: 68 (at pre-registered 15pp target; McNemar) — supersedes old n=60 circular estimate
-- **GraphRAG / LightRAG / HippoRAG**: NOT MEASURED (not installed)
-
-**What the advantage is**: All 3 discordant items (CG correct, VR/NR wrong) are explained by **graph-grounded entity disambiguation** — the entity linker surfaces a legally critical node (e.g. `JudicialSubpoena_Exception`, `UnencryptedEmail`, `DeIdentifiedData`) that distinguishes two passages sharing surface vocabulary but encoding opposite compliance determinations. Flat retrieval is fooled by topic similarity; graph-path retrieval is not.
-
-**What the advantage is NOT (yet)**: The hop-scaling hypothesis (H4/H8) is untestable on this benchmark — both baselines achieve 100% at 3-hop and 4-hop. The benchmark needs adversarially constructed hard distractors per tier before H4/H8 can be evaluated. This is a design limitation of the current pilot, documented in `docs/STAGE2_FINDINGS_2026-08-18.md`.
-
-> **Note on hash-encoder runs**: Earlier runs (pre-Stage 1 audit) used a hash-bucket pseudo-embedding fallback, producing 70.8%/79.2% CG/VR numbers. Those are retired. All canonical numbers above use the real sentence-transformers encoder.
-
----
-
-## 📜 Code & Data Availability Statement
-- **Repository Access**: All software code, schemas, dataset benchmarks, evaluation scripts, and unit tests are publicly available under the MIT License.
-- **Raw Evaluation Artifacts**: Executed benchmark metrics are deterministically logged in `results/eval_results_raw.json`.
-- **Canonical Paper**: `CompGraphRAG_Paper.docx` at the repo root. The shorter file in `docs/archive/` is an earlier draft.
-- **License**: Code is licensed under [MIT](LICENSE); annotations and dataset artifacts under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
-
-
----
-
-## ✒️ Citation
-If you use CompGraphRAG in your research, please cite:
-```bibtex
-@article{shaik2026compgraphrag,
-  title={CompGraphRAG: A Knowledge Graph-Augmented Retrieval Framework for Intelligent Enterprise Compliance Workflows --- A HIPAA Case Study},
-  author={Shaik, Mahaboob Johny},
-  journal={Research Artifact & Prototype Release v0.1.0-pilot},
-  year={2026}
-}
 ```
+├── run_demo.py                      # Main system entry point & benchmark harness
+├── requirements.txt                 # Core dependencies (rdflib, networkx, scikit-learn, etc.)
+├── datasets/                        # HIPAA compliance gold-standard evaluation datasets
+│   └── hipaa_gold_dataset.json
+├── demo/                            # Interactive sample audit demonstration application
+│   └── app.py
+├── retrieval/                       # Knowledge graph retrieval & indexing engines
+├── reasoning/                       # Neuro-symbolic rule execution engine
+├── explainability/                  # Subgraph path walk & justification generator
+├── uncertainty/                     # Conformal prediction & calibration module
+├── eval/                            # System evaluation harness & metrics
+├── schema/                          # Entity-relationship ontology definitions
+└── docs/                            # Research specifications & technical documentation
+```
+
+---
+
+## 📝 Citation & Research Foundation
+
+CompGraphRAG builds upon established research in Knowledge Graph-Augmented LLMs, Neuro-Symbolic AI, and Conformal Prediction for Healthcare and Legal Compliance Automation.
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](https://github.com/12349/CompGraphRAG/blob/main/LICENSE) file for details.
