@@ -119,6 +119,12 @@ CompGraphRAG builds upon established research in Knowledge Graph-Augmented LLMs,
 
 ---
 
+## 🔓 Code & Data Availability Statement
+
+The exact commit hash corresponding to this manuscript's final results and reproducibility reference is [`ddf7a99b36e70e236f7f65f9080ddcc8d16ff632`](https://github.com/12349/CompGraphRAG/commit/ddf7a99b36e70e236f7f65f9080ddcc8d16ff632) (tagged as [`v1.0-paper`](https://github.com/12349/CompGraphRAG/releases/tag/v1.0-paper)). All benchmark metrics reported in the paper can be regenerated using `python run_demo.py` via `eval/eval_harness.py`.
+
+---
+
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](https://github.com/12349/CompGraphRAG/blob/main/LICENSE) file for details.
