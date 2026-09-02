@@ -16,6 +16,7 @@ ENV/
 
 # Internal draft documents & reviewer panel notes (hidden from public repository)
 *.docx
+!CompGraphRAG_Paper.docx
 *_extracted.txt
 CompGraphRAG_Phase1_Phase2.md
 CompGraphRAG_Publication_Readiness_Panel_Review.md

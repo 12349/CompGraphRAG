@@ -182,6 +182,17 @@ CG Marginal (VR)  +16.7% +33.3% +0.0%  +0.0%  +12.5% (n.s., p=0.083)
 - At 3-hop and 4-hop, all three systems achieve 100%; no discriminative signal at these tiers.
 - The 3 items where CG is correct and VR is wrong are all at ≤2-hop; see Section VII-B for per-item analysis.
 
+### E. Entity-Linking Performance
+
+| Metric | Score |
+|---|:---:|
+| **Entity Linking Precision** | **0.2191** (`21.9%`) |
+| **Entity Linking Recall** | **0.8438** (`84.4%`) |
+| **Entity Linking F1** | **0.3479** (`34.8%`) |
+
+> [!NOTE]
+> Despite low linker precision, end-to-end accuracy remained at 100%, indicating the downstream rule-check and graph-path scoring stages likely filter out incorrectly-linked candidates before they affect the final determination — this has not yet been verified directly and is flagged as a required ablation.
+
 ### B. Qualitative Analysis — Discordant Items
 
 Exactly 3 items are discordant (CG correct, VR and/or NR wrong). In every case the mechanism is **graph-grounded entity disambiguation**: the entity linker surfaces a legally critical graph node that distinguishes two passages sharing surface vocabulary but encoding opposing compliance determinations.
