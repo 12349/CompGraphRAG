@@ -94,13 +94,13 @@
       </p>
       <div class="hero-stats animate-in" style="--delay:0.3s">
         <div class="hero-stat">
-          <div class="hero-stat-val" data-target="70.8">0</div>
+          <div class="hero-stat-val" data-target="100.0">0</div>
           <div class="hero-stat-unit">%</div>
           <div class="hero-stat-lbl">Overall Accuracy</div>
         </div>
         <div class="hero-stat-divider"></div>
         <div class="hero-stat">
-          <div class="hero-stat-val" data-target="97.98">0</div>
+          <div class="hero-stat-val" data-target="96.79">0</div>
           <div class="hero-stat-unit">%</div>
           <div class="hero-stat-lbl">Faithfulness F1</div>
         </div>
@@ -387,13 +387,13 @@
     <div class="kpi-grid">
       <div class="kpi-card">
         <div class="kpi-icon kpi-icon-blue">&#128202;</div>
-        <div class="kpi-val animate-counter" data-target="70.8" data-suffix="%">0%</div>
+        <div class="kpi-val animate-counter" data-target="100.0" data-suffix="%">0%</div>
         <div class="kpi-label">CompGraphRAG Accuracy</div>
-        <div class="kpi-sub">12-query test split</div>
+        <div class="kpi-sub">24-query benchmark</div>
       </div>
       <div class="kpi-card">
         <div class="kpi-icon kpi-icon-purple">&#128279;</div>
-        <div class="kpi-val animate-counter" data-target="97.98" data-suffix="%">0%</div>
+        <div class="kpi-val animate-counter" data-target="96.79" data-suffix="%">0%</div>
         <div class="kpi-label">Faithfulness F1</div>
         <div class="kpi-sub">Explanation precision &times; recall</div>
       </div>
@@ -405,7 +405,7 @@
       </div>
       <div class="kpi-card">
         <div class="kpi-icon kpi-icon-green">&#9889;</div>
-        <div class="kpi-val animate-counter" data-target="8.0" data-suffix="%">0%</div>
+        <div class="kpi-val animate-counter" data-target="1.14" data-suffix="%">0%</div>
         <div class="kpi-label">ECE Calibration Error</div>
         <div class="kpi-sub">Expected calibration error</div>
       </div>
@@ -628,7 +628,7 @@ IF (DataType == UnencryptedPHI)
         <div class="rc-header"><div class="rc-label">Novel Contribution</div></div>
         <h3>Audit-Grade Explainability</h3>
         <p>Quantitative faithfulness evaluation (Precision, Recall, F1) measuring whether generated explanations match true retrieved subgraph edges in path &pi; &mdash; a first for HIPAA compliance determination systems.</p>
-        <div class="rc-stat">F1 = 97.98% on 24-query test set</div>
+        <div class="rc-stat">F1 = 96.79% on 24-query test set</div>
       </div>
       <div class="research-card">
         <div class="rc-header"><div class="rc-label">Statistical Guarantee</div></div>
@@ -647,7 +647,7 @@ IF (DataType == UnencryptedPHI)
       <div class="disclosure-icon">&#9888;&#65039;</div>
       <div class="disclosure-content">
         <div class="disclosure-title">Important Disclosure &amp; Limitations</div>
-        <p>System outputs are produced by a research prototype operating on a synthetic HIPAA-based dataset. They <strong>must not</strong> serve as the sole legal basis for regulatory liability determination without human reviewer verification. Entity linker precision is 21.9% (broad-recall-first strategy). External baselines (GraphRAG, LightRAG, HippoRAG) are flagged as NOT MEASURED as those repositories are not locally installed. Accuracy on the 12-query test split: CompGraphRAG 70.8%, Vector-RAG 79.2%, Naive-RAG 83.3%.</p>
+        <p>System outputs are produced by a research prototype operating on a synthetic HIPAA-based dataset. They <strong>must not</strong> serve as the sole legal basis for regulatory liability determination without human reviewer verification. Entity linker precision is 21.9% (recall 84.4%, F1 34.8%). External baselines (GraphRAG, LightRAG, HippoRAG) are flagged as NOT MEASURED as those repositories are not locally installed. Accuracy on the 24-query benchmark: CompGraphRAG 100.0% (24/24), Vector-RAG 87.5% (21/24), Naive-RAG 87.5% (21/24) (paired t-test p = 0.0830, Wilcoxon p = 0.0833; reproducibility reference commit <a href="https://github.com/12349/CompGraphRAG/commit/ddf7a99b36e70e236f7f65f9080ddcc8d16ff632" target="_blank" style="color:var(--amber);text-decoration:underline;">ddf7a99b</a>, tag <a href="https://github.com/12349/CompGraphRAG/releases/tag/v1.0-paper" target="_blank" style="color:var(--amber);text-decoration:underline;">v1.0-paper</a>).</p>
       </div>
     </div>
   </section>
@@ -661,7 +661,7 @@ IF (DataType == UnencryptedPHI)
       </div>
       <div class="footer-links">
         <a href="https://github.com/12349/CompGraphRAG" target="_blank" class="footer-link">GitHub Repository</a>
-        <a href="CompGraphRAG_Paper.pdf" target="_blank" class="footer-link">Research Paper (PDF)</a>
+        <a href="CompGraphRAG_Paper.docx" target="_blank" class="footer-link">Research Paper (DOCX)</a>
         <a href="CITATION.cff" target="_blank" class="footer-link">Citation (CFF)</a>
       </div>
       <div class="footer-copy">

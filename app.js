@@ -365,7 +365,9 @@ function setupIntersectionObserver() {
     entries.forEach(entry => {
       if (entry.isIntersecting && !entry.target.dataset.animated) {
         entry.target.dataset.animated = 'true';
-        const target = parseFloat(entry.target.dataset.target);
+        const targetStr = entry.target.dataset.target || '0';
+        const target = parseFloat(targetStr);
+        const dec = targetStr.includes('.') ? targetStr.split('.')[1].length : 0;
         const suffix = entry.target.dataset.suffix || '';
         const duration = 1600;
         const start = performance.now();
@@ -375,10 +377,11 @@ function setupIntersectionObserver() {
           const progress = Math.min(elapsed / duration, 1);
           const ease = 1 - Math.pow(1 - progress, 3);
           const current = target * ease;
+          const valFormatted = current.toFixed(dec);
           if (entry.target.classList.contains('hero-stat-val')) {
-            entry.target.textContent = current.toFixed(1);
+            entry.target.textContent = valFormatted;
           } else {
-            entry.target.textContent = current.toFixed(1) + suffix;
+            entry.target.textContent = valFormatted + suffix;
           }
           if (progress < 1) requestAnimationFrame(step);
         }
@@ -834,8 +837,8 @@ function drawHopChart() {
   ctx.clearRect(0, 0, W, 240);
 
   const hops = ['1-HOP', '2-HOP', '3-HOP', '4-HOP'];
-  const comp = [83.3, 50.0, 66.7, 83.3];
-  const vect = [66.7, 66.7, 83.3, 100.0];
+  const comp = [100.0, 100.0, 100.0, 100.0];
+  const vect = [83.3, 66.7, 100.0, 100.0];
 
   const margin = { top: 20, right: 20, bottom: 40, left: 50 };
   const cW = W - margin.left - margin.right;
@@ -886,10 +889,10 @@ function drawHopChart() {
     // Value labels
     ctx.fillStyle = '#e8b872';
     ctx.font = '700 9px Inter, sans-serif';
-    ctx.fillText(comp[i].toFixed(0) + '%', x + bw/2, cH - ch - 6);
+    ctx.fillText(comp[i] === 100 ? '100%' : comp[i].toFixed(1) + '%', x + bw/2, cH - ch - 6);
 
     ctx.fillStyle = '#57534e';
-    ctx.fillText(vect[i].toFixed(0) + '%', x + bw * 1.5 + gap, cH - vh - 6);
+    ctx.fillText(vect[i] === 100 ? '100%' : vect[i].toFixed(1) + '%', x + bw * 1.5 + gap, cH - vh - 6);
   });
 
   // Legend
