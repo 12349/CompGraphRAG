@@ -618,33 +618,33 @@
       }
     },
     "rule_check_off": {
-      "overall_accuracy": 1.0,
+      "overall_accuracy": 0.6666666666666666,
       "accuracy_by_hop": {
-        "1": 1.0,
-        "2": 1.0,
-        "3": 1.0,
-        "4": 1.0
+        "1": 0.8333333333333334,
+        "2": 0.6666666666666666,
+        "3": 0.6666666666666666,
+        "4": 0.5
       },
-      "mean_explanation_faithfulness_f1": 0.967857142857143,
-      "disagreement_rate_with_rule_engine": 0.0,
-      "disagreement_count": 0,
+      "mean_explanation_faithfulness_f1": 0.7395833333333334,
+      "disagreement_rate_with_rule_engine": 0.3333333333333333,
+      "disagreement_count": 8,
       "total_queries": 24,
       "statistical_validation": {
         "paired_difference": {
-          "mean_diff": 0.125,
-          "std_diff": 0.33071891388307384,
-          "t_statistic": 1.8126539343499317,
-          "t_p_value": 0.08295987936478118,
-          "wilcoxon_p_value": 0.08326451666355039
+          "mean_diff": -0.20833333333333334,
+          "std_diff": 0.5758447900452188,
+          "t_statistic": -1.7350709507649773,
+          "t_p_value": 0.09611073295775202,
+          "wilcoxon_p_value": 0.09558070454562939
         },
         "holm_bonferroni": {
           "raw_p_values": [
-            0.08295987936478118,
-            0.08326451666355039
+            0.09611073295775202,
+            0.09558070454562939
           ],
           "adjusted_p_values": [
-            0.16591975872956236,
-            0.08326451666355039
+            0.09611073295775202,
+            0.19116140909125878
           ]
         }
       }

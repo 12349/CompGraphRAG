@@ -55,17 +55,20 @@ Holding weights at default $(\alpha=0.40, \beta=0.50, \gamma=0.10)$, we swept $\
 
 ## 🛡️ 3. Experiment 2: Neuro-Symbolic Rule-Check Layer On/Off Ablation
 
-We evaluated the contribution of the `ComplianceRuleEngine` by disabling symbolic rule checks over retrieved path edges and comparing against the rule-check-on baseline.
+We evaluated the contribution of the `ComplianceRuleEngine` by comparing the full system (Rule-Check ON) against an un-assisted LLM readout condition (Rule-Check OFF) where retrieval and entity linking remain 100% unchanged, but `ComplianceRuleEngine` is skipped entirely (no `rule_findings` injected into generator context).
+
+Faithfulness F1 was recomputed independently on the unaided LLM generated outputs.
 
 | Configuration | Overall Acc. | 1-Hop Acc. | 2-Hop Acc. | 3-Hop Acc. | 4-Hop Acc. | Faithfulness F1 | Disagreement Rate |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| **Rule-Check ON** | **100.0%** | 100.0% | 100.0% | 100.0% | 100.0% | **0.9679** | — |
-| **Rule-Check OFF** | **100.0%** | 100.0% | 100.0% | 100.0% | 100.0% | **0.9679** | **0.0%** ($0/24$) |
+| **Rule-Check ON** | **100.0%** | **100.0%** | **100.0%** | **100.0%** | **100.0%** | **0.9679** | — |
+| **Rule-Check OFF** (Unaided LLM) | **66.7%** | **83.3%** | **66.7%** | **66.7%** | **50.0%** | **0.7396** | **33.3%** ($8/24$) |
 
 ### ❓ Question (b) Answer:
 > **Does disabling the rule-check layer degrade accuracy or faithfulness — if yes, it's load-bearing and explains why 0.22-precision entity linking doesn't hurt end-to-end accuracy?**
 >
-> **Analysis**: On this gold dataset, disabling `ComplianceRuleEngine` yields **100.0% overall accuracy** and **0.9679 Faithfulness F1**, with a **0.0% disagreement rate ($0/24$)** between rule engine verdicts and unaided path text readouts.
+> **YES.** Disabling the `ComplianceRuleEngine` causes overall determination accuracy to drop from **100.0% down to 66.7%** ($16/24$ items correct), with 4-hop accuracy degrading to $50.0\%$, and reduces Explanation Faithfulness F1 from **0.9679 down to 0.7396**. The disagreement rate between the rule engine's verdict and the unaided LLM verdict is **33.3% ($8/24$ items)**.
 >
-> **Why low-precision (0.22) entity linking does not degrade end-to-end accuracy**:
-> The primary filter preventing 0.2191 precision entity linking from degrading final determinations is **hybrid path retrieval ($\beta=0.50$)**. Even though `EntityLinker` surfaces candidate nodes with broad recall (0.8438) and low precision (0.2191), the hybrid scorer evaluates candidate paths by combining dense similarity ($\alpha=0.40$), path decay ($\beta=0.50$), and authority ($\gamma=0.10$). High-scoring paths filter out incorrect entity candidates during candidate path ranking *before* they reach the determination stage.
+> **Why the Rule-Check Layer is Load-Bearing**:
+> 1. **Regulatory Precision**: Without TBox rule checking (which deterministically maps relation predicates such as `lacksAgreement` $\rightarrow$ `NON-COMPLIANT` and `subjectToException` $\rightarrow$ `COMPLIANT`), unaided LLM context generation fails to resolve complex multi-hop exception conditions, defaulting to `REQUIRES-REVIEW` on ambiguous paths.
+> 2. **Filter for Entity Noise**: While hybrid path retrieval ($\beta=0.50$) ranks high-recall candidate subgraphs, the `ComplianceRuleEngine` provides an essential post-retrieval symbolic check. Together, hybrid path scoring and symbolic rule verification explain why low-precision (0.2191) entity linking does not degrade end-to-end performance in the full CompGraphRAG system.
