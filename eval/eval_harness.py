@@ -121,7 +121,7 @@ class CompGraphRAGEvaluator:
     def _generate_explanation_narrative_and_triples(self, query_text: str, path: List[Dict[str, Any]], seed: int = None) -> Tuple[str, List[Dict[str, Any]]]:
         """
         Explanation generation & Information Extraction (IE) pipeline:
-        1. Free-generates a natural language narrative paragraph describing the compliance finding.
+        1. Selects a natural language narrative paragraph describing the compliance finding from a fixed set of templates, with stochastic edge-omission for the faithfulness precision/recall test.
            Uses stochastic phrasing variations controlled by a deterministic seed derived from item ID.
         2. Information Extraction (IE): reads the generated narrative TEXT ONLY via regex pattern
            matching. Does NOT access retrieved_path or included_edges during extraction.

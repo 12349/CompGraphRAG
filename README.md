@@ -9,7 +9,7 @@
 ## 🌟 Key Features
 
 - **🕸️ Multi-Hop Relational Retrieval**: Overcomes flat vector RAG limitations by indexing document entities, roles, policies, and regulatory constraints into a structured entity-relationship knowledge graph.
-- **🧠 Neuro-Symbolic Rule Engine**: Combines deterministic compliance rule matching with LLM-based multi-hop graph traversal to guarantee auditable regulatory determinations.
+- **🧠 Neuro-Symbolic Rule Engine**: Combines deterministic compliance rule matching with graph-path traversal and dense-embedding retrieval to produce auditable regulatory determinations.
 - **📜 Subgraph Traversal Justification (π-Path)**: Generates human-auditable, step-by-step natural language path walks through knowledge subgraphs for every compliance determination.
 - **📊 Conformal Uncertainty Quantification**: Provides calibrated uncertainty intervals C(q) with Expected Calibration Error (ECE) monitoring to trigger human-in-the-loop audit flags when confidence falls below regulatory bounds.
 - **⚡ Benchmark Harness**: Pre-configured evaluation suite comparing CompGraphRAG directly against two fairness-matched dense-retrieval baselines (Vector-RAG, Naive-RAG), both using the identical rule-based answer-readout step as CompGraphRAG.
@@ -115,7 +115,7 @@ python run_demo.py
 
 ## 📝 Citation & Research Foundation
 
-CompGraphRAG builds upon established research in Knowledge Graph-Augmented LLMs, Neuro-Symbolic AI, and Conformal Prediction for Healthcare and Legal Compliance Automation.
+CompGraphRAG builds upon established research in Knowledge-Graph-Augmented Retrieval, Neuro-Symbolic Rule Systems, and Conformal Prediction for Healthcare and Legal Compliance Automation.
 
 ---
 

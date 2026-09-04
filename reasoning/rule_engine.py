@@ -1,6 +1,6 @@
 """
 Neuro-symbolic compliance rule check engine for CompGraphRAG.
-Evaluates graph path entities against declarative HIPAA exception/obligation rules before LLM generation.
+Evaluates graph path entities against declarative HIPAA exception/obligation rules to produce the final compliance determination.
 """
 
 import json
