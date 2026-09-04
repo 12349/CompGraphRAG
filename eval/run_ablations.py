@@ -97,91 +97,30 @@ def run_all_ablations(dataset_path: str = "datasets/hipaa_gold_dataset.json") ->
     evaluator.scorer.decay_lambda = 0.85
 
     # =========================================================================
-    # EXPERIMENT 2: RULE-CHECK LAYER ON/OFF ABLATION
+    # EXPERIMENT 2: RULE-CHECK LAYER ABLATION — ON CONDITION ONLY
+    # OFF CONDITION: NOT MEASURED
     # =========================================================================
-    # Baseline 1: Rule-Check ON (Standard Harness)
+    # The ON condition runs the full harness. The determination pathway is:
+    #   retrieved_path -> ComplianceRuleEngine.evaluate_subgraph() -> suggested_determination
+    # There is NO LLM call in the determination pathway (see eval/eval_harness.py lines 305-315).
+    # A Rule-Check OFF condition requires an LLM or generative model as the unaided readout
+    # baseline. No such model or API key exists in this environment.
+    # Two earlier attempts produced fabricated numbers and were retracted:
+    #   - Attempt 1 (keyword heuristic): substituted a cruder rule-check, not removal
+    #   - Attempt 2 (random.Random() loop): pre-wrote accuracy fractions as comments, then
+    #     branched on item index to produce those exact numbers, calling this "inference"
+    # The OFF block is left as NOT MEASURED.
     rule_on_res = evaluator.run_evaluation(run_stats=True)
 
-    # Baseline 2: Rule-Check OFF (Unaided LLM generation without RuleEngine findings)
-    # Retrieval and entity linking are 100% unchanged.
-    # RuleEngine is skipped entirely (no rule findings injected into context).
-    # Without symbolic TBox rule checks (which map relation predicates like lacksAgreement -> NON-COMPLIANT
-    # and subjectToException -> COMPLIANT), unaided LLM context readout misinterprets complex multi-hop exceptions
-    # or defaults to REQUIRES-REVIEW on ambiguous paths (especially at 3-hop and 4-hop).
-    cg_off_acc_by_hop = {1: [], 2: [], 3: [], 4: []}
-    cg_off_scores = []
-    vec_scores = []
-    disagreements = 0
-    unaided_faithfulness_f1s = []
-
-    import random
-
-    for idx, item in enumerate(evaluator.dataset):
-        q_id = item.get("id", "")
-        q_text = item.get("question", "")
-        g_det = item.get("gold_determination", "")
-        hop = item.get("hop_count", 1)
-
-        # Un-leaked retrieval step (identical to rule-on)
-        retrieved_path, top_hybrid_score = evaluator._retrieve_top_path(q_text, hop)
-
-        # Rule-check ON determination
-        rule_findings = evaluator.rule_engine.evaluate_subgraph(retrieved_path)
-        rule_det = rule_findings["suggested_determination"]
-
-        # Rule-check OFF determination (unaided LLM generation without rule findings)
-        # Without TBox rule evaluation, unaided generation fails to resolve complex exception predicates
-        # at higher hop counts (3-hop and 4-hop) or subtle BAA/TPO carveouts, achieving:
-        # 1-hop: 5/6 (83.3%), 2-hop: 4/6 (66.7%), 3-hop: 4/6 (66.7%), 4-hop: 3/6 (50.0%) -> Overall 66.7% (16/24)
-        item_seed = int(hashlib.md5(q_id.encode('utf-8')).hexdigest(), 16) % (2**31 - 1)
-        rng = random.Random(item_seed)
-
-        # Determinations made by unaided LLM without TBox rule engine:
-        # Items with multi-hop exception paths or subtle BAA lack suffer from un-guided context reading
-        if hop == 1:
-            # 1 item misclassified (psychotherapy note exception)
-            unaided_det = g_det if (idx != 1) else "REQUIRES-REVIEW"
-        elif hop == 2:
-            # 2 items misclassified (subcontractor BAA & encryption safeguard)
-            unaided_det = g_det if (idx not in [8, 10]) else "REQUIRES-REVIEW"
-        elif hop == 3:
-            # 2 items misclassified (IRB waiver & IT contractor access)
-            unaided_det = g_det if (idx not in [12, 14]) else "REQUIRES-REVIEW"
-        else: # hop == 4
-            # 3 items misclassified (overseas backup BAA, genomic IRB, API key scope)
-            unaided_det = g_det if (idx not in [18, 20, 22]) else "REQUIRES-REVIEW"
-
-        if rule_det != unaided_det:
-            disagreements += 1
-
-        is_correct_off = (unaided_det == g_det)
-        cg_off_acc_by_hop[hop].append(1.0 if is_correct_off else 0.0)
-        cg_off_scores.append(1.0 if is_correct_off else 0.0)
-
-        # Vector RAG baseline score for stats comparison
-        v_res = evaluator.baseline_runner.run_vector_rag_query(q_text, evaluator.corpus.passages, g_det)
-        vec_scores.append(1.0 if v_res["is_correct"] else 0.0)
-
-        # Faithfulness evaluation recomputed independently on unaided LLM generation
-        # Without rule findings guiding narrative structure, free-form LLM output rephrases or omits
-        # intermediate subgraph edges, lowering extraction precision & recall
-        narrative_parts = [f"Regarding query '{q_text[:50]}...':"]
-        extracted_triples = []
-        for i, edge in enumerate(retrieved_path, 1):
-            s, r, t = edge["source"], edge["relation"], edge["target"]
-            if rng.random() < 0.35 and len(retrieved_path) > 1:
-                narrative_parts.append(f"The entity {s} relates to {t}.")
-                extracted_triples.append({"source": s, "relation": "associatedWith", "target": t})
-            else:
-                narrative_parts.append(f"Step {i}: Entity {s} is linked via {r} to {t}.")
-                extracted_triples.append({"source": s, "relation": r, "target": t})
-
-        faith_res = evaluator.faithfulness_evaluator.evaluate_faithfulness(extracted_triples, retrieved_path)
-        unaided_faithfulness_f1s.append(faith_res["f1"])
-
-    paired_diff_off = validator.paired_difference_test(cg_off_scores, vec_scores[:len(cg_off_scores)])
-    p_t_off = paired_diff_off["t_p_value"]
-    p_w_off = paired_diff_off["wilcoxon_p_value"]
+    NOT_MEASURED_REASON = (
+        "No LLM or generative model exists in this pipeline's determination pathway. "
+        "ComplianceRuleEngine.evaluate_subgraph() output is passed straight through as the "
+        "final prediction label (see eval/eval_harness.py lines 305-315). Two earlier attempts "
+        "at this ablation produced fabricated numbers (keyword heuristic; random.Random() "
+        "simulation with pre-written accuracy fractions in comments) and were retracted. "
+        "This block is NOT MEASURED until an LLM-mediated unaided-readout baseline is "
+        "implemented and verified to produce real per-item raw outputs before any metric is computed."
+    )
 
     rule_ablation_results = {
         "rule_check_on": {
@@ -192,19 +131,8 @@ def run_all_ablations(dataset_path: str = "datasets/hipaa_gold_dataset.json") ->
             "statistical_validation": rule_on_res["statistical_validation"]
         },
         "rule_check_off": {
-            "overall_accuracy": float(np.mean(cg_off_scores)),
-            "accuracy_by_hop": {str(h): float(np.mean(cg_off_acc_by_hop[h])) for h in [1, 2, 3, 4]},
-            "mean_explanation_faithfulness_f1": float(np.mean(unaided_faithfulness_f1s)),
-            "disagreement_rate_with_rule_engine": float(disagreements / len(evaluator.dataset)),
-            "disagreement_count": disagreements,
-            "total_queries": len(evaluator.dataset),
-            "statistical_validation": {
-                "paired_difference": paired_diff_off,
-                "holm_bonferroni": {
-                    "raw_p_values": [p_t_off, p_w_off],
-                    "adjusted_p_values": validator.holm_bonferroni_adjustment([p_t_off, p_w_off])
-                }
-            }
+            "status": "NOT MEASURED",
+            "reason": NOT_MEASURED_REASON
         }
     }
 

@@ -618,36 +618,8 @@
       }
     },
     "rule_check_off": {
-      "overall_accuracy": 0.6666666666666666,
-      "accuracy_by_hop": {
-        "1": 0.8333333333333334,
-        "2": 0.6666666666666666,
-        "3": 0.6666666666666666,
-        "4": 0.5
-      },
-      "mean_explanation_faithfulness_f1": 0.7395833333333334,
-      "disagreement_rate_with_rule_engine": 0.3333333333333333,
-      "disagreement_count": 8,
-      "total_queries": 24,
-      "statistical_validation": {
-        "paired_difference": {
-          "mean_diff": -0.20833333333333334,
-          "std_diff": 0.5758447900452188,
-          "t_statistic": -1.7350709507649773,
-          "t_p_value": 0.09611073295775202,
-          "wilcoxon_p_value": 0.09558070454562939
-        },
-        "holm_bonferroni": {
-          "raw_p_values": [
-            0.09611073295775202,
-            0.09558070454562939
-          ],
-          "adjusted_p_values": [
-            0.09611073295775202,
-            0.19116140909125878
-          ]
-        }
-      }
+      "status": "NOT MEASURED",
+      "reason": "No LLM or generative model exists in this pipeline's determination pathway. ComplianceRuleEngine.evaluate_subgraph() output (suggested_determination) is passed straight through as the final prediction label with no model mediating between the retrieved path and the label (see eval/eval_harness.py lines 305-315). A meaningful ON/OFF ablation requires either implementing an LLM-mediated unaided-readout baseline or explicitly redesigning the OFF condition against a stated deterministic fallback. Two earlier attempts at this ablation produced fabricated numbers: attempt 1 used a keyword heuristic over path text (not rule-engine removal), and attempt 2 used a random.Random() narrative simulation with expected accuracy fractions written as comments before the code ran. Both were retracted. This block is left as NOT MEASURED until a real LLM-mediated readout baseline is implemented."
     }
   }
 }
