@@ -7,6 +7,14 @@
 // DATA
 // ════════════════════════════════════════════
 
+// ─── Two-output scoring design (commit 08cfd81) ─────────────────────────────
+// rankingScore: unbounded base × (1 + 0.4 × grounding_ratio) — used for argmax
+//               path selection only. NOT a probability.
+// retrievalConf: sigma(z) of top-path base_score within candidate distribution.
+//               Always in (0,1). Fed to conformal predictor and ECE.
+//               Old grounded_score (min-clamped) pushed 17/24 queries to 1.0;
+//               retrievalConf values below reflect real sigma-z distribution.
+// ─────────────────────────────────────────────────────────────────────────────
 const SCENARIOS = {
   "Q2-HIPAA-2HOP": {
     id: "Q2-HIPAA-2HOP",
@@ -26,7 +34,8 @@ const SCENARIOS = {
     nlWalk: "Step 1: [CoveredEntity_A] --(disclosesPHITo)--> [CloudVendor_B]\nStep 2: [CloudVendor_B] --(lacksAgreement)--> [BAA_Document]",
     conformalSet: ["NON-COMPLIANT"],
     requiresAudit: false,
-    hybridScores: { dense: 0.82, graph: 0.95, auth: 1.0, final: 0.903 }
+    hybridScores: { dense: 0.82, graph: 0.95, auth: 1.0, rankingScore: 1.023 },
+    retrievalConf: 0.8819   // sigma(z) — bounded (0,1), not trivially 1.0
   },
   "Q3-HIPAA-3HOP": {
     id: "Q3-HIPAA-3HOP",
@@ -48,7 +57,8 @@ const SCENARIOS = {
     nlWalk: "Step 1: [ResearchProject_X] --(usesData)--> [DeIdentifiedPHI]\nStep 2: [DeIdentifiedPHI] --(governedBy)--> [IRB_Waiver]\nStep 3: [IRB_Waiver] --(satisfiesStandard)--> [MinNecessary]",
     conformalSet: ["COMPLIANT"],
     requiresAudit: false,
-    hybridScores: { dense: 0.78, graph: 0.98, auth: 1.0, final: 0.902 }
+    hybridScores: { dense: 0.78, graph: 0.98, auth: 1.0, rankingScore: 1.092 },
+    retrievalConf: 0.8636   // sigma(z)
   },
   "Q1-HIPAA-1HOP": {
     id: "Q1-HIPAA-1HOP",
@@ -66,7 +76,8 @@ const SCENARIOS = {
     nlWalk: "Step 1: [PHI_Disclosure] --(subjectToException)--> [TPO_Exception]",
     conformalSet: ["COMPLIANT"],
     requiresAudit: false,
-    hybridScores: { dense: 0.91, graph: 1.0, auth: 1.0, final: 0.964 }
+    hybridScores: { dense: 0.91, graph: 1.0, auth: 1.0, rankingScore: 1.274 },
+    retrievalConf: 0.9136   // sigma(z) — Q03 mapped; high confidence, decisive winner
   },
   "Q6-HIPAA-3HOP": {
     id: "Q6-HIPAA-3HOP",
@@ -88,7 +99,8 @@ const SCENARIOS = {
     nlWalk: "Step 1: [Subcontractor_C] --(transmitsData)--> [UnencryptedPHI]\nStep 2: [UnencryptedPHI] --(traversesNetwork)--> [PublicWiFi]\nStep 3: [PublicWiFi] --(violatesSafeguard)--> [SecurityRule]",
     conformalSet: ["NON-COMPLIANT"],
     requiresAudit: false,
-    hybridScores: { dense: 0.74, graph: 0.96, auth: 1.0, final: 0.876 }
+    hybridScores: { dense: 0.74, graph: 0.96, auth: 1.0, rankingScore: 1.035 },
+    retrievalConf: 0.8438   // sigma(z)
   }
 };
 
@@ -533,13 +545,19 @@ function displayAuditResult(sc) {
     </div>
   `;
 
-  // Scores
+  // Scores — two-output design: ranking score (unbounded) + retrieval confidence (sigma-z)
   const detScores = document.getElementById('detScores');
   detScores.style.display = 'flex';
   document.getElementById('sc-dense').textContent = sc.hybridScores.dense.toFixed(3);
   document.getElementById('sc-graph').textContent = sc.hybridScores.graph.toFixed(3);
   document.getElementById('sc-auth').textContent  = sc.hybridScores.auth.toFixed(3);
-  document.getElementById('sc-final').textContent = sc.hybridScores.final.toFixed(3);
+  // rankingScore is unbounded (>1.0 possible) — used for argmax path selection only
+  document.getElementById('sc-final').textContent = (sc.hybridScores.rankingScore !== undefined
+    ? sc.hybridScores.rankingScore.toFixed(3)
+    : (sc.hybridScores.final || 0).toFixed(3));
+  // retrieval_confidence: sigma(z) — bounded (0,1), fed to conformal + ECE
+  const confEl = document.getElementById('sc-conf');
+  if (confEl) confEl.textContent = sc.retrievalConf !== undefined ? sc.retrievalConf.toFixed(4) : '—';
 
   // Conformal
   document.getElementById('conformalSet').textContent = '[' + sc.conformalSet.join(', ') + ']';
@@ -556,13 +574,25 @@ function displayAuditResult(sc) {
     return `<div class="nlwalk-step" style="margin-bottom:0.4rem;">${formatted}</div>`;
   }).join('');
 
-  // Build JSON certificate
+  // Build JSON certificate — two-output design (commit 08cfd81)
   currentAuditResult = {
     query_id: sc.id,
     timestamp: new Date().toISOString(),
     question: sc.question,
     hop_complexity: sc.hopCount,
-    hybrid_score: sc.hybridScores,
+    retrieval_scores: {
+      dense_similarity:  sc.hybridScores.dense,
+      graph_path_score:  sc.hybridScores.graph,
+      authority_score:   sc.hybridScores.auth,
+      // ranking_score: unbounded — used ONLY for argmax path selection, NOT a probability
+      ranking_score:     sc.hybridScores.rankingScore !== undefined
+                           ? sc.hybridScores.rankingScore
+                           : sc.hybridScores.final
+    },
+    // retrieval_confidence: sigma(z) of top-path base_score within candidate distribution.
+    // Always in (0,1). Fed to conformal predictor and ECE. Replaces the former
+    // grounded_score which was min(1.0,...)-clamped and pushed 17/24 queries to exactly 1.0.
+    retrieval_confidence: sc.retrievalConf !== undefined ? sc.retrievalConf : null,
     triggered_rules: sc.triggeredRules,
     subgraph_pi: {
       nodes: sc.nodes.map(n => n.id),
@@ -571,6 +601,7 @@ function displayAuditResult(sc) {
     conformal_uncertainty: {
       alpha: 0.10,
       target_coverage: 0.90,
+      q_hat: 0.2578,     // calibrated on 12-item split; sigma-z non-conformity scores
       confidence_set: sc.conformalSet,
       requires_human_audit: sc.requiresAudit
     },
@@ -949,7 +980,12 @@ function drawCalibChart() {
     ctx.fillText(v + '%', -6, y + 4);
   });
 
-  const conformalPts = [[0,0],[20,28],[40,54],[60,75],[80,92],[100,100]];
+  // Calibration curve updated for sigma(z) confidence signal (commit 08cfd81).
+  // Old grounded_score clustered at ~99% confidence → near-perfect apparent calibration
+  // that was artifactual (17/24 queries = exactly 1.0). New sigma(z) has genuine spread
+  // [0.74, 0.95] while accuracy = 100%, producing real underconfidence: ECE = 0.1582.
+  // Points: [confidence_bin_midpoint%, observed_accuracy%]
+  const conformalPts = [[0,0],[74,100],[80,100],[85,100],[90,100],[95,100],[100,100]];
   const rawPts = [[0,0],[20,12],[40,38],[60,58],[80,78],[100,100]];
 
   function drawCurve(pts, color, isDashed) {

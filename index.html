@@ -333,7 +333,8 @@
               <div class="det-score-row"><span>Dense Score</span><span id="sc-dense">—</span></div>
               <div class="det-score-row"><span>Graph Score</span><span id="sc-graph">—</span></div>
               <div class="det-score-row"><span>Authority</span><span id="sc-auth">—</span></div>
-              <div class="det-score-row highlight"><span>Final Hybrid</span><span id="sc-final">—</span></div>
+              <div class="det-score-row highlight" title="Unbounded ranking score — used for argmax path selection only. Not a probability."><span>Ranking Score &#8599;</span><span id="sc-final">—</span></div>
+              <div class="det-score-row" style="border-top:1px solid rgba(212,149,58,0.2);margin-top:0.3rem;padding-top:0.3rem;" title="sigma(z) of top-path base_score — bounded in (0,1), fed to conformal predictor and ECE."><span style="color:#d4953a;">Retrieval Conf. &sigma;(z)</span><span id="sc-conf" style="color:#d4953a;">—</span></div>
             </div>
           </div>
         </div>
@@ -405,9 +406,9 @@
       </div>
       <div class="kpi-card">
         <div class="kpi-icon kpi-icon-green">&#9889;</div>
-        <div class="kpi-val animate-counter" data-target="1.14" data-suffix="%">0%</div>
+        <div class="kpi-val animate-counter" data-target="15.82" data-suffix="%">0%</div>
         <div class="kpi-label">ECE Calibration Error</div>
-        <div class="kpi-sub">Expected calibration error</div>
+        <div class="kpi-sub">Real measurement · sigma(&sigma;z) confidence</div>
       </div>
     </div>
     <div class="charts-row">
@@ -543,8 +544,10 @@ GraphPathScore(q_ent, path) =
             <div class="arch-fact-list">
               <div class="arch-fact"><span class="arch-fact-key">alpha (risk)</span><span>0.10</span></div>
               <div class="arch-fact"><span class="arch-fact-key">Coverage</span><span>1&minus;alpha = 90%</span></div>
-              <div class="arch-fact"><span class="arch-fact-key">Non-conformity</span><span>s(x,y) = 1 &minus; P(y|x)</span></div>
+              <div class="arch-fact"><span class="arch-fact-key">Non-conformity</span><span>s(x,y) = 1 &minus; &sigma;(z) &nbsp;<small style="color:#64748b;">(sigma-z confidence)</small></span></div>
               <div class="arch-fact"><span class="arch-fact-key">Cal split</span><span>12 queries</span></div>
+              <div class="arch-fact"><span class="arch-fact-key">q&#770; (calibrated)</span><span>0.2578 &nbsp;<small style="color:#64748b;">(100th pctile, N=12)</small></span></div>
+              <div class="arch-fact"><span class="arch-fact-key">Conf. signal</span><span>&sigma;(z) of top-path base_score within query's candidate pool &mdash; always in (0,1), 0/24 trivially 1.0</span></div>
               <div class="arch-fact"><span class="arch-fact-key">Human routing</span><span>|C(q)|&ge;2 or REQUIRES-REVIEW&isin;C(q)</span></div>
             </div>
           </div>
@@ -647,7 +650,7 @@ IF (DataType == UnencryptedPHI)
       <div class="disclosure-icon">&#9888;&#65039;</div>
       <div class="disclosure-content">
         <div class="disclosure-title">Important Disclosure &amp; Limitations</div>
-        <p>System outputs are produced by a research prototype operating on a synthetic HIPAA-based dataset. They <strong>must not</strong> serve as the sole legal basis for regulatory liability determination without human reviewer verification. Entity linker precision is 21.9% (recall 84.4%, F1 34.8%). External baselines (GraphRAG, LightRAG, HippoRAG) are flagged as NOT MEASURED as those repositories are not locally installed. Accuracy on the 24-query benchmark: CompGraphRAG 100.0% (24/24), Vector-RAG 87.5% (21/24), Naive-RAG 87.5% (21/24) (paired t-test p = 0.0830, Wilcoxon p = 0.0833; reproducibility reference commit <a href="https://github.com/12349/CompGraphRAG/commit/ddf7a99b36e70e236f7f65f9080ddcc8d16ff632" target="_blank" style="color:var(--amber);text-decoration:underline;">ddf7a99b</a>, tag <a href="https://github.com/12349/CompGraphRAG/releases/tag/v1.0-paper" target="_blank" style="color:var(--amber);text-decoration:underline;">v1.0-paper</a>).</p>
+        <p>System outputs are produced by a research prototype operating on a synthetic HIPAA-based dataset. They <strong>must not</strong> serve as the sole legal basis for regulatory liability determination without human reviewer verification. Entity linker precision is 21.9% (recall 84.4%, F1 34.8%). External baselines (GraphRAG, LightRAG, HippoRAG) are flagged as NOT MEASURED as those repositories are not locally installed. Accuracy on the 24-query benchmark: CompGraphRAG 100.0% (24/24), Vector-RAG 87.5% (21/24), Naive-RAG 87.5% (21/24) (paired t-test p&nbsp;=&nbsp;0.0830, Wilcoxon p&nbsp;=&nbsp;0.0833). <strong>Two-output confidence design (commit <a href="https://github.com/12349/CompGraphRAG/commit/08cfd81" target="_blank" style="color:var(--amber);text-decoration:underline;">08cfd81</a>):</strong> retrieval_confidence now uses &sigma;(z) of the top-path base_score within each query's candidate distribution &mdash; bounded (0,1), 0/24 queries trivially at 1.0, ECE&nbsp;=&nbsp;15.82% (real measurement; old grounded_score pushed 17/24 queries to exactly 1.0, making ECE&nbsp;=&nbsp;1.14% artifactually near-zero). Reproducibility reference: commit <a href="https://github.com/12349/CompGraphRAG/commit/ddf7a99b36e70e236f7f65f9080ddcc8d16ff632" target="_blank" style="color:var(--amber);text-decoration:underline;">ddf7a99b</a>, tag <a href="https://github.com/12349/CompGraphRAG/releases/tag/v1.0-paper" target="_blank" style="color:var(--amber);text-decoration:underline;">v1.0-paper</a>.</p>
       </div>
     </div>
   </section>
