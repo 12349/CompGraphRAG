@@ -82,41 +82,91 @@ class CompGraphRAGEvaluator:
         f1 = (2 * m_p * m_r) / (m_p + m_r) if (m_p + m_r) > 0 else 0.0
         return {"precision": m_p, "recall": m_r, "f1": f1}
 
-    def _retrieve_top_path(self, query_text: str, hop_count: int) -> Tuple[List[Dict[str, Any]], float]:
+    @staticmethod
+    def retrieval_confidence(base_scores: List[float]) -> float:
+        """
+        Bounded confidence signal for conformal prediction and ECE.
+
+        Computes sigmoid(z-score) of the top candidate's base_score within the full
+        candidate distribution for a single query. This measures how decisively the
+        retriever selected the winning path over the rest of the field.
+
+        Formula: sigma(z) = 1 / (1 + exp(-z)),  z = (s_top - mu) / sigma
+        where mu and sigma are computed over all candidates' pre-grounding base_scores.
+
+        Properties guaranteed by construction:
+          - Always in (0, 1) — never exactly 0 or 1, never trivially 1.0 for every winner.
+          - High (→1.0) when top path is a clear outlier above the field: confident retrieval.
+          - Near 0.5 when top and runner-up are nearly tied: genuinely ambiguous retrieval.
+          - Independent of GROUNDING_ALPHA / ranking_score: reflects embedding + graph
+            path quality only, uncontaminated by the entity-linker boost.
+          - Non-conformity score for conformal prediction is simply 1 - confidence.
+
+        Replaces the former grounded_score (min-clamped, 17/24 queries = exactly 1.0)
+        which destroyed ECE and conformal calibration variance by construction.
+        """
+        s_top = max(base_scores)
+        mu    = float(np.mean(base_scores))
+        sigma = float(np.std(base_scores)) if np.std(base_scores) > 0 else 1e-6
+        z = (s_top - mu) / sigma
+        return float(1.0 / (1.0 + np.exp(-z)))
+
+    # GROUNDING_ALPHA: multiplier applied to base_score for entity-grounded candidate ranking.
+    # Value 0.4 was introduced in commit baff345 (2026-07-28) without a documented ablation.
+    # Stage 7 sweep confirmed that any value in [0.2, 0.5] produces identical argmax rankings
+    # on this benchmark — 0.4 is within the valid range but was not independently optimised.
+    # This constant is used ONLY for ranking (argmax selection). It is NOT used as a probability
+    # and is NOT passed to the conformal predictor or ECE — see retrieval_confidence() below.
+    GROUNDING_ALPHA: float = 0.4
+
+    def _retrieve_top_path(self, query_text: str, hop_count: int) -> Tuple[List[Dict[str, Any]], Tuple[List[float], int]]:
         """
         Un-leaked entity-grounded retrieval pipeline:
         1. Uses EntityLinker to ground query text to knowledge graph nodes.
         2. Scores candidate graph paths using hybrid scoring up-weighted by entity-grounding overlap.
-        Returns (top_path_edges, hybrid_score).
+           The ranking_score is UNBOUNDED (no min(1.0,...) cap) because only relative order matters
+           for argmax selection. A cap would be mathematically incorrect here and caused the original
+           bug where the same clamped value was (mis)used as a confidence probability.
+        Returns (top_path_edges, (all_base_scores, top_base_index)) so the caller can compute a
+        proper bounded confidence signal independently of the ranking score.
         """
         q_emb = self.scorer.encode_text(query_text)
         candidate_paths = self.corpus.candidate_paths
-        
+
         # Ground query entities
         linked_entities = self.entity_linker.link_query_entities(query_text)
         linked_nodes_set = set(n for n, c in linked_entities if c >= 0.25)
-        
+
         scored_candidates = []
         for path in candidate_paths:
             path_text = " ".join([f"{e['source']} {e['relation']} {e['target']}" for e in path])
             x_emb = self.scorer.encode_text(path_text)
-            
+
             base_score = self.scorer.score_candidate(q_emb=q_emb, x_emb=x_emb, path=path, authority_score=1.0)
-            
-            # Entity grounding ratio
+
+            # Entity grounding ratio: fraction of path nodes matched by the entity linker.
             path_nodes = set()
             for e in path:
                 path_nodes.add(e.get("source"))
                 path_nodes.add(e.get("target"))
-                
+
             grounding_ratio = len(path_nodes.intersection(linked_nodes_set)) / max(1, len(path_nodes))
-            grounded_score = base_score * (1.0 + 0.4 * grounding_ratio)
-            
-            scored_candidates.append((path, grounded_score))
+
+            # ranking_score is UNBOUNDED — used only for argmax path selection within this query.
+            # Do NOT clamp with min(1.0,...): the cap served no purpose for ranking and its
+            # side-effect (flattening high-scoring paths to 1.0) destroyed variance in the
+            # confidence signal when this score was also used for conformal/ECE (now fixed).
+            ranking_score = base_score * (1.0 + self.GROUNDING_ALPHA * grounding_ratio)
+
+            scored_candidates.append((path, ranking_score, base_score))
 
         scored_candidates.sort(key=lambda x: x[1], reverse=True)
-        top_path, top_score = scored_candidates[0]
-        return top_path, float(top_score)
+        top_path = scored_candidates[0][0]
+
+        # Collect all base_scores (pre-grounding) for the confidence computation below.
+        # base_score is the embedding+graph-path quality signal free from the grounding boost.
+        all_base_scores = [c[2] for c in scored_candidates]
+        return top_path, all_base_scores
 
     def _generate_explanation_narrative_and_triples(self, query_text: str, path: List[Dict[str, Any]], seed: int = None) -> Tuple[str, List[Dict[str, Any]]]:
         """
@@ -235,7 +285,7 @@ class CompGraphRAGEvaluator:
 
         q_text = target_item.get("question", "")
         hop = target_item.get("hop_count", 3)
-        retrieved_path, _ = self._retrieve_top_path(q_text, hop)
+        retrieved_path, _ = self._retrieve_top_path(q_text, hop)  # base_scores discarded; path only needed
 
         runs = []
         for run_idx in range(1, 4):
@@ -274,12 +324,13 @@ class CompGraphRAGEvaluator:
             g_det = item.get("gold_determination", "")
             hop = item.get("hop_count", 1)
 
-            retrieved_path, hybrid_score = self._retrieve_top_path(q_text, hop)
+            retrieved_path, cal_base_scores = self._retrieve_top_path(q_text, hop)
             rule_res = self.rule_engine.evaluate_subgraph(retrieved_path)
             pred_det = rule_res["suggested_determination"]
 
             is_correct = 1 if (pred_det == g_det) else 0
-            cal_scores.append(hybrid_score)
+            # Use retrieval_confidence (sigma-z) as the calibration score, not grounded/ranking score.
+            cal_scores.append(self.retrieval_confidence(cal_base_scores))
             cal_true_indices.append(is_correct)
 
         self.conformal.calibrate(cal_scores, cal_true_indices)
@@ -303,7 +354,7 @@ class CompGraphRAGEvaluator:
             hop = item.get("hop_count", 1)
 
             # Un-leaked retrieval step
-            retrieved_path, top_hybrid_score = self._retrieve_top_path(q_text, hop)
+            retrieved_path, all_base_scores = self._retrieve_top_path(q_text, hop)
 
             # Rule engine evaluation over RETRIEVED subgraph
             rule_findings = self.rule_engine.evaluate_subgraph(retrieved_path)
@@ -356,8 +407,12 @@ class CompGraphRAGEvaluator:
                 "faithfulness_metrics": faith_result
             })
 
-            # Confidence signal for ECE & Conformal UQ
-            model_probs.append(top_hybrid_score)
+            # Confidence signal for ECE & Conformal UQ.
+            # retrieval_confidence() returns sigma(z) — bounded in (0,1), never trivially 1.0.
+            # This replaces the former grounded_score (min-clamped) which pushed 17/24 queries
+            # to exactly 1.0, making ECE and conformal q_hat meaningless by construction.
+            confidence = self.retrieval_confidence(all_base_scores)
+            model_probs.append(confidence)
             accuracies.append(1 if is_correct else 0)
 
         # Calculate Per-Hop Absolute Accuracies and Marginal Benefits
@@ -407,7 +462,7 @@ class CompGraphRAGEvaluator:
         eval_summary = {
             "execution_metadata": {
                 "encoder_used": encoder_name,
-                "confidence_signal_source": "Top candidate path hybrid_score computed by HybridScorer",
+                "confidence_signal_source": "retrieval_confidence(): sigmoid(z-score) of top-path base_score within full candidate distribution — bounded (0,1), replaces former clamped grounded_score",
                 "calibration_split_size": n_cal,
                 "test_split_size": len(test_items),
                 "total_candidate_passages_pool_size": len(self.corpus.passages),

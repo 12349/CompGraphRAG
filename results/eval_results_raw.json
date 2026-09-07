@@ -1,7 +1,7 @@
 {
   "execution_metadata": {
     "encoder_used": "real sentence-transformers (all-MiniLM-L6-v2)",
-    "confidence_signal_source": "Top candidate path hybrid_score computed by HybridScorer",
+    "confidence_signal_source": "retrieval_confidence(): sigmoid(z-score) of top-path base_score within full candidate distribution \u2014 bounded (0,1), replaces former clamped grounded_score",
     "calibration_split_size": 12,
     "test_split_size": 12,
     "total_candidate_passages_pool_size": 26,
@@ -1408,7 +1408,7 @@
       "omitted": true
     }
   ],
-  "expected_calibration_error_ece": 0.011351553089088886,
+  "expected_calibration_error_ece": 0.15816487672888513,
   "statistical_validation": {
     "paired_difference": {
       "mean_diff": 0.125,
